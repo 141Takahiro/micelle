@@ -1,0 +1,3 @@
+CREATE USER 'mysql'@'172.18.0.4' IDENTIFIED BY 'BLfgjxdm68';
+GRANT ALL PRIVILEGES ON your_database.* TO 'mysql'@'172.18.0.4';
+FLUSH PRIVILEGES;
