@@ -28,7 +28,7 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('/preparation', [PreparationController::class, 'show'])->name('preparation');
-Route::post('/store', [PreparationController::class, 'store'])->name('store');
+Route::post('/upload', [PreparationController::class, 'store'])->name('upload');
 Route::delete('/delete/{room_id}', [PreparationController::class, 'delete'])->name('room.delete');
 
 Route::get('/task', [TaskController::class, 'show'])->name('task');
