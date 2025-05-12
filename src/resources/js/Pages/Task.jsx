@@ -2,6 +2,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { router } from "@inertiajs/react"
 import { Head } from '@inertiajs/react';
 
+
 export default function Task() {
     return (
         <AuthenticatedLayout

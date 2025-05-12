@@ -11,4 +11,21 @@ class PreparationController extends Controller
     {
         return Inertia::render('Preparation');
     }
+
+    public function store(Request $request)
+    {
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+
+            $path = $file->store('rooms', 'private');
+
+            return Inertia::render('Preparation', [
+                'message' => '画像が正常にアップロードされました。',
+            ]);
+        }
+
+        return Inertia::render('Preparation', [
+            'message' => '送信に失敗しました。',
+        ]);
+    }
 }
