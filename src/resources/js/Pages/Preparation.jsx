@@ -12,22 +12,44 @@ export default function Preparation() {
         const [showSubmitButton, setShowSubmitButton] = useState(false);
         const [imageFile, setImageFile] = useState(null);
 
+        const validateImage = (file) => {
+            if (!file) return "ファイルが選択されていません。"
+            
+            const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
+            const maxSize = 2 * 1024 * 1024;
+
+            if (!allowedTypes.includes(file.type)) {
+                return "許可されていないファイル形式です。JPEG, PNG, JPGのみアップロードできます。";
+            }
+
+            if (file.size > maxSize) {
+                return "ファイルサイズが２ＭＢを超えています。";
+            }
+
+            return null;
+        };
+
         const openCamera = () => {
             console.log("カメラアイコンがクリックされました。");
         };
 
         const handleImageChange = (event) => {
             const file = event.target.files[0];
-            if (file) {
-                setImageFile(file);
+            const errorMessage = validateImage(file);
 
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    setImageSrc(e.target.result);
-                    setShowSubmitButton(true);
-                };
-                reader.readAsDataURL(file);
+            if (errorMessage) {
+                alert(errorMessage);
+                return;
             }
+
+            setImageFile(file);
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                setImageSrc(e.target.result);
+                setShowSubmitButton(true);
+            };
+            reader.readAsDataURL(file);
         };
 
         const handleSubmit = async () => {
