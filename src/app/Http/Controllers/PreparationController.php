@@ -14,18 +14,24 @@ class PreparationController extends Controller
 
     public function store(Request $request)
     {
-        if ($request->hasFile('image')) {
+        $request->validate([
+        'image' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+        ]);
+        
+        try {
             $file = $request->file('image');
-
-            $path = $file->store('rooms', 'private');
+            $img_name = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('rooms', $img_name, 'private');
 
             return Inertia::render('Preparation', [
                 'message' => '画像が正常にアップロードされました。',
             ]);
+        } catch (\Exception $e) {
+            return Inertia::render('Preparation', [
+                'message' => '送信に失敗しました。',
+                'error' => $e->getMessage(),
+            ]);
         }
-
-        return Inertia::render('Preparation', [
-            'message' => '送信に失敗しました。',
-        ]);
     }
 }
+
