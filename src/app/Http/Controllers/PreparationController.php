@@ -34,6 +34,7 @@ class PreparationController extends Controller
 
             return Inertia::render('Preparation', [
                 'message' => '画像が正常にアップロードされました。',
+                'room_name' => $room_name
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return Inertia::render('Preparation', [
