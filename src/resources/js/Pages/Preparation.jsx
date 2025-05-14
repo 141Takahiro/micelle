@@ -8,6 +8,8 @@ import folderOpen from "../assets/icons/folder-open.png";
 import React, { useState } from "react";
 import PrimaryButton from "../Components/PrimaryButton";
 import TextInput from "../Components/TextInput";
+import Modal from "../Components/Modal";
+import SecondaryButton from "../Components/SecondaryButton";
 
 export default function Preparation() {
         const defaultImage = "/storage/images/default-image.png";
@@ -19,6 +21,8 @@ export default function Preparation() {
         const [isSubmitting, setIsSubmitting] = useState(false);
         const [cameraSrc, setCameraSrc] = useState(cameraIcon);
         const [folderSrc, setFolderSrc] = useState(folderIcon);
+        const [showModal, setShowModal] = useState(false);
+        const [modalData, setModalData] = useState({ message: "", room_name: ""});
 
 
         const validateImage = (file) => {
@@ -93,7 +97,11 @@ export default function Preparation() {
 
             router.post("/upload", formData, {
                 onSuccess: (page) => {
-                    alert(`成功： ${page.props.message}`);
+                    setModalData({
+                        message: page.props.message,
+                        room_name: page.props.room_name,
+                    });
+                    setShowModal(true);
                     setIsSubmitting(false);
                 },
                 onError: (errors) => {
@@ -119,6 +127,15 @@ export default function Preparation() {
             }
         >
             <Head title="Task" />
+
+            <Modal show={showModal} onClose={() => setShowModal(false)}>
+                <h2>{modalData.message}</h2>
+                <p>部屋名： {modalData.room_name}</p>
+                <SecondaryButton onClick={() => router.get('/preparation')}>
+                    追加登録する
+                </SecondaryButton>
+            </Modal>
+
             <div>
                 <p>新しい部屋を登録しましょう！</p>
                 <div>
