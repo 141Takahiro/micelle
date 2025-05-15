@@ -25,7 +25,10 @@ export default function Preparation({ rooms }) {
         const [showModal, setShowModal] = useState(false);
         const [modalData, setModalData] = useState({ message: "", room_name: "", image_url: ""});
         const [imageLoaded, setImageLoaded] = useState(false);
-        const [hasImageLoaded, setHasImageLoaded] = useState({});;
+        const [hasImageLoaded, setHasImageLoaded] = useState({});
+        const [message, setMessage] = useState("");
+        const [showDeleteMessage, setShowDeleteMessage] = useState(false);
+
 
         const validateImage = (file) => {
             if (!file || file === null || file === undefined) { 
@@ -106,6 +109,9 @@ export default function Preparation({ rooms }) {
                     });
                     setShowModal(true);
                     setIsSubmitting(false);
+                    setRoomName("");  
+                    setImageFile(null);
+                    setImageSrc(defaultImage);
                 },
                 onError: (errors) => {
                     const errorMessages = [
@@ -120,17 +126,39 @@ export default function Preparation({ rooms }) {
             });
         };
 
-        const [roomCount, setRoomCount] = useState(rooms.length);
+        const [roomCount, setRoomCount] = useState(rooms?.length ?? 0);
             useEffect(() => {
-                setRoomCount(rooms.length);
+                if (rooms) {
+                    setRoomCount(rooms.length);
+                }
             }, [rooms]);
 
         const handleImageLoad = (index) => {
             setHasImageLoaded((prevState) => ({
             ...prevState,
             [index]: true,
-        }));
-    };
+            }));
+        };
+
+        const handleDelete = (id) => {
+            if (window.confirm("この部屋を削除してもよろしいですか？")) {
+                router.delete(`/delete/${id}`, {
+                    onSuccess: (page) => {
+                        setMessage(page.props.message);
+                        setShowDeleteMessage(true);
+
+                        setTimeout(() => {
+                            setShowDeleteMessage(false);
+                            setMessage(""); 
+                        }, 3000);
+                    },
+                    onError: (errors) => {
+                        const errorMessage = errors?.message || "不明なエラーが発生しました";
+                        alert(`削除に失敗しました： ${errorMessage}`);
+                    }
+                });
+            }
+        };
 
 
     return (
@@ -163,9 +191,13 @@ export default function Preparation({ rooms }) {
                     </>
                 )}
                 <p>部屋名： {modalData.room_name}</p>
-                <SecondaryButton onClick={() => router.get('/preparation')}>
+                <SecondaryButton onClick={() => setShowModal(false)}>
                     追加登録する
                 </SecondaryButton>
+            </Modal>
+
+            <Modal show={showDeleteMessage} onClose={() => setShowDeleteMessage(false)}>
+                <p className="text-green-500 font-semibold">{message}</p>
             </Modal>
 
             <div>
@@ -183,6 +215,7 @@ export default function Preparation({ rooms }) {
                         type="text"
                         className="mt-1 block w-full"
                         placeholder="部屋名を入力してください。"
+                        value={roomName}
                         onChange={handleTextChange}
                     />
                 </div>
@@ -219,6 +252,7 @@ export default function Preparation({ rooms }) {
 
             <div>
                 <h2>登録済みの部屋一覧</h2>
+                {message && <p className="text-green-500 text-sm mt-1">{message}</p>}
                 <ul>
                     {rooms.map((room, index) => (
                         <li key={index}>
@@ -236,6 +270,13 @@ export default function Preparation({ rooms }) {
                                         style={{ width: "150px", borderRadius: "8px", display: hasImageLoaded[index] ? "block" : "none" }} 
                                         onLoad={() => handleImageLoad(index)}
                                     />
+                                    <button 
+                                        onClick={() => handleDelete(room.id)} 
+                                        style={{ backgroundColor: "red", color: "white", padding: "5px 10px", borderRadius: "5px", cursor: "pointer" }}
+                                    >
+                                        削除
+                                    </button>
+
                         </li>
                     ))}
                 </ul>

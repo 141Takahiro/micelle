@@ -29,7 +29,7 @@ Route::middleware('auth')->group(function () {
 
 Route::get('/preparation', [PreparationController::class, 'show'])->name('preparation');
 Route::post('/upload', [PreparationController::class, 'store'])->name('upload');
-Route::delete('/delete/{room_id}', [PreparationController::class, 'delete'])->name('room.delete');
+Route::delete('/delete/{id}', [PreparationController::class, 'delete'])->name('room.delete');
 
 Route::get('/rooms/{img_name}', [PreparationController::class, 'getRoomImage'])->name('get.room.img');
 
