@@ -31,6 +31,8 @@ Route::get('/preparation', [PreparationController::class, 'show'])->name('prepar
 Route::post('/upload', [PreparationController::class, 'store'])->name('upload');
 Route::delete('/delete/{room_id}', [PreparationController::class, 'delete'])->name('room.delete');
 
+Route::get('/rooms/{img_name}', [PreparationController::class, 'getRoomImage'])->name('get.room.img');
+
 Route::get('/task', [TaskController::class, 'show'])->name('task');
 
 Route::get('/ai_evaluate', [AI_EvaluateController::class, 'show'])->name('ai_evaluate');
