@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Response;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\Room;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class PreparationController extends Controller
 {
@@ -44,6 +45,7 @@ class PreparationController extends Controller
             $img_url = route('get.room.img', ['img_name' => $img_name]);
 
             return Inertia::render('Preparation', [
+                'rooms' => Room::where('user_id', auth()->id())->get(),
                 'message' => '画像が正常にアップロードされました。',
                 'room_name' => $room_name,
                 'image_url' => $img_url,
@@ -58,6 +60,37 @@ class PreparationController extends Controller
             ]);
         }
 
+    }
+
+    public function delete($id) 
+    {
+        try {
+            $room = Room::where('user_id', auth()->id())->findOrFail($id);
+
+            $filePath = storage_path("app/private/rooms/{$room->img_name}");
+
+            if (file_exists($filePath)) { 
+                unlink($filePath);
+            }
+
+            $room->delete();
+
+            return Inertia::render('Preparation', [
+                'rooms' => Room::where('user_id', auth()->id())->get(),
+                'message' => '部屋を削除しました！'
+            ]); 
+
+        } catch (ModelNotFoundException $e) {
+            return Inertia::render('Preparation', [
+                'rooms' => Room::where('user_id', auth()->id())->get(),
+                'error' => '指定された部屋が見つかりませんでした。'
+            ]); 
+        } catch (Exception $e) {
+            return Inertia::render('Preparation', [
+                'rooms' => Room::where('user_id', auth()->id())->get(),
+                'error' => '削除処理中にエラーが発生しました。'
+            ]);
+        }
     }
 
     public function getRoomImage($img_name)
