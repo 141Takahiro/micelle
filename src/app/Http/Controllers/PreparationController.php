@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Response;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\Room;
@@ -23,7 +25,7 @@ class PreparationController extends Controller
 
             $file = $request->file('image');
             $img_name = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-            $path = $file->storeAs('rooms', $img_name, 'private');
+            $file->storeAs('rooms', $img_name, 'private');
 
             $room_name = $validatedData['room_name'];
 
@@ -32,9 +34,12 @@ class PreparationController extends Controller
                 'img_name' => $img_name,
             ]);
 
+            $img_url = route('get.room.img', ['img_name' => $img_name]);
+
             return Inertia::render('Preparation', [
                 'message' => '画像が正常にアップロードされました。',
-                'room_name' => $room_name
+                'room_name' => $room_name,
+                'image_url' => $img_url,
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return Inertia::render('Preparation', [
@@ -46,6 +51,20 @@ class PreparationController extends Controller
             ]);
         }
 
+    }
+
+    public function getRoomImage($img_name)
+    {
+        $path = "rooms/{$img_name}";
+        
+        if (!Storage::disk('private')->exists($path)) {
+            abort(404, '画像が見つかりません');
+        }
+
+        return Response::make(Storage::disk('private')->get($path), 200, [
+            'Content-Type' => Storage::disk('private')->mimeType($path),
+            'Content-Disposition' => 'inline; filename="' . $img_name . '"'
+        ]);
     }
 }
 

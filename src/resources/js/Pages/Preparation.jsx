@@ -5,6 +5,7 @@ import cameraIcon from "../assets/icons/cameraIcon.png";
 import folderIcon from "../assets/icons/folderIcon.png";
 import cameraAdd from "../assets/icons/camera-add.png";
 import folderOpen from "../assets/icons/folder-open.png";
+import rotateRight from "../assets/icons/rotate_right.png";
 import React, { useState } from "react";
 import PrimaryButton from "../Components/PrimaryButton";
 import TextInput from "../Components/TextInput";
@@ -22,7 +23,8 @@ export default function Preparation() {
         const [cameraSrc, setCameraSrc] = useState(cameraIcon);
         const [folderSrc, setFolderSrc] = useState(folderIcon);
         const [showModal, setShowModal] = useState(false);
-        const [modalData, setModalData] = useState({ message: "", room_name: ""});
+        const [modalData, setModalData] = useState({ message: "", room_name: "", image_url: ""});
+        const [imageLoaded, setImageLoaded] = useState(false);
 
 
         const validateImage = (file) => {
@@ -100,6 +102,7 @@ export default function Preparation() {
                     setModalData({
                         message: page.props.message,
                         room_name: page.props.room_name,
+                        image_url: page.props.image_url,
                     });
                     setShowModal(true);
                     setIsSubmitting(false);
@@ -117,7 +120,6 @@ export default function Preparation() {
             });
         };
 
-
     return (
         <AuthenticatedLayout
             header={
@@ -130,6 +132,23 @@ export default function Preparation() {
 
             <Modal show={showModal} onClose={() => setShowModal(false)}>
                 <h2>{modalData.message}</h2>
+                {modalData.image_url && (
+                    <>
+                        {!imageLoaded && (
+                            <img
+                                src={rotateRight}
+                                alt="ローディング中..."
+                                style={{ width: "50px", height: "50px" }}
+                            />
+                        )}
+                        <img
+                            src={modalData.image_url}
+                            alt="部屋の画像"
+                            style={{ width: "100%", maxWidth: "400px", borderRadius: "8px" }}
+                            onLoad={() => setImageLoaded(true)}
+                        />
+                    </>
+                )}
                 <p>部屋名： {modalData.room_name}</p>
                 <SecondaryButton onClick={() => router.get('/preparation')}>
                     追加登録する
