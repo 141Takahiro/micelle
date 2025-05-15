@@ -10,9 +10,12 @@ use App\Models\Room;
 
 class PreparationController extends Controller
 {
-    public function show()
+    public function show(Request $request)
     {
-        return Inertia::render('Preparation');
+        $rooms = Room::where('user_id', auth()->id())->get();
+        return Inertia::render('Preparation',[
+            'rooms' => $rooms
+        ]);
     }
 
     public function store(Request $request)
@@ -22,6 +25,10 @@ class PreparationController extends Controller
                 'image' => 'required|image|mimes:jpeg,png,jpg|max:2048',
                 'room_name' => 'required|string|min:3|max:20',
             ]);
+
+            if (Room::where('user_id', auth()->id())->count() >= 4) {
+                throw new \Exception('部屋の登録は４つまでです。');
+            }
 
             $file = $request->file('image');
             $img_name = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
@@ -47,7 +54,7 @@ class PreparationController extends Controller
             ]);
         } catch (\Exception $e) {
             return Inertia::render('Preparation', [
-                'errors' => ['message' => '送信に失敗しました。'],
+                'errors' => ['message' => $e->getMessage()],
             ]);
         }
 
