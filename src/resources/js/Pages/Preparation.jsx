@@ -6,13 +6,13 @@ import folderIcon from "../assets/icons/folderIcon.png";
 import cameraAdd from "../assets/icons/camera-add.png";
 import folderOpen from "../assets/icons/folder-open.png";
 import rotateRight from "../assets/icons/rotate_right.png";
-import React, { useState } from "react";
 import PrimaryButton from "../Components/PrimaryButton";
 import TextInput from "../Components/TextInput";
 import Modal from "../Components/Modal";
 import SecondaryButton from "../Components/SecondaryButton";
+import { useEffect, useState } from "react";
 
-export default function Preparation() {
+export default function Preparation({ rooms }) {
         const defaultImage = "/storage/images/default-image.png";
         const [imageSrc, setImageSrc] = useState(defaultImage);
         const [imageFile, setImageFile] = useState(null);
@@ -25,7 +25,7 @@ export default function Preparation() {
         const [showModal, setShowModal] = useState(false);
         const [modalData, setModalData] = useState({ message: "", room_name: "", image_url: ""});
         const [imageLoaded, setImageLoaded] = useState(false);
-
+        const [hasImageLoaded, setHasImageLoaded] = useState({});;
 
         const validateImage = (file) => {
             if (!file || file === null || file === undefined) { 
@@ -120,6 +120,19 @@ export default function Preparation() {
             });
         };
 
+        const [roomCount, setRoomCount] = useState(rooms.length);
+            useEffect(() => {
+                setRoomCount(rooms.length);
+            }, [rooms]);
+
+        const handleImageLoad = (index) => {
+            setHasImageLoaded((prevState) => ({
+            ...prevState,
+            [index]: true,
+        }));
+    };
+
+
     return (
         <AuthenticatedLayout
             header={
@@ -194,13 +207,38 @@ export default function Preparation() {
                 </div>
                 <div>
                     <PrimaryButton onClick={handleSubmit}
-                        disabled={isSubmitting}>
+                        disabled={isSubmitting || rooms.length >= 4}
+                    >
                         {isSubmitting ? "投稿中..." : "投稿"}
                     </PrimaryButton>
                 </div>
                 {textError && <p className="text-red-500 text-sm mt-1">{textError}</p>}
                 {imageError && <p className="text-red-500 text-sm mt-1">{imageError}</p>}
+                {rooms.length >= 4 && <p className="text-red-500 text-sm mt-1">部屋の登録数は４つまでです。</p>}
+            </div>
 
+            <div>
+                <h2>登録済みの部屋一覧</h2>
+                <ul>
+                    {rooms.map((room, index) => (
+                        <li key={index}>
+                            <p>部屋名: {room.room_name}</p>
+                                {!hasImageLoaded[index] && (
+                                    <img
+                                        src={rotateRight}
+                                        alt="ローディング中..."
+                                        style={{ width: "50px", height: "50px" }}
+                                    />
+                                )}
+                                    <img 
+                                        src={`/rooms/${room.img_name}`} 
+                                        alt={room.room_name} 
+                                        style={{ width: "150px", borderRadius: "8px", display: hasImageLoaded[index] ? "block" : "none" }} 
+                                        onLoad={() => handleImageLoad(index)}
+                                    />
+                        </li>
+                    ))}
+                </ul>
             </div>
         </AuthenticatedLayout>
     );
