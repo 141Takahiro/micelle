@@ -9,7 +9,7 @@ import rotateRight from "../assets/icons/rotate_right.png";
 import PrimaryButton from "../Components/PrimaryButton";
 import TextInput from "../Components/TextInput";
 import Modal from "../Components/Modal";
-import SecondaryButton from "../Components/SecondaryButton";
+import DangerButton from "../Components/DangerButton";
 import { useEffect, useState } from "react";
 
 export default function Preparation({ rooms }) {
@@ -169,117 +169,121 @@ export default function Preparation({ rooms }) {
                 </h2>
             }
         >
-            <Head title="Task" />
+            <Head title="Preparation" />
 
-            <Modal show={showModal} onClose={() => setShowModal(false)}>
-                <h2>{modalData.message}</h2>
+            <Modal show={showModal} onClose={() => setShowModal(false)} className="flex flex-col">
+                <h2 className="text-center m-4">{modalData.message}</h2>
                 {modalData.image_url && (
                     <>
                         {!imageLoaded && (
                             <img
                                 src={rotateRight}
                                 alt="ローディング中..."
-                                style={{ width: "50px", height: "50px" }}
+                                className="h-48 w-96 object-scale-down rounded-sm animate-spin m-2"
                             />
                         )}
                         <img
                             src={modalData.image_url}
                             alt="部屋の画像"
-                            style={{ width: "100%", maxWidth: "400px", borderRadius: "8px" }}
+                            className="h-48 w-96 object-cover rounded-sm m-2"
                             onLoad={() => setImageLoaded(true)}
                         />
                     </>
                 )}
                 <p>部屋名： {modalData.room_name}</p>
-                <SecondaryButton onClick={() => setShowModal(false)}>
+                <PrimaryButton onClick={() => setShowModal(false)} className="m-2">
                     追加登録する
-                </SecondaryButton>
+                </PrimaryButton>
             </Modal>
 
             <Modal show={showDeleteMessage} onClose={() => setShowDeleteMessage(false)}>
-                <p className="text-green-500 font-semibold">{message}</p>
+                <p className="font-semibold text-center my-4">{message}</p>
             </Modal>
 
-            <div>
-                <p>新しい部屋を登録しましょう！</p>
-                <div>
-                    <img src={imageSrc} alt="部屋の写真" style={{ width: "100%", maxWidth: "400px" }} />
+            <div className="flex flex-row">
+                <div className="basis-1/3 border-2 border-solid rounded-sm m-2 shadow-xl">
+                    <div className="flex flex-col">
+                        <h2 className="text-xl text-center my-4">新しい部屋を登録しましょう！</h2>
+                        <div>
+                            <img src={imageSrc} alt="部屋の写真" className="w-full rounded-sm"/>
+                        </div>
+                        <div className="flex justify-around">
+                            <div>
+                                <button
+                                    onClick={openCamera}
+                                    onMouseEnter={() => setCameraSrc(cameraAdd)}
+                                    onMouseLeave={() => setCameraSrc(cameraIcon)}
+                                >
+                                    <img src={cameraSrc} alt="カメラアイコン" style={{ width: "50px", height: "50px" }} />
+                                </button>
+                            </div>
+                            <div>
+                                <input type="file" accept="image/*" onChange={handleImageChange} style={{ display: "none" }} id="fileInput" />
+                                <button
+                                    onClick={() => document.getElementById("fileInput").click()}
+                                    onMouseEnter={() => setFolderSrc(folderOpen)}
+                                    onMouseLeave={() => setFolderSrc(folderIcon)}
+                                >
+                                    <img src={folderSrc} alt="フォルダアイコン" style={{ width: "50px", height: "50px" }} />
+                                </button>
+                            </div>
+                        </div>
+                        <div>
+                            <label htmlFor="room_name" className="block text-sm font-medium text-gray-700 my-2">
+                                部屋の名前
+                            </label>
+                            <TextInput
+                                id="room_name"
+                                name="room_name"
+                                type="text"
+                                className="mt-1 block w-full"
+                                placeholder="部屋名を入力してください。"
+                                value={roomName}
+                                onChange={handleTextChange}
+                            />
+                        </div>
+                        <div>
+                            <PrimaryButton onClick={handleSubmit}
+                                disabled={isSubmitting || rooms.length >= 4}
+                                className="my-2"
+                            >
+                                {isSubmitting ? "投稿中..." : "投稿"}
+                            </PrimaryButton>
+                        </div>
+                        {textError && <p className="text-red-500 text-sm mt-1">{textError}</p>}
+                        {imageError && <p className="text-red-500 text-sm mt-1">{imageError}</p>}
+                        {rooms.length >= 4 && <p className="text-red-500 text-sm mt-1">部屋の登録数は４つまでです。</p>}
+                    </div>
                 </div>
-                <div>
-                    <label htmlFor="room_name" className="block text-sm font-medium text-gray-700">
-                        部屋の名前
-                    </label>
-                    <TextInput
-                        id="room_name"
-                        name="room_name"
-                        type="text"
-                        className="mt-1 block w-full"
-                        placeholder="部屋名を入力してください。"
-                        value={roomName}
-                        onChange={handleTextChange}
-                    />
-                </div>
-                <div>
-                    <button
-                        onClick={openCamera}
-                        onMouseEnter={() => setCameraSrc(cameraAdd)}
-                        onMouseLeave={() => setCameraSrc(cameraIcon)}
-                    >
-                        <img src={cameraSrc} alt="カメラアイコン" style={{ width: "50px", height: "50px" }} />
-                    </button>
-                </div>
-                <div>
-                    <input type="file" accept="image/*" onChange={handleImageChange} style={{ display: "none" }} id="fileInput" />
-                    <button
-                        onClick={() => document.getElementById("fileInput").click()}
-                        onMouseEnter={() => setFolderSrc(folderOpen)}
-                        onMouseLeave={() => setFolderSrc(folderIcon)}
-                    >
-                        <img src={folderSrc} alt="フォルダアイコン" style={{ width: "50px", height: "50px" }} />
-                    </button>
-                </div>
-                <div>
-                    <PrimaryButton onClick={handleSubmit}
-                        disabled={isSubmitting || rooms.length >= 4}
-                    >
-                        {isSubmitting ? "投稿中..." : "投稿"}
-                    </PrimaryButton>
-                </div>
-                {textError && <p className="text-red-500 text-sm mt-1">{textError}</p>}
-                {imageError && <p className="text-red-500 text-sm mt-1">{imageError}</p>}
-                {rooms.length >= 4 && <p className="text-red-500 text-sm mt-1">部屋の登録数は４つまでです。</p>}
-            </div>
 
-            <div>
-                <h2>登録済みの部屋一覧</h2>
-                {message && <p className="text-green-500 text-sm mt-1">{message}</p>}
-                <ul>
-                    {rooms.map((room, index) => (
-                        <li key={index}>
-                            <p>部屋名: {room.room_name}</p>
-                                {!hasImageLoaded[index] && (
-                                    <img
-                                        src={rotateRight}
-                                        alt="ローディング中..."
-                                        style={{ width: "50px", height: "50px" }}
-                                    />
-                                )}
-                                    <img 
-                                        src={`/rooms/${room.img_name}`} 
-                                        alt={room.room_name} 
-                                        style={{ width: "150px", borderRadius: "8px", display: hasImageLoaded[index] ? "block" : "none" }} 
-                                        onLoad={() => handleImageLoad(index)}
-                                    />
-                                    <button 
-                                        onClick={() => handleDelete(room.id)} 
-                                        style={{ backgroundColor: "red", color: "white", padding: "5px 10px", borderRadius: "5px", cursor: "pointer" }}
-                                    >
-                                        削除
-                                    </button>
+                <div className="basis-2/3 border-2 border-solid rounded-sm m-2 shadow-xl">
+                    <h2 className="text-xl text-center my-4">登録済みの部屋一覧</h2>
+                    <ul className="grid grid-cols-2 gap-4">
+                        {rooms.map((room, index) => (
+                            <li key={index}>
+                                <p className="m-2">部屋名: {room.room_name}</p>
+                                    {!hasImageLoaded[index] && (
+                                        <img
+                                            src={rotateRight}
+                                            alt="ローディング中..."
+                                            className="h-48 w-96 object-scale-down rounded-sm animate-spin m-2"
+                                        />
+                                    )}
+                                        <img 
+                                            className="h-48 w-96 object-cover rounded-sm m-2"
+                                            src={`/rooms/${room.img_name}`} 
+                                            alt={room.room_name} 
+                                            style={{ display: hasImageLoaded[index] ? "block" : "none" }} 
+                                            onLoad={() => handleImageLoad(index)}
+                                        />
+                                        <DangerButton onClick={() => handleDelete(room.id)} className="m-2">                                        
+                                            削除
+                                        </DangerButton>
 
-                        </li>
-                    ))}
-                </ul>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
             </div>
         </AuthenticatedLayout>
     );
