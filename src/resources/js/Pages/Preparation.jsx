@@ -160,6 +160,12 @@ export default function Preparation({ rooms }) {
             }
         };
 
+        
+        const goToTaskPage = () => {
+            router.get(route('task')); 
+        };
+        
+
 
     return (
         <AuthenticatedLayout
@@ -191,9 +197,14 @@ export default function Preparation({ rooms }) {
                     </>
                 )}
                 <p>部屋名： {modalData.room_name}</p>
-                <PrimaryButton onClick={() => setShowModal(false)} className="m-2">
-                    追加登録する
-                </PrimaryButton>
+                <div className="flex justify-around">
+                    <PrimaryButton onClick={() => setShowModal(false)} className="m-2">
+                        部屋を追加する
+                    </PrimaryButton>
+                    <PrimaryButton onClick={goToTaskPage} className="m-2">
+                        タスクを登録する
+                    </PrimaryButton>
+                </div>
             </Modal>
 
             <Modal show={showDeleteMessage} onClose={() => setShowDeleteMessage(false)}>

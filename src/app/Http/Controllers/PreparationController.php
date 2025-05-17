@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Response;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\Room;
+use App\Models\RegularAgenda;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class PreparationController extends Controller
@@ -37,9 +38,16 @@ class PreparationController extends Controller
 
             $room_name = $validatedData['room_name'];
 
-            Room::create([
+            $room = Room::create([
                 'room_name' => $room_name,
                 'img_name' => $img_name,
+            ]);
+
+            RegularAgenda::create([
+                'room_id' => $room->id,
+                'day_of_the_week' => null,
+                'start_time' => null,
+                'end_time' =>null,
             ]);
 
             $img_url = route('get.room.img', ['img_name' => $img_name]);
