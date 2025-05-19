@@ -49,8 +49,8 @@ export default function Preparation({ rooms }) {
             if (!text.trim()) {
                 return "部屋名を入力してください。";
             }
-            if (text.length < 3 || text.length > 20) {
-                return "部屋名は３～２０文字の範囲で入力してください。";
+            if (text.length < 2 || text.length > 20) {
+                return "部屋名は２～２０文字の範囲で入力してください。";
             }
             return null;
         };
@@ -142,7 +142,7 @@ export default function Preparation({ rooms }) {
 
         const handleDelete = (id) => {
             if (window.confirm("この部屋を削除してもよろしいですか？")) {
-                router.delete(`/delete/${id}`, {
+                router.delete(`/preparation/delete/${id}`, {
                     onSuccess: (page) => {
                         setMessage(page.props.message);
                         setShowDeleteMessage(true);
@@ -269,9 +269,9 @@ export default function Preparation({ rooms }) {
 
                 <div className="basis-2/3 border-2 border-solid rounded-sm m-2 shadow-xl">
                     <h2 className="text-xl text-center my-4">登録済みの部屋一覧</h2>
-                    <ul className="grid grid-cols-2 gap-4">
+                    <ul className="grid grid-cols-2">
                         {rooms.map((room, index) => (
-                            <li key={index}>
+                            <li key={index} className="relative p-2 rounded-md transition bg-gray-200 m-2">
                                 <p className="m-2">部屋名: {room.room_name}</p>
                                     {!hasImageLoaded[index] && (
                                         <img

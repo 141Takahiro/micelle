@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\Room;
 use App\Models\RegularAgenda;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class TaskController extends Controller
 {
@@ -25,41 +26,73 @@ class TaskController extends Controller
             $validatedData = $request->validate([
                 'room_id' => 'required|integer|exists:rooms,id',
                 'day_of_the_week' => 'required|integer|between:1,7',
-                'start_time' => 'required|date_format:H:i',
-                'end_time' => 'required|date_format:H:i|after:start_time',
+                'start_time' => 'nullable|date_format:H:i',
+                'end_time' => [
+                    'nullable',
+                    'date_format:H:i',
+                    function ($attribute, $value, $fail) use ($request) {
+                        if (!empty($request->start_time) && !empty($value) && $value <= $request->start_time) {
+                            $fail('終了時間は開始時間より後である必要があります。');
+                        }
+                    }
+                ],
             ]);
 
-                $regular_agenda = RegularAgenda::where('room_id', $validatedData['room_id'])->first();
+            $regular_agenda = RegularAgenda::where('room_id', $validatedData['room_id'])->first();
 
-                if (!$regular_agenda) {
-                    return Inertia::render('Task', [
-                        'error' => '指定された RegularAgenda が存在しません。',
-                        'rooms' => $rooms,
-                    ]);
-                }
+            if (!$regular_agenda) {
+                throw new \Exception('RegularAgenda が見つかりません。');
+            }
 
-    $regular_agenda->update($validatedData);
-    $regular_agenda->refresh();
-           
-            return Inertia::render('Task', [
-                'success' => 'データが正常に登録されました！',
-                'regularAgenda' => $regular_agenda,
-                'rooms' => $rooms,
-            ]);
+            $regular_agenda->update($validatedData);
+            $regular_agenda->refresh();
+
+        return response()->json([
+            'message' => 'データが正常に登録されました！',
+            'regularAgenda' => $regular_agenda,
+        ], 200);
+
+
         } catch (\Illuminate\Validation\ValidationException $e) {
-            return Inertia::render('Task', [
-                'error' => 'バリデーションエラーが発生しました。',
-                'validationErrors' => $e->errors(),
-                'rooms' => $rooms,
-            ]);
+        return response()->json([
+            'message' => 'バリデーションエラーが発生しました。',
+            'validationErrors' => $e->errors(),
+        ], 422);
         } catch (\Exception $e) {
-            return Inertia::render('Task', [
-                'error' => '予期しないエラーが発生しました。',
-                'exceptionMessage' => $e->getMessage(),
-                'rooms' => $rooms,
-            ]);
+        return response()->json([
+            'message' => '予期しないエラーが発生しました。',
+            'exceptionMessage' => $e->getMessage(),
+        ], 500);
         }
     }
 
+        public function delete($id) 
+    {
+        try {
+            $room = Room::where('user_id', auth()->id())->findOrFail($id);
+
+            $filePath = storage_path("app/private/rooms/{$room->img_name}");
+
+            if (file_exists($filePath)) { 
+                unlink($filePath);
+            }
+
+            $room->delete();
+
+            return Inertia::render('Task', [
+                'rooms' => Room::where('user_id', auth()->id())->get(),
+                'message' => '部屋を削除しました！'
+            ]); 
+
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'message' => '指定された部屋が見つかりませんでした。',
+            ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => '削除処理中にエラーが発生しました。',
+            ], 500);
+        }
+    }
 
 }

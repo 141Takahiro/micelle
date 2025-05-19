@@ -25,7 +25,7 @@ class PreparationController extends Controller
         try {
             $validatedData = $request->validate([
                 'image' => 'required|image|mimes:jpeg,png,jpg|max:2048',
-                'room_name' => 'required|string|min:3|max:20',
+                'room_name' => 'required|string|min:2|max:20',
             ]);
 
             if (Room::where('user_id', auth()->id())->count() >= 4) {
@@ -89,15 +89,13 @@ class PreparationController extends Controller
             ]); 
 
         } catch (ModelNotFoundException $e) {
-            return Inertia::render('Preparation', [
-                'rooms' => Room::where('user_id', auth()->id())->get(),
-                'error' => '指定された部屋が見つかりませんでした。'
-            ]); 
-        } catch (Exception $e) {
-            return Inertia::render('Preparation', [
-                'rooms' => Room::where('user_id', auth()->id())->get(),
-                'error' => '削除処理中にエラーが発生しました。'
-            ]);
+            return response()->json([
+                'message' => '指定された部屋が見つかりませんでした。',
+            ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => '削除処理中にエラーが発生しました。',
+            ], 500);
         }
     }
 
