@@ -12,6 +12,7 @@ import dayjs from "dayjs";
 import { usePage } from "@inertiajs/react";
 import DangerButton from "../Components/DangerButton";
 import Modal from "../Components/Modal";
+import PrimaryButton from "../Components/PrimaryButton";
 
 
 export default function Task({ rooms }) {
@@ -22,7 +23,9 @@ export default function Task({ rooms }) {
     const regularAgenda = props.regularAgenda;
     const [showDeleteMessage, setShowDeleteMessage] = useState(false);
     const [message, setMessage] = useState("");
-
+    const [isInvalid, setIsInvalid] = useState(true);
+    const [errorMessage, setErrorMessage] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const [endTime, setEndTime] = useState(dayjs().add(30, 'minute'));
         useEffect(() => {
@@ -41,7 +44,36 @@ export default function Task({ rooms }) {
         }));
     };
 
+    const validateInputs = () => {
+        if (!selectedRoom) {
+            setErrorMessage("部屋を選択してください。");
+            return true;
+        }
+        if (!selectedDay || selectedDay < 1 || selectedDay > 7) {
+            setErrorMessage("曜日を選択してください。");
+            return true;
+        }
+        if (!startTime || !endTime) {
+            setErrorMessage("開始時刻と終了時刻を入力してください。");
+            return true;
+        }
+        if (endTime.isBefore(startTime)) {
+            setErrorMessage("終了時刻は開始時刻より後に設定してください。")
+            return true;
+        }
+        setErrorMessage("");
+        return false;
+    };
+
+    useEffect(() => {
+        setIsInvalid(validateInputs());
+    }, [selectedRoom, selectedDay, startTime, endTime]);
+
     const handleSubmit = () => {
+        if (isInvalid || isSubmitting) return;
+
+        setIsSubmitting(true);
+
         const requestData= {
             room_id: selectedRoom,
             day_of_the_week: selectedDay,
@@ -55,10 +87,12 @@ export default function Task({ rooms }) {
             onSuccess: (data) => {
                 console.log("サーバーから返されたデータ:", data.regularAgenda);
                 alert(data.success || "処理が正常に完了しました！");
+                setIsSubmitting(false);
             },
             onError: (errors) => {
                 console.error("サーバーエラー：", errors);
                 alert(`エラーが発生しました:\n${errors.message}`);
+                setIsSubmitting(false);
             },
         });
     };
@@ -167,12 +201,17 @@ export default function Task({ rooms }) {
                             <p>選択された終了時間: {endTime.format("HH:mm")}</p>
                         </div>
                     </LocalizationProvider>
-                    <button 
-                        className="mt-4 px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-700 transition"
+                    <PrimaryButton 
+                        className="my-2 w-24 size-12"
                         onClick={handleSubmit}
+                        disabled={isInvalid || isSubmitting}
                     >
-                        投稿
-                    </button>
+                        <span className={`"!justify-center w-full ${isSubmitting ? "text-sm" : "text-base"}`}>
+                            {isSubmitting ? "投稿中..." : "投稿"}
+                        </span>
+                    </PrimaryButton>
+
+                    {errorMessage && <p className="text-red-500 text-sm mt-1">{errorMessage}</p>}
                 </div>
 
                  <div className="basis-2/3 border-2 border-solid rounded-sm m-2 shadow-xl">

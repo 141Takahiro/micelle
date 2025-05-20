@@ -255,7 +255,7 @@ export default function Preparation({ rooms }) {
                         </div>
                         <div>
                             <PrimaryButton onClick={handleSubmit}
-                                disabled={isSubmitting || rooms.length >= 4}
+                                disabled={isSubmitting || rooms.length >= 4 || textError || imageError}
                                 className="my-2"
                             >
                                 {isSubmitting ? "投稿中..." : "投稿"}
