@@ -10,9 +10,10 @@ import PrimaryButton from "../Components/PrimaryButton";
 import TextInput from "../Components/TextInput";
 import Modal from "../Components/Modal";
 import DangerButton from "../Components/DangerButton";
+import { usePage } from "@inertiajs/react";
 import { useEffect, useState } from "react";
 
-export default function Preparation({ rooms }) {
+export default function Preparation({ rooms = [], regular_agendas = [] }) {
         const defaultImage = "/storage/images/default-image.png";
         const [imageSrc, setImageSrc] = useState(defaultImage);
         const [imageFile, setImageFile] = useState(null);
@@ -23,11 +24,13 @@ export default function Preparation({ rooms }) {
         const [cameraSrc, setCameraSrc] = useState(cameraIcon);
         const [folderSrc, setFolderSrc] = useState(folderIcon);
         const [showModal, setShowModal] = useState(false);
-        const [modalData, setModalData] = useState({ message: "", room_name: "", image_url: ""});
+        const [modalData, setModalData] = useState({ store_message: "", image_url: ""});
         const [imageLoaded, setImageLoaded] = useState(false);
         const [hasImageLoaded, setHasImageLoaded] = useState({});
-        const [message, setMessage] = useState("");
         const [showDeleteMessage, setShowDeleteMessage] = useState(false);
+        const { props } = usePage();
+        const [deleteMessage, setDeleteMessage] = useState(props?.delete_message || "");
+        
 
 
         const validateImage = (file) => {
@@ -49,8 +52,8 @@ export default function Preparation({ rooms }) {
             if (!text.trim()) {
                 return "部屋名を入力してください。";
             }
-            if (text.length < 3 || text.length > 20) {
-                return "部屋名は３～２０文字の範囲で入力してください。";
+            if (text.length < 2 || text.length > 20) {
+                return "部屋名は２～２０文字の範囲で入力してください。";
             }
             return null;
         };
@@ -92,6 +95,7 @@ export default function Preparation({ rooms }) {
             setImageError(newImageError);
 
             if (newTextError || newImageError) {
+                setIsSubmitting(false);
                 return;
             }
 
@@ -101,28 +105,7 @@ export default function Preparation({ rooms }) {
             formData.append("room_name", roomName);
 
             router.post("/upload", formData, {
-                onSuccess: (page) => {
-                    setModalData({
-                        message: page.props.message,
-                        room_name: page.props.room_name,
-                        image_url: page.props.image_url,
-                    });
-                    setShowModal(true);
-                    setIsSubmitting(false);
-                    setRoomName("");  
-                    setImageFile(null);
-                    setImageSrc(defaultImage);
-                },
-                onError: (errors) => {
-                    const errorMessages = [
-                        errors?.room_name,
-                        errors?.image,
-                        errors?.message,
-                    ].filter(Boolean).join("\n");
-
-                alert(`失敗:\n${errorMessages}`);
-                setIsSubmitting(false);
-                },
+                replace: true,
             });
         };
 
@@ -133,38 +116,57 @@ export default function Preparation({ rooms }) {
                 }
             }, [rooms]);
 
-        const handleImageLoad = (index) => {
+        const handleImageLoad = (roomId) => {
             setHasImageLoaded((prevState) => ({
             ...prevState,
-            [index]: true,
+            [roomId]: true,
             }));
         };
-
+        
         const handleDelete = (id) => {
             if (window.confirm("この部屋を削除してもよろしいですか？")) {
-                router.delete(`/delete/${id}`, {
-                    onSuccess: (page) => {
-                        setMessage(page.props.message);
-                        setShowDeleteMessage(true);
-
-                        setTimeout(() => {
-                            setShowDeleteMessage(false);
-                            setMessage(""); 
-                        }, 3000);
-                    },
-                    onError: (errors) => {
-                        const errorMessage = errors?.message || "不明なエラーが発生しました";
-                        alert(`削除に失敗しました： ${errorMessage}`);
-                    }
-                });
+                router.delete(`/preparation/delete/${id}`);
             }
         };
 
+        useEffect(() => {
+            if (props.store_message || props.image_url) {
+                setModalData({
+                    store_message: props.store_message || "",
+                    image_url: props.image_url || "",
+                });
+
+                setShowModal(true);
+            }
+        }, [props.store_message, props.image_url]);
+
+
+        useEffect(() => {
+            setIsSubmitting(false);
+        }, [props]);
+
+        useEffect(() => {
+            if (props.delete_message) {
+                setDeleteMessage(props.delete_message);
+                setShowDeleteMessage(true);
         
+                setTimeout(() => {
+                    setShowDeleteMessage(false);
+                }, 3000);
+            }
+        }, [props]); 
+
         const goToTaskPage = () => {
             router.get(route('task')); 
         };
         
+        useEffect(() => {
+            setImageLoaded(false);
+        }, [modalData.image_url]);
+
+        useEffect(() => {
+            setImageSrc(defaultImage);
+        }, []);
 
 
     return (
@@ -178,7 +180,7 @@ export default function Preparation({ rooms }) {
             <Head title="Preparation" />
 
             <Modal show={showModal} onClose={() => setShowModal(false)} className="flex flex-col">
-                <h2 className="text-center m-4">{modalData.message}</h2>
+                <h2 className="text-center m-4">{modalData.store_message}</h2>
                 {modalData.image_url && (
                     <>
                         {!imageLoaded && (
@@ -196,7 +198,6 @@ export default function Preparation({ rooms }) {
                         />
                     </>
                 )}
-                <p>部屋名： {modalData.room_name}</p>
                 <div className="flex justify-around">
                     <PrimaryButton onClick={() => setShowModal(false)} className="m-2">
                         部屋を追加する
@@ -208,7 +209,7 @@ export default function Preparation({ rooms }) {
             </Modal>
 
             <Modal show={showDeleteMessage} onClose={() => setShowDeleteMessage(false)}>
-                <p className="font-semibold text-center my-4">{message}</p>
+                <p className="font-semibold text-center my-4">{deleteMessage}</p>
             </Modal>
 
             <div className="flex flex-row">
@@ -255,7 +256,7 @@ export default function Preparation({ rooms }) {
                         </div>
                         <div>
                             <PrimaryButton onClick={handleSubmit}
-                                disabled={isSubmitting || rooms.length >= 4}
+                                disabled={isSubmitting || rooms.length >= 4 || textError || imageError}
                                 className="my-2"
                             >
                                 {isSubmitting ? "投稿中..." : "投稿"}
@@ -269,31 +270,51 @@ export default function Preparation({ rooms }) {
 
                 <div className="basis-2/3 border-2 border-solid rounded-sm m-2 shadow-xl">
                     <h2 className="text-xl text-center my-4">登録済みの部屋一覧</h2>
-                    <ul className="grid grid-cols-2 gap-4">
-                        {rooms.map((room, index) => (
-                            <li key={index}>
-                                <p className="m-2">部屋名: {room.room_name}</p>
-                                    {!hasImageLoaded[index] && (
-                                        <img
-                                            src={rotateRight}
-                                            alt="ローディング中..."
-                                            className="h-48 w-96 object-scale-down rounded-sm animate-spin m-2"
-                                        />
-                                    )}
+                        <ul className="grid grid-cols-2">
+                            {rooms.map((room) => {
+                                const regularAgenda = regular_agendas.find(agenda => agenda.room_id === room.id) || null;
+                                const weekDays = ["月曜日", "火曜日", "水曜日", "木曜日", "金曜日", "土曜日", "日曜日"];
+                                const dayLabel = regularAgenda ? weekDays[regularAgenda.day_of_the_week - 1] : "未定義";
+
+                                return (
+                                    <li 
+                                        key={room.id}
+                                        className="relative p-2 rounded-md transition m-2 bg-gray-200"
+                                    >
+                                        <p className="m-2">部屋名: {room.room_name}</p>
+                                        {!hasImageLoaded[room.id] && (
+                                            <img
+                                                src={rotateRight}
+                                                alt="ローディング中..."
+                                                className="h-48 w-96 object-scale-down rounded-sm animate-spin m-2"
+                                            />
+                                        )}
+
                                         <img 
                                             className="h-48 w-96 object-cover rounded-sm m-2"
                                             src={`/rooms/${room.img_name}`} 
                                             alt={room.room_name} 
-                                            style={{ display: hasImageLoaded[index] ? "block" : "none" }} 
-                                            onLoad={() => handleImageLoad(index)}
+                                            style={{ display: hasImageLoaded[room.id] ? "block" : "none" }} 
+                                            onLoad={() => handleImageLoad(room.id)}
                                         />
-                                        <DangerButton onClick={() => handleDelete(room.id)} className="m-2">                                        
-                                            削除
-                                        </DangerButton>
 
-                            </li>
-                        ))}
-                    </ul>
+                                        <div className="flex justify-around">
+                                            {regularAgenda && regularAgenda.day_of_the_week && regularAgenda.start_time && regularAgenda.end_time ? (
+                                                <div className="m-2 p-2 bg-gray-100 rounded-md">
+                                                    {weekDays[regularAgenda.day_of_the_week -1]} | {regularAgenda.start_time}~{regularAgenda.end_time}
+                                                </div>
+                                            ) : (
+                                                <p className="m-2 p-2 bg-gray-100 rounded-md">予定が登録されていません</p>
+                                            )}
+                                            <DangerButton onClick={() => handleDelete(room.id)} className="m-2">                                        
+                                                削除
+                                            </DangerButton>
+                                        </div>
+                                    </li>
+                                );
+                            })}
+                        </ul>
+                        
                 </div>
             </div>
         </AuthenticatedLayout>

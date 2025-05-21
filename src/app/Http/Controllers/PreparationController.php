@@ -15,8 +15,14 @@ class PreparationController extends Controller
     public function show(Request $request)
     {
         $rooms = Room::where('user_id', auth()->id())->get();
+        $regular_agendas = RegularAgenda::where('user_id', auth()->id())->get();
+
         return Inertia::render('Preparation',[
-            'rooms' => $rooms
+            'rooms' => $rooms,
+            'store_message' => session('store_message'),
+            'delete_message' => session('delete_message'),
+            'image_url' => session('image_url'),
+            'regular_agendas' => $regular_agendas,
         ]);
     }
 
@@ -25,7 +31,7 @@ class PreparationController extends Controller
         try {
             $validatedData = $request->validate([
                 'image' => 'required|image|mimes:jpeg,png,jpg|max:2048',
-                'room_name' => 'required|string|min:3|max:20',
+                'room_name' => 'required|string|min:2|max:20',
             ]);
 
             if (Room::where('user_id', auth()->id())->count() >= 4) {
@@ -52,22 +58,16 @@ class PreparationController extends Controller
 
             $img_url = route('get.room.img', ['img_name' => $img_name]);
 
-            return Inertia::render('Preparation', [
-                'rooms' => Room::where('user_id', auth()->id())->get(),
-                'message' => '画像が正常にアップロードされました。',
-                'room_name' => $room_name,
+            return redirect()->route('preparation')->with([
+                'store_message' => "'{$room_name}'が正常に登録されました！",
                 'image_url' => $img_url,
             ]);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return Inertia::render('Preparation', [
-                'errors' => $e->errors(),
-            ]);
-        } catch (\Exception $e) {
-            return Inertia::render('Preparation', [
-                'errors' => ['message' => $e->getMessage()],
-            ]);
-        }
 
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()->route('preparation')->with('store_message', 'バリデーションエラーが発生しました。');
+        } catch (\Exception $e) {
+            return redirect()->route('preparation')->with('store_message', '予期しないエラーが発生しました。');
+        }
     }
 
     public function delete($id) 
@@ -81,23 +81,15 @@ class PreparationController extends Controller
                 unlink($filePath);
             }
 
+            $roomName = $room->room_name;
             $room->delete();
 
-            return Inertia::render('Preparation', [
-                'rooms' => Room::where('user_id', auth()->id())->get(),
-                'message' => '部屋を削除しました！'
-            ]); 
+            return redirect()->route('preparation')->with('delete_message', "'{$roomName}'を削除しました！");
 
         } catch (ModelNotFoundException $e) {
-            return Inertia::render('Preparation', [
-                'rooms' => Room::where('user_id', auth()->id())->get(),
-                'error' => '指定された部屋が見つかりませんでした。'
-            ]); 
-        } catch (Exception $e) {
-            return Inertia::render('Preparation', [
-                'rooms' => Room::where('user_id', auth()->id())->get(),
-                'error' => '削除処理中にエラーが発生しました。'
-            ]);
+            return redirect()->route('preparation')->with('delete_message', '指定された部屋が見付かりませんでした。');
+        } catch (\Exception $e) {
+            return redirect()->route('preparation')->with('delete_message', '削除処理に失敗しました。');
         }
     }
 
