@@ -10,9 +10,10 @@ import PrimaryButton from "../Components/PrimaryButton";
 import TextInput from "../Components/TextInput";
 import Modal from "../Components/Modal";
 import DangerButton from "../Components/DangerButton";
+import { usePage } from "@inertiajs/react";
 import { useEffect, useState } from "react";
 
-export default function Preparation({ rooms }) {
+export default function Preparation({ rooms = [] }) {
         const defaultImage = "/storage/images/default-image.png";
         const [imageSrc, setImageSrc] = useState(defaultImage);
         const [imageFile, setImageFile] = useState(null);
@@ -23,11 +24,13 @@ export default function Preparation({ rooms }) {
         const [cameraSrc, setCameraSrc] = useState(cameraIcon);
         const [folderSrc, setFolderSrc] = useState(folderIcon);
         const [showModal, setShowModal] = useState(false);
-        const [modalData, setModalData] = useState({ message: "", room_name: "", image_url: ""});
+        const [modalData, setModalData] = useState({ store_message: "", image_url: ""});
         const [imageLoaded, setImageLoaded] = useState(false);
         const [hasImageLoaded, setHasImageLoaded] = useState({});
-        const [message, setMessage] = useState("");
         const [showDeleteMessage, setShowDeleteMessage] = useState(false);
+        const { props } = usePage();
+        const [deleteMessage, setDeleteMessage] = useState(props?.delete_message || "");
+        
 
 
         const validateImage = (file) => {
@@ -92,6 +95,7 @@ export default function Preparation({ rooms }) {
             setImageError(newImageError);
 
             if (newTextError || newImageError) {
+                setIsSubmitting(false);
                 return;
             }
 
@@ -101,28 +105,7 @@ export default function Preparation({ rooms }) {
             formData.append("room_name", roomName);
 
             router.post("/upload", formData, {
-                onSuccess: (page) => {
-                    setModalData({
-                        message: page.props.message,
-                        room_name: page.props.room_name,
-                        image_url: page.props.image_url,
-                    });
-                    setShowModal(true);
-                    setIsSubmitting(false);
-                    setRoomName("");  
-                    setImageFile(null);
-                    setImageSrc(defaultImage);
-                },
-                onError: (errors) => {
-                    const errorMessages = [
-                        errors?.room_name,
-                        errors?.image,
-                        errors?.message,
-                    ].filter(Boolean).join("\n");
-
-                alert(`失敗:\n${errorMessages}`);
-                setIsSubmitting(false);
-                },
+                replace: true,
             });
         };
 
@@ -139,32 +122,51 @@ export default function Preparation({ rooms }) {
             [index]: true,
             }));
         };
-
+        
         const handleDelete = (id) => {
             if (window.confirm("この部屋を削除してもよろしいですか？")) {
-                router.delete(`/preparation/delete/${id}`, {
-                    onSuccess: (page) => {
-                        setMessage(page.props.message);
-                        setShowDeleteMessage(true);
-
-                        setTimeout(() => {
-                            setShowDeleteMessage(false);
-                            setMessage(""); 
-                        }, 3000);
-                    },
-                    onError: (errors) => {
-                        const errorMessage = errors?.message || "不明なエラーが発生しました";
-                        alert(`削除に失敗しました： ${errorMessage}`);
-                    }
-                });
+                router.delete(`/preparation/delete/${id}`);
             }
         };
 
+        useEffect(() => {
+            if (props.store_message || props.image_url) {
+                setModalData({
+                    store_message: props.store_message || "",
+                    image_url: props.image_url || "",
+                });
+
+                setShowModal(true);
+            }
+        }, [props.store_message, props.image_url]);
+
+
+        useEffect(() => {
+            setIsSubmitting(false);
+        }, [props]);
+
+        useEffect(() => {
+            if (props.delete_message) {
+                setDeleteMessage(props.delete_message);
+                setShowDeleteMessage(true);
         
+                setTimeout(() => {
+                    setShowDeleteMessage(false);
+                }, 3000);
+            }
+        }, [props]); 
+
         const goToTaskPage = () => {
             router.get(route('task')); 
         };
         
+        useEffect(() => {
+            setImageLoaded(false);
+        }, [modalData.image_url]);
+
+        useEffect(() => {
+            setImageSrc(defaultImage);
+        }, []);
 
 
     return (
@@ -178,7 +180,7 @@ export default function Preparation({ rooms }) {
             <Head title="Preparation" />
 
             <Modal show={showModal} onClose={() => setShowModal(false)} className="flex flex-col">
-                <h2 className="text-center m-4">{modalData.message}</h2>
+                <h2 className="text-center m-4">{modalData.store_message}</h2>
                 {modalData.image_url && (
                     <>
                         {!imageLoaded && (
@@ -196,7 +198,6 @@ export default function Preparation({ rooms }) {
                         />
                     </>
                 )}
-                <p>部屋名： {modalData.room_name}</p>
                 <div className="flex justify-around">
                     <PrimaryButton onClick={() => setShowModal(false)} className="m-2">
                         部屋を追加する
@@ -208,7 +209,7 @@ export default function Preparation({ rooms }) {
             </Modal>
 
             <Modal show={showDeleteMessage} onClose={() => setShowDeleteMessage(false)}>
-                <p className="font-semibold text-center my-4">{message}</p>
+                <p className="font-semibold text-center my-4">{deleteMessage}</p>
             </Modal>
 
             <div className="flex flex-row">

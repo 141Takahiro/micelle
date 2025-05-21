@@ -13,8 +13,13 @@ class TaskController extends Controller
     public function show(Request $request)
     {
         $rooms = Room::where('user_id', auth()->id())->get();
+        $regular_agendas = RegularAgenda::where('user_id', auth()->id())->get();
+
         return Inertia::render('Task',[
-        'rooms' => $rooms
+            'store_message' => session('store_message'),
+            'delete_message' => session('delete_message'),
+            'rooms' => $rooms,
+            'regular_agendas' => $regular_agendas,
         ]);
     }
 
@@ -47,22 +52,16 @@ class TaskController extends Controller
             $regular_agenda->update($validatedData);
             $regular_agenda->refresh();
 
-        return response()->json([
-            'message' => 'データが正常に登録されました！',
-            'regularAgenda' => $regular_agenda,
-        ], 200);
+            return redirect()->route('task')->with(
+                'store_message', 
+                "データが正常に登録されました！\n部屋: {$regular_agenda->room_id}, 曜日: {$regular_agenda->day_of_the_week}, 開始時間: {$regular_agenda->start_time}, 終了時間: {$regular_agenda->end_time}"
+            );
 
 
         } catch (\Illuminate\Validation\ValidationException $e) {
-        return response()->json([
-            'message' => 'バリデーションエラーが発生しました。',
-            'validationErrors' => $e->errors(),
-        ], 422);
+            return redirect()->route('task')->with('store_message', 'バリデーションエラーが発生しました。');
         } catch (\Exception $e) {
-        return response()->json([
-            'message' => '予期しないエラーが発生しました。',
-            'exceptionMessage' => $e->getMessage(),
-        ], 500);
+            return redirect()->route('task')->with('store_message', '予期しないエラーが発生しました。');
         }
     }
 
@@ -77,21 +76,15 @@ class TaskController extends Controller
                 unlink($filePath);
             }
 
+            $roomName = $room->room_name;
             $room->delete();
 
-            return Inertia::render('Task', [
-                'rooms' => Room::where('user_id', auth()->id())->get(),
-                'message' => '部屋を削除しました！'
-            ]); 
+            return redirect()->route('task')->with('delete_message', "'{$roomName}'を削除しました！");
 
         } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'message' => '指定された部屋が見つかりませんでした。',
-            ], 404);
+            return redirect()->route('task')->with('delete_message', '指定された部屋が見付かりませんでした。');
         } catch (\Exception $e) {
-            return response()->json([
-                'message' => '削除処理中にエラーが発生しました。',
-            ], 500);
+            return redirect()->route('task')->with('delete_message', '削除処理に失敗しました。');
         }
     }
 

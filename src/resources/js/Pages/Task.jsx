@@ -3,7 +3,7 @@ import { router } from "@inertiajs/react"
 import { Head } from '@inertiajs/react';
 import { MultiSectionDigitalClock } from '@mui/x-date-pickers/MultiSectionDigitalClock';
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { FormControl, FormLabel, InputLabel, Select, MenuItem, Typography, RadioGroup, Radio, FormControlLabel } from "@mui/material";
+import { FormControl, Select, MenuItem, Typography, RadioGroup, Radio, FormControlLabel } from "@mui/material";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import * as React from "react";
 import rotateRight from "../assets/icons/rotate_right.png";
@@ -15,17 +15,18 @@ import Modal from "../Components/Modal";
 import PrimaryButton from "../Components/PrimaryButton";
 
 
-export default function Task({ rooms }) {
+export default function Task({ rooms = [] }) {
     const [selectedRoom, setSelectedRoom] = useState(rooms.length > 0 ? rooms[0].id : null);
     const [selectedDay, setSelectedDay] = useState(1);
     const [startTime, setStartTime] = useState(dayjs());
     const { props } = usePage();
-    const regularAgenda = props.regularAgenda;
     const [showDeleteMessage, setShowDeleteMessage] = useState(false);
-    const [message, setMessage] = useState("");
     const [isInvalid, setIsInvalid] = useState(true);
     const [errorMessage, setErrorMessage] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [deleteMessage, setDeleteMessage] = useState(props?.delete_message || "");//機能確認のため追加
+    const [storeMessage, setStoreMessage] = useState(props?.store_message || "");
+    const [showStoreMessage, setShowStoreMessage] = useState(false);
 
     const [endTime, setEndTime] = useState(dayjs().add(30, 'minute'));
         useEffect(() => {
@@ -84,39 +85,44 @@ export default function Task({ rooms }) {
         console.log("送信するデータ:", requestData);
 
         router.post(route("store"), requestData, {
-            onSuccess: (data) => {
-                console.log("サーバーから返されたデータ:", data.regularAgenda);
-                alert(data.success || "処理が正常に完了しました！");
-                setIsSubmitting(false);
-            },
-            onError: (errors) => {
-                console.error("サーバーエラー：", errors);
-                alert(`エラーが発生しました:\n${errors.message}`);
-                setIsSubmitting(false);
-            },
+            replace: true,
         });
     };
 
     const handleDelete = (id) => {
         if (window.confirm("この部屋を削除してもよろしいですか？")) {
-            router.delete(`/task/delete/${id}`, {
-                onSuccess: (page) => {
-                    setMessage(page.props.message);
-                    setShowDeleteMessage(true);
-    
-                setTimeout(() => {
-                    setShowDeleteMessage(false);
-                    setMessage(""); 
-                    }, 3000);
-                },
-                onError: (error) => {
-                    console.error("削除エラー:", error);
-                    const errorMessage = error?.message || "削除中に不明なエラーが発生しました。";
-                    alert(`削除に失敗しました： ${errorMessage}`);
-                }
-            });
-        };
+            router.delete(`/task/delete/${id}`);
+        }
     };
+
+    useEffect(() => {
+        if (props.delete_message) {
+            setDeleteMessage(props.delete_message);
+            setShowDeleteMessage(true);
+
+            setTimeout(() => {
+                setShowDeleteMessage(false);
+            }, 3000);
+        }
+    }, [props]); 
+
+    
+    useEffect(() => {
+        if (props.store_message) {
+            setStoreMessage(props.store_message); 
+            setShowStoreMessage(true);
+
+                setTimeout(() => {
+                    setShowStoreMessage(false); // 3秒後にモーダルを閉じる
+                }, 3000);
+            }
+    }, [props.store_message]);
+
+    useEffect(() => {
+        setIsSubmitting(false);
+    }, [props]); 
+
+
 
     return (
         <AuthenticatedLayout
@@ -128,8 +134,12 @@ export default function Task({ rooms }) {
         >
             <Head title="Task" />
 
+            <Modal show={showStoreMessage} onClose={() => setShowStoreMessage(false)}>
+                <p className="font-semibold text-center my-4">{storeMessage}</p>
+            </Modal>
+ 
             <Modal show={showDeleteMessage} onClose={() => setShowDeleteMessage(false)}>
-                <p className="font-semibold text-center my-4">{message}</p>
+                <p className="font-semibold text-center my-4">{deleteMessage}</p>
             </Modal>
 
             <div className="flex flex-row">
