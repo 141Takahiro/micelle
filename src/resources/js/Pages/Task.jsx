@@ -15,7 +15,7 @@ import Modal from "../Components/Modal";
 import PrimaryButton from "../Components/PrimaryButton";
 
 
-export default function Task({ rooms = [] }) {
+export default function Task({ rooms = [], regular_agendas = [] }) {
     const [selectedRoom, setSelectedRoom] = useState(rooms.length > 0 ? rooms[0].id : null);
     const [selectedDay, setSelectedDay] = useState(1);
     const [startTime, setStartTime] = useState(dayjs());
@@ -24,7 +24,7 @@ export default function Task({ rooms = [] }) {
     const [isInvalid, setIsInvalid] = useState(true);
     const [errorMessage, setErrorMessage] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [deleteMessage, setDeleteMessage] = useState(props?.delete_message || "");//機能確認のため追加
+    const [deleteMessage, setDeleteMessage] = useState(props?.delete_message || "");
     const [storeMessage, setStoreMessage] = useState(props?.store_message || "");
     const [showStoreMessage, setShowStoreMessage] = useState(false);
 
@@ -35,13 +35,13 @@ export default function Task({ rooms = [] }) {
 
 
     const [hasImageLoaded, setHasImageLoaded] = useState(() =>
-        Object.fromEntries(rooms.map((room, index) => [index, false]))
+        Object.fromEntries(rooms.map((room) => [room.id, false]))
     );
     
-    const handleImageLoad = (index) => {
+    const handleImageLoad = (roomId) => {
         setHasImageLoaded((prevState) => ({
         ...prevState,
-        [index]: true,
+        [roomId]: true,
         }));
     };
 
@@ -113,7 +113,7 @@ export default function Task({ rooms = [] }) {
             setShowStoreMessage(true);
 
                 setTimeout(() => {
-                    setShowStoreMessage(false); // 3秒後にモーダルを閉じる
+                    setShowStoreMessage(false);
                 }, 3000);
             }
     }, [props.store_message]);
@@ -224,36 +224,53 @@ export default function Task({ rooms = [] }) {
                     {errorMessage && <p className="text-red-500 text-sm mt-1">{errorMessage}</p>}
                 </div>
 
-                 <div className="basis-2/3 border-2 border-solid rounded-sm m-2 shadow-xl">
+                <div className="basis-2/3 border-2 border-solid rounded-sm m-2 shadow-xl">
                     <h2 className="text-xl text-center my-4">登録済みの部屋一覧</h2>
                         <ul className="grid grid-cols-2">
-                            {rooms.map((room, index) => (
-                                <li 
-                                    key={index}
-                                    className={`relative p-2 rounded-md transition duration-300 m-2 ${
-                                        selectedRoom === room.id ? "bg-blue-500 bg-opacity-50" : "bg-gray-200"
-                                    }`}
-                                >
-                                    <p className="m-2">部屋名: {room.room_name}</p>
-                                        {!hasImageLoaded[index] && (
+                            {rooms.map((room) => {
+                                const regularAgenda = regular_agendas.find(agenda => agenda.room_id === room.id) || null;
+                                const weekDays = ["月曜日", "火曜日", "水曜日", "木曜日", "金曜日", "土曜日", "日曜日"];
+                                const dayLabel = regularAgenda ? weekDays[regularAgenda.day_of_the_week - 1] : "未定義";
+
+                                return (
+                                    <li 
+                                        key={room.id}
+                                        className={`relative p-2 rounded-md transition duration-300 m-2 ${
+                                            selectedRoom === room.id ? "bg-blue-500 bg-opacity-50" : "bg-gray-200"
+                                        }`}
+                                    >
+                                        <p className="m-2">部屋名: {room.room_name}</p>
+                                        {!hasImageLoaded[room.id] && (
                                             <img
                                                 src={rotateRight}
                                                 alt="ローディング中..."
                                                 className="h-48 w-96 object-scale-down rounded-sm animate-spin m-2"
                                             />
                                         )}
-                                            <img 
-                                                className="h-48 w-96 object-cover rounded-sm m-2"
-                                                src={`/rooms/${room.img_name}`} 
-                                                alt={room.room_name} 
-                                                style={{ display: hasImageLoaded[index] ? "block" : "none" }} 
-                                                onLoad={() => handleImageLoad(index)}
-                                            />
+
+                                        <img 
+                                            className="h-48 w-96 object-cover rounded-sm m-2"
+                                            src={`/rooms/${room.img_name}`} 
+                                            alt={room.room_name} 
+                                            style={{ display: hasImageLoaded[room.id] ? "block" : "none" }} 
+                                            onLoad={() => handleImageLoad(room.id)}
+                                        />
+
+                                        <div className="flex justify-around">
+                                            {regularAgenda && regularAgenda.day_of_the_week && regularAgenda.start_time && regularAgenda.end_time ? (
+                                                <div className="m-2 p-2 bg-gray-100 rounded-md">
+                                                    {weekDays[regularAgenda.day_of_the_week -1]} | {regularAgenda.start_time}~{regularAgenda.end_time}
+                                                </div>
+                                            ) : (
+                                                <p className="m-2 p-2 bg-gray-100 rounded-md">予定が登録されていません</p>
+                                            )}
                                             <DangerButton onClick={() => handleDelete(room.id)} className="m-2">                                        
                                                 削除
                                             </DangerButton>
-                                </li>
-                            ))}
+                                        </div>
+                                    </li>
+                                );
+                            })}
                         </ul>
                         
                 </div>

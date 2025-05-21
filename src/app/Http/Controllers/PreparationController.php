@@ -15,12 +15,14 @@ class PreparationController extends Controller
     public function show(Request $request)
     {
         $rooms = Room::where('user_id', auth()->id())->get();
+        $regular_agendas = RegularAgenda::where('user_id', auth()->id())->get();
 
         return Inertia::render('Preparation',[
             'rooms' => $rooms,
             'store_message' => session('store_message'),
             'delete_message' => session('delete_message'),
             'image_url' => session('image_url'),
+            'regular_agendas' => $regular_agendas,
         ]);
     }
 
@@ -60,13 +62,6 @@ class PreparationController extends Controller
                 'store_message' => "'{$room_name}'が正常に登録されました！",
                 'image_url' => $img_url,
             ]);
-
-            // return Inertia::render('Preparation', [
-            //     'rooms' => Room::where('user_id', auth()->id())->get(),
-            //     'message' => '画像が正常にアップロードされました。',
-            //     'room_name' => $room_name,
-            //     'image_url' => $img_url,
-            // ]);
 
         } catch (\Illuminate\Validation\ValidationException $e) {
             return redirect()->route('preparation')->with('store_message', 'バリデーションエラーが発生しました。');

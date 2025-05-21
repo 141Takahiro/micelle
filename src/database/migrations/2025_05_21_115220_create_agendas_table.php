@@ -11,14 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('regular_agendas', function (Blueprint $table) {
+        Schema::create('agendas', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('room_id');
             $table->integer('day_of_the_week')->nullable();
             $table->string('start_time')->nullable();
             $table->string('end_time')->nullable();
-
+            $table->boolean('status')->default(false);
+            $table->integer('ai_evaluate')->nullable();
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
@@ -31,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('regular_agendas');
+        Schema::dropIfExists('agendas');
     }
 };

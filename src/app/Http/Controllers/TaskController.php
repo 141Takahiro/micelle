@@ -25,8 +25,6 @@ class TaskController extends Controller
 
     public function store(Request $request)
     {
-        $rooms = Room::where('user_id', auth()->id())->get();
-
         try {
             $validatedData = $request->validate([
                 'room_id' => 'required|integer|exists:rooms,id',
