@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Agenda;
+use App\Models\RegularAgenda;
 
 class Room extends Model
 {
@@ -30,4 +32,10 @@ class Room extends Model
     {
         return $this->hasOne(RegularAgenda::class, 'room_id');
     }
+
+    public function agendas()
+    {
+        return $this->hasMany(Agenda::class, 'room_id');
+    }
+
 }
