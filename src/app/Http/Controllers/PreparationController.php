@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Response;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\Room;
+use App\Models\Agenda;
 use App\Models\RegularAgenda;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
