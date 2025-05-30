@@ -32,7 +32,6 @@ export default function Preparation({ rooms = [], regular_agendas = [] }) {
         const [deleteMessage, setDeleteMessage] = useState(props?.delete_message || "");
         
 
-
         const validateImage = (file) => {
             if (!file || file === null || file === undefined) { 
                 return "ファイルが選択されていません。";
@@ -58,27 +57,88 @@ export default function Preparation({ rooms = [], regular_agendas = [] }) {
             return null;
         };
 
+        const processFile = (file, onSuccess) => {
+            const error = validateImage(file);
+            setImageError(error);
+            if (error) return;
+
+            setImageFile(file);
+            const reader = new FileReader();
+            reader.onload = (e) => onSuccess(e.target.result);
+            reader.readAsDataURL(file);
+        };
 
         const openCamera = () => {
-            console.log("カメラアイコンがクリックされました。");
+            const fileInput = document.createElement("input");
+            fileInput.type = "file";
+            fileInput.accept = "image/*";
+            fileInput.capture = "environment";
+            fileInput.style.display = "none";
+            document.body.appendChild(fileInput);
+
+            fileInput.click();
+            fileInput.addEventListener("change", (event) => {
+                const file = event.target.files[0];
+
+            if (file) {
+                processFile(file, (dataURL) => {
+                    setImageSrc(dataURL);
+                });
+            }
+                document.body.removeChild(fileInput);
+            });
         };
 
         const handleImageChange = (event) => {
             const file = event.target.files[0];
-            const imageError = validateImage(file);
-
-            setImageError(imageError);
-
-            if (!imageError) {
-                setImageFile(file);
-
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    setImageSrc(e.target.result);
-                };
-                reader.readAsDataURL(file);
+            if (file) {
+                processFile(file, (dataURL) => {
+                setImageSrc(dataURL);
+                });
             }
         };
+
+// const openCamera = () => {
+//     const fileInput = document.createElement("input");
+//     fileInput.type = "file";
+//     fileInput.accept = "image/*";
+//     fileInput.capture = "environment"; // スマホで背面カメラを優先する場合（省略可）
+//     fileInput.style.display = "none";
+
+//     document.body.appendChild(fileInput);
+//     fileInput.click();
+
+//     fileInput.addEventListener("change", (event) => {
+//         const file = event.target.files[0];
+//         if (file) {
+
+//             const reader = new FileReader();
+//             reader.onload = (e) => {
+//                 const imageElement = document.createElement("img");
+//                 imageElement.src = e.target.result;
+//                 document.body.appendChild(imageElement);
+//             };
+//             reader.readAsDataURL(file);
+//         }
+//         document.body.removeChild(fileInput);
+//     });
+// };
+
+        // const handleImageChange = (event) => {
+        //     const file = event.target.files[0];
+        //     const imageError = validateImage(file);
+
+        //     setImageError(imageError);
+
+        //     if (!imageError) {
+        //         setImageFile(file);
+        //         const reader = new FileReader();
+        //         reader.onload = (e) => {
+        //             setImageSrc(e.target.result);
+        //         };
+        //         reader.readAsDataURL(file);
+        //     }
+        // };
 
         const handleTextChange = (event) => {
             const newRoomName = event.target.value;
@@ -212,7 +272,7 @@ export default function Preparation({ rooms = [], regular_agendas = [] }) {
                 <p className="font-semibold text-center my-4">{deleteMessage}</p>
             </Modal>
 
-            <div className="flex flex-row">
+            <div className="md:flex flex-row">
                 <div className="basis-1/3 border-2 border-solid rounded-sm m-2 shadow-xl">
                     <div className="flex flex-col">
                         <h2 className="text-xl text-center my-4">新しい部屋を登録しましょう！</h2>
@@ -270,7 +330,11 @@ export default function Preparation({ rooms = [], regular_agendas = [] }) {
 
                 <div className="basis-2/3 border-2 border-solid rounded-sm m-2 shadow-xl">
                     <h2 className="text-xl text-center my-4">登録済みの部屋一覧</h2>
-                        <ul className="grid grid-cols-2">
+
+                    {rooms.length === 0 ? (
+                        <p className="text-center text-gray-500 m-4">部屋が登録されていません。</p>
+                    ) : (
+                        <ul className="md:grid grid-cols-2">
                             {rooms.map((room) => {
                                 const regularAgenda = regular_agendas.find(agenda => agenda.room_id === room.id) || null;
                                 const weekDays = ["月曜日", "火曜日", "水曜日", "木曜日", "金曜日", "土曜日", "日曜日"];
@@ -314,7 +378,7 @@ export default function Preparation({ rooms = [], regular_agendas = [] }) {
                                 );
                             })}
                         </ul>
-                        
+                    )}
                 </div>
             </div>
         </AuthenticatedLayout>

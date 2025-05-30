@@ -50,9 +50,18 @@ class TaskController extends Controller
             $regular_agenda->update($validatedData);
             $regular_agenda->refresh();
 
+            $room = Room::find($validatedData['room_id']);
+            $roomName = $room->room_name;
+
+            if (!$room) {
+                throw new \Exception('指定された Room が見つかりません。');
+            }
+
+
             return redirect()->route('task')->with(
                 'store_message', 
-                "データが正常に登録されました！\n部屋: {$regular_agenda->room_id}, 曜日: {$regular_agenda->day_of_the_week}, 開始時間: {$regular_agenda->start_time}, 終了時間: {$regular_agenda->end_time}"
+                "データが正常に登録されました！ 部屋名: {$roomName}"
+
             );
 
 
