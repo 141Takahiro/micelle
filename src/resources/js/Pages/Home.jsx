@@ -13,16 +13,10 @@ import cameraAdd from "../assets/icons/camera-add.png";
 import folderOpen from "../assets/icons/folder-open.png";
 import { usePage } from "@inertiajs/react";
 
-
 export default function Home({ rooms = [] }) {
 
-        rooms.forEach(room => {
-            console.log(`Room ID: ${room.id}`);
-            console.log(`Agendasの数： ${room.agendas?.length ?? 0}`);
-            console.log("Agendas:", room.agendas);
-        });
-
     const defaultImage = "/storage/images/default-image.png";
+    const micelleEvaluateImage = "/storage/images/micelle_evaluate.jpg";
     const [selectedRoomId, setSelectedRoomId] = useState(rooms.length > 0 ? rooms[0].id : null);
     const [imageSrc, setImageSrc] = useState(defaultImage);
     const [imageFile, setImageFile] = useState(null);
@@ -79,24 +73,30 @@ export default function Home({ rooms = [] }) {
         />
     );
 
-    const handleRoomSelection = (roomId) => {
-        setSelectedRoomId(roomId);
-    };
-
     useEffect(() => {
         console.log(`選択された Room ID: ${selectedRoomId}`);
     }, [selectedRoomId]);
 
     const [agendas, setAgendas] = useState([]);
 
+    const [isLoading, setIsLoading] = useState(false);
+
     const handleStatusUpdate = (agendaId, currentStatus) => {
+        setIsLoading(true);
+
         const newStatus = currentStatus === 1 ? 0 : 1;
-        router.put(`/agendas/${agendaId}/update-status`, { status: newStatus });
-            setAgendas((prevAgendas) =>
+        router.put(`/agendas/${agendaId}/update-status`, { status: newStatus }, {
+            onSuccess: () => {
+                setAgendas((prevAgendas) =>
                 prevAgendas.map((agenda) =>
                     agenda.id === agendaId ? { ...agenda, status: newStatus } : agenda
-            )
-        );
+                )
+                );
+            },
+            onFinish: () => {
+                setIsLoading(false); 
+            }
+        });
     };
 
     useEffect(() => {
@@ -109,29 +109,52 @@ export default function Home({ rooms = [] }) {
     setAgendas(latestAgendas);
         }, [rooms]);
 
-
+   
+    const allCompleted = agendas.every(agenda => agenda && agenda.status === 1);
+    const hasAiEvaluate = agendas.some(agenda => agenda && agenda.ai_evaluate);
+   
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-            const openCamera = () => {
-            console.log("カメラアイコンがクリックされました。");
+    const processFile = (file, onSuccess) => {
+            const error = validateImage(file);
+            setImageError(error);
+            if (error) return;
+
+            setImageFile(file);
+            const reader = new FileReader();
+            reader.onload = (e) => onSuccess(e.target.result);
+            reader.readAsDataURL(file);
         };
 
-    const handleImageChange = (event) => {
-        const file = event.target.files[0];
-        const imageError = validateImage(file);
+    const openCamera = () => {
+        const fileInput = document.createElement("input");
+        fileInput.type = "file";
+        fileInput.accept = "image/*";
+        fileInput.capture = "environment";
+        fileInput.style.display = "none";
+        document.body.appendChild(fileInput);
 
-        setImageError(imageError);
+        fileInput.click();
+        fileInput.addEventListener("change", (event) => {
+            const file = event.target.files[0];
 
-        if (!imageError) {
-            setImageFile(file);
-
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                setImageSrc(e.target.result);
-            };
-            reader.readAsDataURL(file);
+        if (file) {
+            processFile(file, (dataURL) => {
+                setImageSrc(dataURL);
+            });
         }
-    };
+            document.body.removeChild(fileInput);
+            });
+        };
+
+        const handleImageChange = (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                processFile(file, (dataURL) => {
+                setImageSrc(dataURL);
+                });
+            }
+        };
 
     const validateImage = (file) => {
         if (!file || file === null || file === undefined) { 
@@ -161,8 +184,9 @@ export default function Home({ rooms = [] }) {
         const formData = new FormData();
         formData.append("image", imageFile);
 
-        router.post(`/updatePhoto/${randomRoom.id}`, formData, {
+        router.post(`/updatePhoto/${selectedRoom.id}`, formData, {
             replace: true,
+            onFinish: () => setIsSubmitting(false),
         });
 
     };
@@ -176,9 +200,7 @@ export default function Home({ rooms = [] }) {
     };
 
     const randomRoom = getRandomRoom(rooms);
-        if (randomRoom) {
-            console.log("選ばれた部屋:", randomRoom);
-    }
+    const [selectedRoom, setSelectedRoom] = useState(randomRoom || rooms[0]);
 
     useEffect(() => {
         if (props.updatePhoto_message || props.score || props.micelle_message || props.image_url) {
@@ -188,7 +210,6 @@ export default function Home({ rooms = [] }) {
                 micelle_message: props.micelle_message || "",
                 image_url: props.image_url || "",
             });
-
             setUpdateModalOpen(true);
             }
         }, [props.updatePhoto_message, props.score, props.micelle_message]);
@@ -200,6 +221,18 @@ export default function Home({ rooms = [] }) {
     useEffect(() => {
         setImageSrc(defaultImage);
     }, []);
+
+    useEffect(() => {
+        setIsModalOpen(false);
+    }, []);
+
+    useEffect(() => {
+        setIsSubmitting(false);
+    }, []);
+
+    useEffect(() => {
+        setImageSrc(defaultImage); 
+    }, []); 
 
     return (
         <AuthenticatedLayout
@@ -248,22 +281,45 @@ export default function Home({ rooms = [] }) {
                         </div>
                     )}
 
-                    <button className="mt-4 px-4 py-2 bg-blue-500 text-white rounded" onClick={() => setUpdateModalOpen(false)}>
+                    <button 
+                        className="mt-4 px-4 py-2 bg-blue-500 text-white rounded" 
+                        onClick={() => {
+                            setUpdateModalOpen(false);
+                            setIsModalOpen(false);
+                        }}
+                    >
                         閉じる
                     </button>
                 </div>
             </Modal>
 
             <Modal show={isModalOpen} onClose={() => setIsModalOpen(false)}>
-            <h2 className="text-center m-4">{modalData.updatePhoto_message}</h2>
+                <h2 className="text-center m-4">{modalData.updatePhoto_message}</h2>
                 <div className="p-4">
-                     <div className="flex flex-col">
-                        
-                    {randomRoom && (
-                        <h2 className="text-xl text-center my-4">
-                            「{randomRoom.room_name}」の写真を更新しましょう！
-                        </h2>
-                    )}
+                    <div className="flex flex-col">
+                        <label className="text-sm font-bold">部屋を選択：</label>
+                        <select
+                            className="p-2 border rounded mt-2"
+                            value={selectedRoom?.id}
+                            onChange={(e) => {
+                                const chosenRoom = rooms.find(room => room.id === Number(e.target.value));
+                                if (chosenRoom) {
+                                    setSelectedRoom(chosenRoom);
+                                }
+                            }}
+                        >
+                    {rooms.map(room => (
+                        <option key={room.id} value={String(room.id)}>
+                            {room.room_name}
+                        </option>
+                    ))}
+                </select>
+
+                {selectedRoom && (
+                    <h2 className="text-xl text-center my-4">
+                        「{selectedRoom.room_name}」の写真を更新しましょう！
+                    </h2>
+                )}
 
                             <div>
                                 <img src={imageSrc} alt="部屋の写真" className="w-full rounded-sm"/>
@@ -302,49 +358,63 @@ export default function Home({ rooms = [] }) {
                 </div>
             </Modal>
 
-            <div className="flex flex-row">
-                <div className="basis-1/3 border-2 border-solid rounded-sm m-2 shadow-xl justify-items-center">
-                <h2 className="text-xl font-bold mb-2">今週のタスク</h2>
-                    {rooms.map((room) => {
-                        const weekDays = ["月曜日", "火曜日", "水曜日", "木曜日", "金曜日", "土曜日", "日曜日"];
-                        const agenda = agendas.find(a => a.room_id === room.id) || null;
+            <div className="md:flex md:flex-row">
+                <div className="basis-1/3 border-2 border-solid rounded-sm md:m-2 shadow-xl justify-items-center ">
+                    <h2 className="text-xl font-bold mb-2">今週のタスク</h2>
 
+                    {rooms.length === 0 ? (
+                        <p className="text-center text-gray-500 m-4">部屋のデータがありません。</p>
+                    ) : (
+                        rooms.map((room) => {
+                            const weekDays = ["月曜日", "火曜日", "水曜日", "木曜日", "金曜日", "土曜日", "日曜日"];
+                            const agenda = agendas.find(a => a.room_id === room.id) || null;
 
-                        return (
-                            <div 
-                                key={room.id}
-                                className={`w-5/6 p-4 text-white rounded-md shadow-md transition m-4
-                                    ${agenda?.status === 1 ? 'bg-blue-500 hover:bg-blue-600' : 'bg-red-500 hover:bg-red-600'}`}
-                                onClick={() => {
-                                    if (agenda) {
-                                        handleStatusUpdate(agenda.id, agenda.status);
-                                    }
-                                    handleRoomSelection(room.id);
-                                }}
-
-                            >
-                                <h2>{room.room_name}</h2>
-                                    {agenda ? (
+                            return (
+                                <div 
+                                    className="w-full"
+                                    key={room.id}
+                                >
+                                    <h2 className="m-2">{room.room_name}</h2>
+                                        <div 
+                                            className={`md:w-5/6 p-4 text-white rounded-md shadow-md transition m-4
+                                                ${isLoading || !agenda?.day_of_the_week || !agenda?.start_time || !agenda?.end_time 
+                                                    ? "bg-gray-400 opacity-50 cursor-not-allowed" 
+                                                    : agenda?.status === 1 
+                                                    ? "bg-blue-500 hover:bg-blue-600" 
+                                                    : "bg-red-500 hover:bg-red-600"
+                                                }`}
+                                            onClick={() => {
+                                                if (!isLoading && agenda) { 
+                                                    handleStatusUpdate(agenda.id, agenda.status);
+                                                    setSelectedRoomId(room.id);
+                                                }
+                                            }}
+                                        >
+                                        {agenda && agenda.day_of_the_week !== null && agenda.start_time !== null && agenda.end_time !== null ? (
                                         <div>
-                                            <p>曜日: {weekDays[agenda.day_of_the_week -1]} </p>
-                                            <p>{agenda.start_time}~{agenda.end_time}</p>
+                                                <p>曜日: {weekDays[agenda.day_of_the_week - 1]} </p>
+                                                <p>{agenda.start_time}~{agenda.end_time}</p>
+                                                {agenda.status === 0 && <p className="text-center font-bold">未完了</p>}
+                                                {agenda.status === 1 && <p className="text-center font-bold">OK！</p>}
+                                            </div>
+                                        ) : (
+                                            <p className="text-center text-white">タスクが未登録です</p>
+                                        )}
                                         </div>
-                                    ) : (
-                                    <p>Agenda がありません</p>
-                                    )}
-                            </div>
-                        )
-                    })}
+                                </div>
+                            );
+                        })
+                    )}
                 </div>
-
-                <div className="basis-2/3 border-2 border-solid rounded-sm m-2 shadow-xl">
+                
+                <div className="basis-2/3 border-2 border-solid rounded-sm m-2 shadow-xl justify-items-center">
                     <h2 className="text-xl font-bold mb-2">登録されている部屋</h2>
                     
                         {rooms.length === 0 ? (
-                            <p className="text-gray-500">登録されている部屋がありません。</p>
+                            <p className="text-gray-500 m-4">登録されている部屋がありません。</p>
                         ) : (
                             <>
-                            <div className="flex flex-row">
+                            <div className="md:flex md:flex-row">
                                 <div  className="basis-1/2 justify-items-center">
                                     <div>
                                         {rooms.map((room) =>
@@ -361,82 +431,108 @@ export default function Home({ rooms = [] }) {
                                                     )}
 
                                                     <img
-                                                        className="h-48 w-96 object-cover rounded-sm m-2"
+                                                        className="md:h-48 md:w-96 object-cover rounded-sm m-2"
                                                         src={`/rooms/${room.img_name}`}
                                                         alt={room.room_name}
                                                         style={{ display: hasImageLoaded[room.id] ? "block" : "none" }}
                                                         onLoad={() => handleImageLoad(room.id)}
                                                     />
-                        {/* API確認用 */}
-                        {/* <button
-                            onClick={() => handleAnalyzeImage(room.img_name)}
-                            className="mt-2 p-2 bg-blue-500 text-white rounded"
-                        >
-                            画像を判定する
-                        </button> */}
-                        {/* API確認用 */}
+
 
                                                 </div>
                                             ) : null
                                         )}
                                     </div>
+                                   <div className="block md:hidden justify-center m-4">
+                                        <FormControl component="fieldset">
+                                            <RadioGroup
+                                                row
+                                                value={selectedRoomId}
+                                                onChange={(e) => setSelectedRoomId(Number(e.target.value))}
+                                            >
+                                                {rooms.map((room) => (
+                                                    <FormControlLabel
+                                                        key={room.id}
+                                                        value={room.id}
+                                                        control={<Radio />}
+                                                        label={room.room_name}
+                                                    />
+                                                ))}
+                                            </RadioGroup>
+                                        </FormControl>
+                                    </div>
+                                    <div 
+                                        className={`flex justify-center border-2 border-solid rounded-sm m-2 shadow-xl transition duration-300 ease-in-out h-auto md:w-4/5
+                                            ${allCompleted && !hasAiEvaluate ? "border-4 border-red-500 bg-red-500" : ""}`}
+                                    >
+                                        <img 
+                                            src={micelleEvaluateImage} 
+                                            alt="ミセル判定画像" 
+                                            className={`h-auto w-auto m-4 transition ease-in-out hover:scale-105 hover:border-4 hover:border-blue-500 rounded
+                                                ${allCompleted && !hasAiEvaluate ? "border-4 border-red-500" : ""}`}
 
-                                    <FormControl component="fieldset">
-                                        <RadioGroup
-                                            row
-                                            value={selectedRoomId}
-                                            onChange={(e) => setSelectedRoomId(Number(e.target.value))}
-                                        >
-                                            {rooms.map((room) => (
-                                                <FormControlLabel
-                                                    key={room.id}
-                                                    value={room.id}
-                                                    control={<Radio />}
-                                                    label={room.room_name}
-                                                />
-                                            ))}
-                                        </RadioGroup>
-                                    </FormControl>
+                                            onClick={() => setIsModalOpen(true)}
+                                        />
+                                    </div>
                                 </div>
 
-                                <div className="basis-1/2">
-                                    {rooms.map((room) =>
-                                        room.id === selectedRoomId ? (
-                                            <div key={room.id}>
-                                                <p>達成率: {Math.round((room.agendas.filter(agenda => agenda.status).length / room.agendas.length) * 100) || 0}%</p>
-                                                    <GaugeComponentA
-                                                        value={(room.agendas.filter(agenda => agenda.status).length / room.agendas.length) * 100 || 0}
-                                                    />
-                                            </div>
-                                        ) : null
-                                    )}
+                                <div className="md:basis-1/2">
+                                    <div>
+                                        {rooms.map((room) =>
+                                            room.id === selectedRoomId ? (
+                                                <div key={room.id}>
+                                                    <p>達成率: {Math.round((room.agendas.filter(agenda => agenda.status).length / room.agendas.length) * 100) || 0}%</p>
+                                                        <GaugeComponentA
+                                                            value={(room.agendas.filter(agenda => agenda.status).length / room.agendas.length) * 100 || 0}
+                                                        />
+                                                </div>
+                                            ) : null
+                                        )}
 
-                                    {rooms.map((room) =>
-                                        room.id === selectedRoomId ? (
-                                            <div key={room.id}>
-                                                <p>
-                                                    AIスコアの平均:{" "}
-                                                    {room.agendas.length > 0
-                                                        ? Math.round(
-                                                            room.agendas.reduce((acc, agenda) => acc + (agenda.ai_evaluate || 0), 0) / room.agendas.length
-                                                        ) : 0}
-                                                </p>
-                                                <GaugeComponentB
-                                                    value={
-                                                        room.agendas.length > 0
-                                                            ? room.agendas.reduce((acc, agenda) => acc + (agenda.ai_evaluate || 0), 0) / room.agendas.length : 0
-                                                    }
-                                                />
-                                            </div>
-                                        ) : null
-                                    )}
+                                        {rooms.map((room) =>
+                                            room.id === selectedRoomId ? (
+                                                <div key={room.id}>
+                                                    <p>
+                                                        AIスコアの平均:{" "}
+                                                        {room.agendas.length > 0
+                                                            ? Math.round(
+                                                                room.agendas.reduce((acc, agenda) => acc + (agenda.ai_evaluate || 0), 0) / room.agendas.length
+                                                            ) : 0}
+                                                    </p>
+                                                    <GaugeComponentB
+                                                        value={
+                                                            room.agendas.length > 0
+                                                                ? room.agendas.reduce((acc, agenda) => acc + (agenda.ai_evaluate || 0), 0) / room.agendas.length : 0
+                                                        }
+                                                    />
+                                                </div>
+                                            ) : null
+                                        )}
+                                    </div>
+                                    <div className="hidden md:flex justify-center m-4">
+                                        <FormControl component="fieldset">
+                                            <RadioGroup
+                                                row
+                                                value={selectedRoomId}
+                                                onChange={(e) => setSelectedRoomId(Number(e.target.value))}
+                                            >
+                                                {rooms.map((room) => (
+                                                    <FormControlLabel
+                                                        key={room.id}
+                                                        value={room.id}
+                                                        control={<Radio />}
+                                                        label={room.room_name}
+                                                    />
+                                                ))}
+                                            </RadioGroup>
+                                        </FormControl>
+                                    </div>
                                 </div>
                             </div>
                         </>
                         )}
                 </div>
             </div>
-            <PrimaryButton onClick={() => setIsModalOpen(true)}>画像を判定する</PrimaryButton>
         </AuthenticatedLayout>
     );
 }

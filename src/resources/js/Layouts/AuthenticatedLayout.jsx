@@ -7,6 +7,7 @@ import { useState } from 'react';
 
 export default function AuthenticatedLayout({ header, children }) {
     const user = usePage().props.auth.user;
+    const micelleImage = "/storage/images/micelle.jpg";
 
     const navLabels = {
         home: "Home",
@@ -26,7 +27,7 @@ export default function AuthenticatedLayout({ header, children }) {
                         <div className="flex">
                             <div className="flex shrink-0 items-center">
                                 <Link href="/">
-                                    <ApplicationLogo className="block h-9 w-auto fill-current text-gray-800" />
+                                    <img src={micelleImage} alt="ミセル判定ロゴ" className="h-14" />
                                 </Link>
                             </div>
 
@@ -49,14 +50,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                     active={route().current('task')}
                                 >
                                     タスク
-                                </NavLink>
-                                <NavLink
-                                    href="/ai_evaluate"
-                                    active={route().current('ai_evaluate')}
-                                >
-                                    ミセルくん
-                                </NavLink>
-            
+                                </NavLink>            
                             </div>
                         </div>
 
@@ -156,31 +150,23 @@ export default function AuthenticatedLayout({ header, children }) {
                 >
                     <div className="space-y-1 pb-3 pt-2">
                     <ResponsiveNavLink
-                        href={route('home')}
-                        active={route().current('home')}>
-                            {navLabels[route().current()] || 'Home'}
+                        href="/home"
+                        active={route().current('home')}
+                    >
+                        Home
                     </ResponsiveNavLink>
-                    
-
-
-                        {/* <ResponsiveNavLink
-                            href={route('preparation')}
-                            active={route().current('dashboard')}
-                        >
-                            登録
-                        </ResponsiveNavLink>
-                        <ResponsiveNavLink
-                            href={route('task')}
-                            active={route().current('dashboard')}
-                        >
-                            Task
-                        </ResponsiveNavLink>
-                        <ResponsiveNavLink
-                            href={route('AI_evaluation')}
-                            active={route().current('dashboard')}
-                        >
-                            ミセルくん
-                        </ResponsiveNavLink> */}
+                    <ResponsiveNavLink
+                        href="/preparation"
+                        active={route().current('preparation')}
+                    >
+                        登録
+                    </ResponsiveNavLink>
+                    <ResponsiveNavLink
+                        href="/task"
+                        active={route().current('task')}
+                    >
+                        タスク
+                    </ResponsiveNavLink>  
                     </div>
 
                     <div className="border-t border-gray-200 pb-1 pt-4">

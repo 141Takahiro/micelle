@@ -50,6 +50,10 @@ class HomeController extends Controller
 
             $room = Room::find($id);
             if ($room) {
+                if ($room->img_name) {
+                    Storage::disk('private')->delete('rooms/' . $room->img_name);
+                }
+
                 $room->update([
                     'img_name' => $img_name,
                 ]);
@@ -58,7 +62,6 @@ class HomeController extends Controller
             }
 
             $img_url = route('home.room.img', ['img_name' => $img_name]);
-
             $imageBytes = file_get_contents($file->getPathname());
 
             $rekognition = new RekognitionClient([
