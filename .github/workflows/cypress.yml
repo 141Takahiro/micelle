@@ -11,14 +11,10 @@ jobs:
       matrix:
         containers: [1, 2] # Uses 2 parallel instances
     steps:
-      - name: Recursively list files in repository root
-        run: ls -laR $GITHUB_WORKSPACE
-      - name: Check for docker-compose.yml in repository
-        run: find $GITHUB_WORKSPACE -name "docker-compose.yml" -print
-      - name: Build and start Docker containers
-        run: docker compose up -d
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Build and start Docker containers
+        run: docker compose up -d
       - name: Cypress run
         # Uses the official Cypress GitHub action https://github.com/cypress-io/github-action
         uses: cypress-io/github-action@v6
