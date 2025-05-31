@@ -360,6 +360,7 @@ export default function Home({ rooms = [] }) {
 
             <div className="md:flex md:flex-row">
                 <div className="basis-1/3 border-2 border-solid rounded-sm md:m-2 shadow-xl justify-items-center ">
+                <p>テスト用。後で消します。</p>
                     <h2 className="text-xl font-bold mb-2">今週のタスク</h2>
 
                     {rooms.length === 0 ? (
