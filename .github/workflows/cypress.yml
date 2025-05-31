@@ -19,7 +19,6 @@ jobs:
         run: |
           cd src
           echo "Now in $(pwd), running Cypress..."
-          # npx wait-on 'http://localhost:8080'
           npx cypress run --record --parallel
 
         # Uses the official Cypress GitHub action https://github.com/cypress-io/github-action
