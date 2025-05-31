@@ -15,10 +15,14 @@ jobs:
         uses: actions/checkout@v4
       - name: Build and start Docker containers
         run: docker compose up -d
+      - name: Install dependencies
+        run: npm ci
+        working-directory: src
       - name: Cypress run
         run: |
           cd src
           echo "Now in $(pwd), running Cypress..."
+          npx wait-on 'http://localhost:8080'
           npx cypress run --record --parallel
 
         # Uses the official Cypress GitHub action https://github.com/cypress-io/github-action
