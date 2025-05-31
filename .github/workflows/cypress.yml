@@ -11,8 +11,10 @@ jobs:
       matrix:
         containers: [1, 2] # Uses 2 parallel instances
     steps:
-      - name: List working directory
-        run: ls -la $GITHUB_WORKSPACE
+      - name: Print workspace path
+        run: |
+          echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
+          pwd
       - name: Build and start Docker containers
         run: docker compose up -d
       - name: Checkout
