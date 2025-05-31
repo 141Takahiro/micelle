@@ -12,7 +12,7 @@ jobs:
         containers: [1, 2] # Uses 2 parallel instances
     steps:
       - name: Build and start Docker containers
-        run: docker compose up -d
+        run: docker compose -f micelle/docker-compose.yml up -d
       - name: Checkout
         uses: actions/checkout@v4
       - name: Cypress run
