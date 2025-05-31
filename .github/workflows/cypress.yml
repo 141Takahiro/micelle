@@ -11,19 +11,10 @@ jobs:
       matrix:
         containers: [1, 2] # Uses 2 parallel instances
     steps:
-      - name: Print workspace path
-        run: |
-          echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
-          pwd
-      - name: List files in repository root and show absolute paths for . and ..
-        run: |
-          echo "Listing files in \$GITHUB_WORKSPACE ($GITHUB_WORKSPACE):"
-          ls -la $GITHUB_WORKSPACE
-          echo ""
-          echo "Absolute path of current directory (.) is:"
-          readlink -f .
-          echo "Absolute path of parent directory (..) is:"
-          readlink -f ..
+      - name: Recursively list files in repository root
+        run: ls -laR $GITHUB_WORKSPACE
+      - name: Check for docker-compose.yml in repository
+        run: find $GITHUB_WORKSPACE -name "docker-compose.yml" -print
       - name: Build and start Docker containers
         run: docker compose up -d
       - name: Checkout
