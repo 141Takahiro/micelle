@@ -12,7 +12,6 @@ jobs:
         containers: [1, 2] # Uses 2 parallel instances
     steps:
       - name: Build and start Docker containers
-        working-directory: micelle
         run: docker compose up -d
       - name: Checkout
         uses: actions/checkout@v4
