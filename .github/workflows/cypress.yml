@@ -15,20 +15,24 @@ jobs:
         uses: actions/checkout@v4
       - name: Build and start Docker containers
         run: docker compose up -d
-      - name: Copy lock file to repository root
-        run: cp micelle/src/package-lock.json $GITHUB_WORKSPACE/package-lock.json
       - name: Cypress run
+        run: |
+          cd micelle/src
+          echo "Now in $(pwd), running Cypress..."
+          npx wait-on 'http://localhost:8080'
+          npx cypress run --record --parallel
+
         # Uses the official Cypress GitHub action https://github.com/cypress-io/github-action
-        uses: cypress-io/github-action@v6
-        with:
+        # uses: cypress-io/github-action@v6
+        # with:
           # Starts web server for E2E tests - replace with your own server invocation
           # https://docs.cypress.io/guides/continuous-integration/introduction#Boot-your-server
           # start: npm start
-          wait-on: 'http://localhost:8080' # Waits for above
+          # wait-on: 'http://localhost:8080' # Waits for above
           # Records to Cypress Cloud
           # https://docs.cypress.io/guides/cloud/projects#Set-up-a-project-to-record
-          record: true
-          parallel: true # Runs test in parallel using settings above
+          # record: true
+          # parallel: true # Runs test in parallel using settings above
         env:
           # For recording and parallelization to work you must set your CYPRESS_RECORD_KEY
           # in GitHub repo → Settings → Secrets → Actions
