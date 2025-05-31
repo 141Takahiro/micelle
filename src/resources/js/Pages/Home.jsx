@@ -13,6 +13,7 @@ import cameraAdd from "../assets/icons/camera-add.png";
 import folderOpen from "../assets/icons/folder-open.png";
 import { usePage } from "@inertiajs/react";
 
+
 export default function Home({ rooms = [] }) {
 
     const defaultImage = "/storage/images/default-image.png";
