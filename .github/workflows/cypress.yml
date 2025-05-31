@@ -17,7 +17,7 @@ jobs:
         run: docker compose up -d
       - name: Cypress run
         run: |
-          cd micelle/src
+          cd src
           echo "Now in $(pwd), running Cypress..."
           npx wait-on 'http://localhost:8080'
           npx cypress run --record --parallel
