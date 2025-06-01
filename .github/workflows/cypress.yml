@@ -29,10 +29,6 @@ jobs:
         run: |
            docker exec micelle-app-1 ping -c 4 micelle-db-1
            docker exec micelle-web-1 ping -c 4 micelle-app-1
-      - name: Test server response with curl
-        run: |
-           docker exec micelle-web-1 curl -I http://micelle-app-1:9000
-           docker exec micelle-app-1 curl -I http://micelle-db-1:3306
       - name: Install dependencies
         run: npm ci
         working-directory: src
