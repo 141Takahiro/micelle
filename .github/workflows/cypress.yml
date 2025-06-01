@@ -15,6 +15,12 @@ jobs:
         uses: actions/checkout@v4
       - name: Build and start Docker containers
         run: docker compose up -d
+      - name: Get logs for micelle-web-1
+        run: docker logs micelle-web-1
+      - name: Get logs for micelle-db-1
+        run: docker logs micelle-db-1
+      - name: Get logs for micelle-app-1
+        run: docker logs micelle-app-1
       - name: Wait for server to start
         run: sleep 100
       - name: Check running containers
