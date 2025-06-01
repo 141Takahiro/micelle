@@ -15,19 +15,21 @@ jobs:
         uses: actions/checkout@v4
       - name: Build and start Docker containers
         run: docker compose up -d
+        working-directory: micelle/src
       - name: Install dependencies
         run: npm ci
-        working-directory: src
+        working-directory: micelle/src
       - name: Build application
         run: npm run build
-        working-directory: src
+        working-directory: micelle/src
       - name: Start server
         run: npm start &
-        working-directory: src
+        working-directory: micelle/src
       - name: Wait for server to start
         run: sleep 100
       - name: Check server status
         run: curl -I http://localhost:8080 || exit 1
+        working-directory: micelle/src
       - name: Cypress run
         run: |
           cd src
