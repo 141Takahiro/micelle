@@ -27,7 +27,7 @@ jobs:
         run: npm start &
         working-directory: src
       - name: Wait for server to start
-        run: sleep 100
+        run: sleep 300
       - name: Check server status
         run: curl -I http://localhost:8080 || exit 1
         working-directory: src
