@@ -3,7 +3,11 @@ services:
     build: ./infra/php
     depends_on:
       - db
-    command: sh -c "php artisan migrate && php-fpm"
+    # command: sh -c "php artisan migrate && php-fpm"
+    command: sh -c "composer install --no-dev --optimize-autoloader &&
+                     php artisan migrate --force &&
+                     php-fpm"
+
     volumes:
       - ./src:/var/www/html
     working_dir: /var/www/html
