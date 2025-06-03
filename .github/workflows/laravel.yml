@@ -31,6 +31,8 @@ jobs:
 
     - name: Copy .env
       run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+      working-directory: src
+      
     - name: Install Dependencies with Debugging
       run: composer install -vvv --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
       working-directory: src
