@@ -234,6 +234,7 @@ export default function Home({ rooms = [] }) {
         setImageSrc(defaultImage); 
     }, []); 
 
+
     return (
         <AuthenticatedLayout
             header={
