@@ -50,6 +50,10 @@ jobs:
         mkdir -p database
         touch database/database.sqlite
       working-directory: src
+
+    - name: Build React assets
+      run: npm install && npm run build
+      working-directory: src
         
     - name: Execute tests (Unit and Feature tests) via PHPUnit/Pest
       env:
