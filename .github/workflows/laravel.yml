@@ -26,11 +26,16 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y sqlite3 libsqlite3-dev
 
-    - uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        path: src
     - name: Copy .env
       run: php -r "file_exists('.env') || copy('.env.example', '.env');"
     - name: Install Dependencies with Debugging
       run: composer install -vvv --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+      working-directory: src
+
     - name: Generate key
       run: php artisan key:generate
     - name: Directory Permissions
