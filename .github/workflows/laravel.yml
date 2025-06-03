@@ -49,8 +49,11 @@ jobs:
       run: |
         mkdir -p database
         touch database/database.sqlite
+        working-directory: src
+        
     - name: Execute tests (Unit and Feature tests) via PHPUnit/Pest
       env:
         DB_CONNECTION: sqlite
         DB_DATABASE: database/database.sqlite
       run: php artisan test
+      working-directory: src
