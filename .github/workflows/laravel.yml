@@ -43,6 +43,8 @@ jobs:
 
     - name: Directory Permissions
       run: chmod -R 777 storage bootstrap/cache
+      working-directory: src
+      
     - name: Create Database
       run: |
         mkdir -p database
