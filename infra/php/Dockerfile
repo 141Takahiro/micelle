@@ -20,3 +20,7 @@ WORKDIR /data
 RUN mkdir -p /data && \
     chown -R www-data:www-data /data && \
     chmod -R 775 /data
+
+RUN mkdir -p /var/www/html/storage/logs && \
+    chown -R www-data:www-data /var/www/html/storage && \
+    chmod -R 775 /var/www/html/storage
