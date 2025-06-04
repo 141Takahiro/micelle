@@ -20,6 +20,9 @@ jobs:
           docker exec micelle-app-1 chown -R www-data:www-data /var/www/html/storage
           docker exec micelle-app-1 chmod -R 775 /var/www/html/storage
 
+      - name: Generate Laravel APP_KEY
+        run: docker exec micelle-app-1 php artisan key:generate
+
       - name: Get logs for micelle-web-1
         run: docker logs micelle-web-1
 
