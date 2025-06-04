@@ -20,3 +20,4 @@ WORKDIR /data
 RUN mkdir -p /data && \
     chown -R www-data:www-data /data && \
     chmod -R 775 /data
+
