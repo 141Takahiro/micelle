@@ -15,3 +15,8 @@ RUN apt-get update && \
 COPY ./php.ini /usr/local/etc/php/php.ini
 
 WORKDIR /data
+
+# 書き込み権限を付与
+RUN mkdir -p /data && \
+    chown -R www-data:www-data /data && \
+    chmod -R 775 /data
