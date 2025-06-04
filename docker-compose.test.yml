@@ -4,15 +4,15 @@ services:
       context: ./infra/php
       dockerfile: Dockerfile.test
 
-    command:  sh -c "cp .env.example .env && \
-       php artisan key:generate --force && \
-       apt-get update && \
+    command: sh -c "apt-get update && \
        apt-get install -y libgd-dev libjpeg-dev libpng-dev libfreetype6-dev pkg-config && \
        docker-php-ext-configure gd --with-freetype --with-jpeg && \
        docker-php-ext-install gd && \
+       cp .env.example .env && \
        composer install --dev --optimize-autoloader && \
+       php artisan key:generate --force && \
        php artisan migrate --force && \
-       php-fpm"
+       exec php-fpm"
 
     volumes:
       - ./src:/var/www/html
