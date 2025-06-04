@@ -1,0 +1,28 @@
+services:
+  app:
+    build: 
+      context: ./infra/php
+      dockerfile: Dockerfile.test
+
+    command: sh -c "cp .env.example .env && \
+            apt-get update && \
+            apt-get install -y libgd-dev libjpeg-dev libpng-dev libfreetype6-dev pkg-config && \
+            docker-php-ext-configure gd --with-freetype --with-jpeg && \
+            docker-php-ext-install gd && \
+            composer install --dev --optimize-autoloader && \
+            php artisan migrate --force && \
+            php-fpm"  
+
+    volumes:
+      - ./src:/var/www/html
+    working_dir: /var/www/html
+
+
+  web:
+    image: nginx:1.20-alpine
+    ports:
+      - 8080:80
+    volumes:
+      - ./src:/var/www/html
+      - ./infra/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    working_dir: /var/www/html
