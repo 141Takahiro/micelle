@@ -1,0 +1,56 @@
+name: Lighthouse Tests
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  lighthouse-run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build and start Docker containers
+        run: docker compose up -d
+
+      - name: Get logs for micelle-web-1
+        run: docker logs micelle-web-1
+
+      - name: Get logs for micelle-db-1
+        run: docker logs micelle-db-1
+
+      - name: Get logs for micelle-app-1
+        run: docker logs micelle-app-1
+
+      - name: Wait for server to start
+        run: sleep 100
+
+      - name: Check running containers
+        run: docker ps
+
+      - name: Test container connectivity with ping
+        run: |
+          docker exec micelle-app-1 ping -c 4 micelle-db-1
+          docker exec micelle-web-1 ping -c 4 micelle-app-1
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: src
+
+      - name: Build application
+        run: npm run build
+        working-directory: src
+
+      - name: Start server
+        run: npm start &
+        working-directory: src
+
+      - name: Check server status
+        run: curl -I http://localhost:8080 || exit 1
+        working-directory: src
+
+      - name: Run Lighthouse CI
+        run: npx lhci autorun --chrome-flags="--headless=false"
+        working-directory: src
