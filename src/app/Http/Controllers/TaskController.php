@@ -7,6 +7,7 @@ use Inertia\Inertia;
 use App\Models\Room;
 use App\Models\RegularAgenda;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\Storage;
 
 class TaskController extends Controller
 {
@@ -79,8 +80,8 @@ class TaskController extends Controller
 
             $filePath = storage_path("app/private/rooms/{$room->img_name}");
 
-            if (file_exists($filePath)) { 
-                unlink($filePath);
+            if (Storage::disk('private')->exists("rooms/{$room->img_name}")) {
+                Storage::disk('private')->delete("rooms/{$room->img_name}");
             }
 
             $roomName = $room->room_name;

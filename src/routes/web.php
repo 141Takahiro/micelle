@@ -38,8 +38,7 @@ Route::delete('/preparation/delete/{id}', [PreparationController::class, 'delete
 Route::get('/rooms/{img_name}', [PreparationController::class, 'getRoomImage'])->name('get.room.img');
 
 Route::get('/task', [TaskController::class, 'show'])->name('task');
-Route::post('/store', [TaskController::class, 'store'])
-    ->name('store');
+Route::post('/store', [TaskController::class, 'store'])->name('store');
 Route::delete('/task/delete/{id}', [TaskController::class, 'delete'])->name('task.delete');
 
 require __DIR__.'/auth.php';

@@ -109,7 +109,6 @@ class PreparationControllerTest extends TestCase
             'room_name' => '新しい部屋'
         ]);
 
-        // ✅ `store_message` に両方のメッセージが含まれることを確認
         $response->assertSessionHas('store_message', fn ($message) =>
             str_contains($message, '予期しないエラーが発生しました。') 
         );
