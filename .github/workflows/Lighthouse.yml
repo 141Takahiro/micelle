@@ -57,10 +57,6 @@ jobs:
       - name: Dump additional error logs on failure
         if: always() && steps.check_server.outcome == 'failure'
         run: |
-          echo "=== Docker logs for micelle-web-1 (Nginx) ==="
-          docker logs micelle-web-1
-          echo "=== Nginx error log inside micelle-web-1 ==="
-          docker exec micelle-web-1 cat /var/log/nginx/error.log || echo "No Nginx error log found"
           echo "=== Docker logs for micelle-app-1 (Application) ==="
           docker logs micelle-app-1   
 
