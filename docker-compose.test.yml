@@ -5,14 +5,14 @@ services:
       dockerfile: Dockerfile.test
 
     command:  sh -c "cp .env.example .env && \
-                     apt-get update && \
-                     apt-get install -y libgd-dev libjpeg-dev libpng-dev libfreetype6-dev pkg-config && \
-                     docker-php-ext-configure gd --with-freetype --with-jpeg && \
-                     docker-php-ext-install gd && \
-                     composer install --dev --optimize-autoloader && \
-                     php artisan key:generate --force && \
-                     php artisan migrate --force && \
-                     php-fpm"
+       php artisan key:generate --force && \
+       apt-get update && \
+       apt-get install -y libgd-dev libjpeg-dev libpng-dev libfreetype6-dev pkg-config && \
+       docker-php-ext-configure gd --with-freetype --with-jpeg && \
+       docker-php-ext-install gd && \
+       composer install --dev --optimize-autoloader && \
+       php artisan migrate --force && \
+       php-fpm"
 
     volumes:
       - ./src:/var/www/html
