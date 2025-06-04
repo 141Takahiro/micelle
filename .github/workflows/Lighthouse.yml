@@ -51,7 +51,7 @@ jobs:
         id: check_server
         run: |
           echo "Checking server status..."
-          curl -I http://localhost:8080 || exit 1
+          curl -I -f http://localhost:8080 || exit 1
         working-directory: src
 
       - name: Dump additional error logs on failure
