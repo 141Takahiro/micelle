@@ -36,7 +36,7 @@ class PreparationController extends Controller
             ]);
 
             if (Room::where('user_id', auth()->id())->count() >= 4) {
-                throw new \Exception('部屋の登録は４つまでです。');
+                throw new \Exception();
             }
 
             $file = $request->file('image');
@@ -78,8 +78,8 @@ class PreparationController extends Controller
 
             $filePath = storage_path("app/private/rooms/{$room->img_name}");
 
-            if (file_exists($filePath)) { 
-                unlink($filePath);
+            if (Storage::disk('private')->exists("rooms/{$room->img_name}")) {
+                Storage::disk('private')->delete("rooms/{$room->img_name}");
             }
 
             $roomName = $room->room_name;
@@ -97,9 +97,9 @@ class PreparationController extends Controller
     public function getRoomImage($img_name)
     {
         $path = "rooms/{$img_name}";
-        
+
         if (!Storage::disk('private')->exists($path)) {
-            abort(404, '画像が見つかりません');
+            return redirect()->route('preparation')->with('updatePhoto_message', '画像が見つかりません');
         }
 
         return Response::make(Storage::disk('private')->get($path), 200, [
