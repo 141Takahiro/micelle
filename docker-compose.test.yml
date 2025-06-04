@@ -8,7 +8,7 @@ services:
        apt-get install -y libgd-dev libjpeg-dev libpng-dev libfreetype6-dev pkg-config && \
        docker-php-ext-configure gd --with-freetype --with-jpeg && \
        docker-php-ext-install gd && \
-       cp .env.example .env && \
+       cd /var/www/html && cp .env.example .env && \
        composer install --dev --optimize-autoloader && \
        php artisan key:generate --force && \
        php artisan migrate --force && \
