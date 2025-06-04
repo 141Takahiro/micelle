@@ -15,6 +15,11 @@ jobs:
       - name: Build and start Docker containers
         run: docker compose up -d
 
+      - name: Fix storage permissions
+        run: |
+          docker exec micelle-app-1 chown -R www-data:www-data /var/www/html/storage
+          docker exec micelle-app-1 chmod -R 775 /var/www/html/storage
+
       - name: Get logs for micelle-web-1
         run: docker logs micelle-web-1
 
@@ -46,6 +51,9 @@ jobs:
       - name: Start server
         run: npm start &
         working-directory: src
+
+      - name: Wait for server to start
+        run: sleep 100
 
       - name: Check server status
         id: check_server
