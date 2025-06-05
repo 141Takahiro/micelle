@@ -58,9 +58,9 @@ jobs:
       - name: Test container connectivity with ping
         run: docker exec micelle-web-1 ping -c 4 micelle-app-1
       
-      - name: Check vendor directory exists in app container
-        run: docker exec micelle-app-1 ls -la /var/www/html | grep vendor
-      
+      - name: List contents of vendor directory in app container
+        run: docker exec micelle-app-1 ls -la /var/www/html/vendor
+            
       - name: Check .env file exists in app container
         run: docker exec micelle-app-1 ls -la /var/www/html | grep "\.env"
       
