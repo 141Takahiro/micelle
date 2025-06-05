@@ -15,6 +15,18 @@ jobs:
       - name: Build and start Docker containers
         run: docker compose -f docker-compose.test.yml up -d --build
 
+      - name: Run initialization commands
+        run: |
+          docker exec micelle-app-1 sh -c "echo '初期化処理開始...' &&
+          ls -la /var/www/html &&
+          cp /var/www/html/.env.example /var/www/html/.env &&
+          ls -la /var/www/html &&
+          composer install --dev --optimize-autoloader &&
+          ls -la /var/www/html/vendor &&
+          php artisan key:generate --force &&
+          php artisan migrate --force &&
+          echo '初期化処理完了'"
+
       - name: Fix storage permissions
         run: |
           docker exec micelle-app-1 chown -R www-data:www-data /var/www/html/storage
