@@ -49,6 +49,9 @@ jobs:
       - name: Check APP_KEY in .env file
         run: docker exec micelle-app-1 grep APP_KEY /var/www/html/.env
 
+      - name: Show complete .env file
+        run: docker exec micelle-app-1 cat /var/www/html/.env
+
       - name: Get logs for micelle-app-1
         run: docker logs micelle-app-1
 
@@ -57,9 +60,6 @@ jobs:
       
       - name: Test container connectivity with ping
         run: docker exec micelle-web-1 ping -c 4 micelle-app-1
-      
-      - name: List contents of vendor directory in app container
-        run: docker exec micelle-app-1 ls -la /var/www/html/vendor
             
       - name: Check .env file exists in app container
         run: docker exec micelle-app-1 ls -la /var/www/html | grep "\.env"
