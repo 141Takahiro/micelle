@@ -46,14 +46,20 @@ jobs:
       - name: Get logs for micelle-app-1
         run: docker logs micelle-app-1
 
-      - name: Wait for server to start
-        run: sleep 100
-
       - name: Check running containers
         run: docker ps
-
+      
       - name: Test container connectivity with ping
         run: docker exec micelle-web-1 ping -c 4 micelle-app-1
+      
+      - name: Check vendor directory exists in app container
+        run: docker exec micelle-app-1 ls -la /var/www/html | grep vendor
+      
+      - name: Check .env file exists in app container
+        run: docker exec micelle-app-1 ls -la /var/www/html | grep "\.env"
+      
+      - name: Verify APP_KEY in .env
+        run: docker exec micelle-app-1 grep '^APP_KEY=' /var/www/html/.env
 
       - name: Wait for server to start
         run: sleep 100
