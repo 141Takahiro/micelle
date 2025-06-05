@@ -21,9 +21,13 @@ jobs:
           docker exec micelle-app-1 chmod -R 775 /var/www/html/storage
           docker exec micelle-app-1 chmod -R 777 /var/www/html/bootstrap/cache
 
+      - name: Re-copy .env and generate APP_KEY
+        run: |
+          docker exec micelle-app-1 cp /var/www/html/.env.example /var/www/html/.env
+          docker exec micelle-app-1 php artisan key:generate --force
+
       - name: Check APP_KEY in .env file
         run: docker exec micelle-app-1 grep APP_KEY /var/www/html/.env
-
       - name: Install Composer dependencies
         run: docker exec micelle-app-1 composer install -vvv --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
 
