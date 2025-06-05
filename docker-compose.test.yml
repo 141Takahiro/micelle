@@ -3,17 +3,39 @@ services:
     build:
       context: ./infra/php
       dockerfile: Dockerfile.test
-    # Dockerfile.test内の command では初期化処理（.envのコピー、composer install 等）は含まず、
-    # ここでは必要なパッケージのインストール後、ただ php-fpm が起動するのみ。
-    command: >
-      sh -c "apt-get update &&
-      apt-get install -y libgd-dev libjpeg-dev libpng-dev libfreetype6-dev pkg-config &&
-      docker-php-ext-configure gd --with-freetype --with-jpeg &&
-      docker-php-ext-install gd &&
-      exec php-fpm"
+
+
+    command: sh -c "cp .env.example .env && \
+            apt-get update && \
+            apt-get install -y curl libgd-dev libjpeg-dev libpng-dev libfreetype6-dev pkg-config && \
+            curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+            apt-get install -y nodejs && \
+            npm install -g npm@11.3.0 && \
+            docker-php-ext-configure gd --with-freetype --with-jpeg && \
+            docker-php-ext-install gd && \
+            composer install --dev --optimize-autoloader && \
+            php artisan key:generate --force && \
+            npm install && \
+            npm run build && \
+            php artisan migrate --force && \
+            php-fpm"
+
+    # command: sh -c "cp .env.example .env && \
+    #         apt-get update && \
+    #         apt-get install -y libgd-dev libjpeg-dev libpng-dev libfreetype6-dev pkg-config && \
+    #         docker-php-ext-configure gd --with-freetype --with-jpeg && \
+    #         docker-php-ext-install gd && \
+    #         composer install --dev --optimize-autoloader && \
+    #         php artisan migrate --force && \
+    #         php-fpm"  
+
+
     volumes:
       - ./src:/var/www/html
       - vendor_data:/var/www/html/vendor
+      - node_modules_data:/var/www/html/node_modules
+      - public_build_data:/var/www/html/public/build
+
     working_dir: /var/www/html
 
   web:
@@ -26,4 +48,8 @@ services:
     working_dir: /var/www/html
 
 volumes:
-  vendor_data:
+ vendor_data:
+ node_modules_data:
+ public_build_data:
+
+
