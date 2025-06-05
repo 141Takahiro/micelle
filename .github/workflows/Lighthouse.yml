@@ -20,10 +20,6 @@ jobs:
         run: npm run build
         working-directory: src
 
-      - name: Start server
-        run: npm start &
-        working-directory: src
-
       - name: Build and start Docker containers
         run: docker compose -f docker-compose.test.yml up -d --build
 
@@ -45,6 +41,10 @@ jobs:
           php artisan config:clear && \
           php artisan cache:clear && \
           php artisan route:clear"
+
+      - name: Start server
+        run: npm start &
+        working-directory: src
               
       - name: Check APP_KEY in .env file
         run: docker exec micelle-app-1 grep APP_KEY /var/www/html/.env
