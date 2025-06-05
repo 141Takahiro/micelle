@@ -13,13 +13,13 @@ jobs:
         run: docker compose -f docker-compose.test.yml up -d --build
 
       - name: Wait for server to start
-        run: sleep 300
+        run: sleep 100
 
       - name: Get logs for micelle-app-1
         run: docker logs micelle-app-1
 
       - name: Start server inside container
-        run: docker exec micelle-app-1 bash -c "npm start"
+        run: docker exec micelle-app-1 bash -c "npm start &"
         
       - name: Wait for server to start
         run: sleep 100
