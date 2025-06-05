@@ -4,17 +4,18 @@ services:
       context: ./infra/php
       dockerfile: Dockerfile.test
 
-command: sh -c "apt-get update && \
-       apt-get install -y libgd-dev libjpeg-dev libpng-dev libfreetype6-dev pkg-config && \
-       docker-php-ext-configure gd --with-freetype --with-jpeg && \
-       docker-php-ext-install gd && \
-       ls -la /var/www/html && \
-       cp /var/www/html/.env.example /var/www/html/.env && \
-       ls -la /var/www/html && \
-       composer install --dev --optimize-autoloader && \
-       php artisan key:generate --force && \
-       php artisan migrate --force && \
-       exec php-fpm"
+   command: >
+        sh -c "apt-get update && 
+        apt-get install -y libgd-dev libjpeg-dev libpng-dev libfreetype6-dev pkg-config && 
+        docker-php-ext-configure gd --with-freetype --with-jpeg && 
+        docker-php-ext-install gd && 
+        ls -la /var/www/html && 
+        cp /var/www/html/.env.example /var/www/html/.env && 
+        ls -la /var/www/html && 
+        composer install --dev --optimize-autoloader && 
+        php artisan key:generate --force && 
+        php artisan migrate --force && 
+        exec php-fpm"
 
     volumes:
       - ./src:/var/www/html
