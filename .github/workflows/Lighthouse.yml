@@ -26,6 +26,9 @@ jobs:
       - name: Check if index.php exists in public directory
         run: docker exec micelle-app-1 ls -la /var/www/html/public/index.php
 
+      - name: Check public directory permissions
+        run: docker exec micelle-app-1 ls -lad /var/www/html/public
+
       - name: Run initialization commands
         run: |
           docker exec micelle-app-1 sh -c "ls -la /var/www/html && \
