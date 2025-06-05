@@ -3,19 +3,13 @@ services:
     build:
       context: ./infra/php
       dockerfile: Dockerfile.test
-    # 複数行のコマンドは block scalar を利用して記述
+    # Dockerfile.test内の command では初期化処理（.envのコピー、composer install 等）は含まず、
+    # ここでは必要なパッケージのインストール後、ただ php-fpm が起動するのみ。
     command: >
-      sh -c "apt-get update && 
-      apt-get install -y libgd-dev libjpeg-dev libpng-dev libfreetype6-dev pkg-config && 
-      docker-php-ext-configure gd --with-freetype --with-jpeg && 
-      docker-php-ext-install gd && 
-      ls -la /var/www/html && 
-      cp /var/www/html/.env.example /var/www/html/.env && 
-      ls -la /var/www/html && 
-      composer install --dev --optimize-autoloader && 
-      ls -la /var/www/html/vendor && 
-      php artisan key:generate --force && 
-      php artisan migrate --force && 
+      sh -c "apt-get update &&
+      apt-get install -y libgd-dev libjpeg-dev libpng-dev libfreetype6-dev pkg-config &&
+      docker-php-ext-configure gd --with-freetype --with-jpeg &&
+      docker-php-ext-install gd &&
       exec php-fpm"
     volumes:
       - ./src:/var/www/html
@@ -25,7 +19,7 @@ services:
   web:
     image: nginx:1.20-alpine
     ports:
-      - 8080:80
+      - "8080:80"
     volumes:
       - ./src:/var/www/html
       - ./infra/nginx/default.conf:/etc/nginx/conf.d/default.conf
