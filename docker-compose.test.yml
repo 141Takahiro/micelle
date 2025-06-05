@@ -20,16 +20,6 @@ services:
             php artisan migrate --force && \
             php-fpm"
 
-    # command: sh -c "cp .env.example .env && \
-    #         apt-get update && \
-    #         apt-get install -y libgd-dev libjpeg-dev libpng-dev libfreetype6-dev pkg-config && \
-    #         docker-php-ext-configure gd --with-freetype --with-jpeg && \
-    #         docker-php-ext-install gd && \
-    #         composer install --dev --optimize-autoloader && \
-    #         php artisan migrate --force && \
-    #         php-fpm"  
-
-
     volumes:
       - ./src:/var/www/html
       - vendor_data:/var/www/html/vendor
@@ -51,5 +41,4 @@ volumes:
  vendor_data:
  node_modules_data:
  public_build_data:
-
 

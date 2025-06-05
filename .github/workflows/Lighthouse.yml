@@ -9,70 +9,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: List repository tree
-        run: find . -maxdepth 3 | sort
-        
-      - name: Install npm dependencies
-        run: npm ci
-        working-directory: src
-
-      - name: Build application
-        run: npm run build
-        working-directory: src
-
       - name: Build and start Docker containers
-        run: docker compose -f docker-compose.test.yml up -d --build
+        run: docker-compose -f docker-compose.test.yml up -d --build
 
-      - name: Check if index.php exists in public directory
-        run: docker exec micelle-app-1 ls -la /var/www/html/public/index.php
-
-      - name: Check public directory permissions
-        run: docker exec micelle-app-1 ls -lad /var/www/html/public
-
-      - name: Run initialization commands
-        run: |
-          docker exec micelle-app-1 sh -c "ls -la /var/www/html && \
-          cp /var/www/html/.env.example /var/www/html/.env && \
-          ls -la /var/www/html && \
-          composer install --dev --optimize-autoloader && \
-          chown -R www-data:www-data /var/www/html/storage && \
-          chmod -R 777 /var/www/html/storage && \
-          chown -R www-data:www-data /var/www/html/vendor && \
-          chmod -R 777 /var/www/html/vendor && \
-          chown www-data:www-data /var/www/html/.env && \
-          chmod 777 /var/www/html/.env && \
-          chmod -R 777 /var/www/html/bootstrap/cache && \
-          php artisan key:generate --force && \
-          php artisan migrate --force && \
-          php artisan config:clear && \
-          php artisan cache:clear && \
-          php artisan route:clear"
-
-      - name: Start server
-        run: npm start &
-        working-directory: src
-              
-      - name: Check APP_KEY in .env file
-        run: docker exec micelle-app-1 grep APP_KEY /var/www/html/.env
-
-      - name: Show complete .env file
-        run: docker exec micelle-app-1 cat /var/www/html/.env
+      - name: Wait for server to start
+        run: sleep 300
 
       - name: Get logs for micelle-app-1
         run: docker logs micelle-app-1
 
-      - name: Check running containers
-        run: docker ps
-      
-      - name: Test container connectivity with ping
-        run: docker exec micelle-web-1 ping -c 4 micelle-app-1
-            
-      - name: Check .env file exists in app container
-        run: docker exec micelle-app-1 ls -la /var/www/html | grep "\.env"
-      
-      - name: Verify APP_KEY in .env
-        run: docker exec micelle-app-1 grep '^APP_KEY=' /var/www/html/.env
-
+      - name: Start server inside container
+        run: docker exec -it micelle-app-1 bash -c "npm start"
+        
       - name: Wait for server to start
         run: sleep 100
 
