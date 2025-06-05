@@ -41,8 +41,11 @@ jobs:
           chmod 777 /var/www/html/.env && \
           chmod -R 777 /var/www/html/bootstrap/cache && \
           php artisan key:generate --force && \
-          php artisan migrate --force"
-        
+          php artisan migrate --force && \
+          php artisan config:clear && \
+          php artisan cache:clear && \
+          php artisan route:clear"
+              
       - name: Check APP_KEY in .env file
         run: docker exec micelle-app-1 grep APP_KEY /var/www/html/.env
 
