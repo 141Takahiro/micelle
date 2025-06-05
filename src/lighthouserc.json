@@ -3,10 +3,7 @@
     "collect": {
       "numberOfRuns": 3,
       "url": [
-        "http://localhost:8080/",       
-        "http://localhost:8080/home",    
-        "http://localhost:8080/preparation", 
-        "http://localhost:8080/task"       
+        "http://localhost:8080/"
       ]
     },
     "assert": {

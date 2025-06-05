@@ -4,10 +4,6 @@ services:
     depends_on:
       - db
 
-    # command: sh -c "composer install --dev --optimize-autoloader &&
-    #                  php artisan migrate --force &&
-    #                  php-fpm"
-
     command: sh -c "apt-get update && \
              apt-get install -y libgd-dev libjpeg-dev libpng-dev libfreetype6-dev pkg-config && \
              docker-php-ext-configure gd --with-freetype --with-jpeg && \
