@@ -11,17 +11,29 @@ jobs:
 
       - name: List repository tree
         run: find . -maxdepth 3 | sort
+        
+      - name: Install npm dependencies
+        run: npm ci
+        working-directory: src
+
+      - name: Build application
+        run: npm run build
+        working-directory: src
+
+      - name: Start server
+        run: npm start &
+        working-directory: src
 
       - name: Build and start Docker containers
         run: docker compose -f docker-compose.test.yml up -d --build
+             docker exec micelle-app-1 sh -c "echo '初期化処理開始...' &&
+             docker exec micelle-app-1 chown -R www-data:www-data /var/www/html/storage
+             docker exec micelle-app-1 chmod -R 775 /var/www/html/storage
+             docker exec micelle-app-1 chmod -R 777 /var/www/html/bootstrap/cache
 
       - name: Run initialization commands
         run: |
-          docker exec micelle-app-1 sh -c "echo '初期化処理開始...' &&
-          docker exec micelle-app-1 chown -R www-data:www-data /var/www/html/storage
-          docker exec micelle-app-1 chmod -R 775 /var/www/html/storage
-          docker exec micelle-app-1 chmod -R 777 /var/www/html/bootstrap/cache
-          ls -la /var/www/html &&
+          docker exec micelle-app-1 sh -c "ls -la /var/www/html &&
           cp /var/www/html/.env.example /var/www/html/.env &&
           ls -la /var/www/html &&
           composer install --dev --optimize-autoloader &&
@@ -43,18 +55,6 @@ jobs:
 
       - name: Test container connectivity with ping
         run: docker exec micelle-web-1 ping -c 4 micelle-app-1
-
-      - name: Install npm dependencies
-        run: npm ci
-        working-directory: src
-
-      - name: Build application
-        run: npm run build
-        working-directory: src
-
-      - name: Start server
-        run: npm start &
-        working-directory: src
 
       - name: Wait for server to start
         run: sleep 100
