@@ -9,11 +9,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Check for .env and .env.example in src
-        run: |
-          echo "Listing files in micelle/micelle/src:"
-          ls -la micelle/micelle/src/.env || echo ".env not found"
-          ls -la micelle/micelle/src/.env.example || echo ".env.example not found"
+      - name: List repository tree
+        run: find . -maxdepth 3 | sort
 
       - name: Build and start Docker containers
         run: docker compose -f docker-compose.test.yml up -d --build
