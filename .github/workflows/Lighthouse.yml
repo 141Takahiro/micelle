@@ -28,7 +28,10 @@ jobs:
         run: |
             docker compose -f docker-compose.test.yml up -d --build
             docker exec micelle-app-1 chown -R www-data:www-data /var/www/html/storage
-            docker exec micelle-app-1 chmod -R 775 /var/www/html/storage
+            docker exec micelle-app-1 chown -R www-data:www-data /var/www/html/vendor
+            docker exec micelle-app-1 chmod -R 777 /var/www/html/vendor
+            docker exec micelle-app-1 chown www-data:www-data /var/www/html/.env
+            docker exec micelle-app-1 chmod 777 /var/www/html/.env
             docker exec micelle-app-1 chmod -R 777 /var/www/html/bootstrap/cache
 
       - name: Run initialization commands
