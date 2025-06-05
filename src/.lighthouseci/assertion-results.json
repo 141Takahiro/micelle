@@ -13,7 +13,7 @@
     "auditProperty": "performance",
     "auditId": "categories",
     "level": "error",
-    "url": "http://localhost:8080/"
+    "url": "http://localhost:3000/"
   },
   {
     "name": "maxNumericValue",
@@ -28,7 +28,7 @@
     "passed": false,
     "auditId": "first-contentful-paint",
     "level": "error",
-    "url": "http://localhost:8080/",
+    "url": "http://localhost:3000/",
     "auditTitle": "First Contentful Paint",
     "auditDocumentationLink": "https://developer.chrome.com/docs/lighthouse/performance/first-contentful-paint/"
   }
