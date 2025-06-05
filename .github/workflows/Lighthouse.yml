@@ -18,30 +18,19 @@ jobs:
       - name: Run initialization commands
         run: |
           docker exec micelle-app-1 sh -c "echo '初期化処理開始...' &&
+          docker exec micelle-app-1 chown -R www-data:www-data /var/www/html/storage
+          docker exec micelle-app-1 chmod -R 775 /var/www/html/storage
+          docker exec micelle-app-1 chmod -R 777 /var/www/html/bootstrap/cache
           ls -la /var/www/html &&
           cp /var/www/html/.env.example /var/www/html/.env &&
           ls -la /var/www/html &&
           composer install --dev --optimize-autoloader &&
-          ls -la /var/www/html/vendor &&
           php artisan key:generate --force &&
           php artisan migrate --force &&
           echo '初期化処理完了'"
 
-      - name: Fix storage permissions
-        run: |
-          docker exec micelle-app-1 chown -R www-data:www-data /var/www/html/storage
-          docker exec micelle-app-1 chmod -R 775 /var/www/html/storage
-          docker exec micelle-app-1 chmod -R 777 /var/www/html/bootstrap/cache
-
-      - name: Re-copy .env and generate APP_KEY
-        run: |
-          docker exec micelle-app-1 cp /var/www/html/.env.example /var/www/html/.env
-          docker exec micelle-app-1 php artisan key:generate --force
-
       - name: Check APP_KEY in .env file
         run: docker exec micelle-app-1 grep APP_KEY /var/www/html/.env
-      - name: Install Composer dependencies
-        run: docker exec micelle-app-1 composer install -vvv --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
 
       - name: Get logs for micelle-app-1
         run: docker logs micelle-app-1
@@ -68,7 +57,7 @@ jobs:
         working-directory: src
 
       - name: Wait for server to start
-        run: sleep 300
+        run: sleep 100
 
       - name: Check server status
         id: check_server
