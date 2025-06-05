@@ -67,22 +67,6 @@ jobs:
       - name: Wait for server to start
         run: sleep 100
 
-      - name: Show Nginx error log
-        run: docker exec micelle-web-1 tail -n 50 /var/log/nginx/error.log
-
-      - name: Check server status
-        id: check_server
-        run: |
-          echo "Checking server status..."
-          curl -I -f http://localhost:8080 || exit 1
-        working-directory: src
-
-      - name: Dump additional error logs on failure
-        if: always() && steps.check_server.outcome == 'failure'
-        run: |
-          echo "=== Docker logs for micelle-app-1 (Application) ==="
-          docker logs micelle-app-1
-
       - name: Run Lighthouse CI
         run: npx lhci autorun --chrome-flags="--headless=false"
         working-directory: src
