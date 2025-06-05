@@ -9,57 +9,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v4
-        with:
-          php-version: '8.2'
-          extensions: sqlite3, pdo_sqlite
-
-      - name: Install SQLite dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y sqlite3 libsqlite3-dev
-
-      - name: Build and start Docker containers
-        run: docker compose up -d
-
-      - name: Fix storage permissions
-        run: |
-          docker exec micelle-app-1 chown -R www-data:www-data /var/www/html/storage
-          docker exec micelle-app-1 chmod -R 775 /var/www/html/storage
-          docker exec micelle-app-1 chmod -R 777 /var/www/html/bootstrap/cache
-
-      - name: Copy .env file
-        run: docker exec micelle-app-1 php -r "file_exists('/var/www/html/.env') || copy('/var/www/html/.env.example', '/var/www/html/.env');"
-
-      - name: Install Composer dependencies
-        run: docker exec micelle-app-1 composer install -vvv --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
-
-      - name: Generate Laravel APP_KEY
-        run: docker exec micelle-app-1 php artisan key:generate
-
-      - name: Create SQLite Database
-        run: |
-          docker exec micelle-app-1 mkdir -p /var/www/html/database
-          docker exec micelle-app-1 touch /var/www/html/database/database.sqlite
-          docker exec micelle-app-1 chmod 777 /var/www/html/database/database.sqlite
-
-      - name: Run Laravel Migrations
-        run: docker exec micelle-app-1 php artisan migrate --force
-
-      - name: Get logs for micelle-app-1
-        run: docker logs micelle-app-1
-
-      - name: Wait for server to start
-        run: sleep 100
-
-      - name: Check running containers
-        run: docker ps
-
-      - name: Test container connectivity with ping
-        run: |
-          docker exec micelle-web-1 ping -c 4 micelle-app-1
-
+      - name: List repository tree
+        run: find . -maxdepth 3 | sort
+        
       - name: Install npm dependencies
         run: npm ci
         working-directory: src
@@ -68,25 +20,61 @@ jobs:
         run: npm run build
         working-directory: src
 
+      - name: Build and start Docker containers
+        run: docker compose -f docker-compose.test.yml up -d --build
+
+      - name: Check if index.php exists in public directory
+        run: docker exec micelle-app-1 ls -la /var/www/html/public/index.php
+
+      - name: Check public directory permissions
+        run: docker exec micelle-app-1 ls -lad /var/www/html/public
+
+      - name: Run initialization commands
+        run: |
+          docker exec micelle-app-1 sh -c "ls -la /var/www/html && \
+          cp /var/www/html/.env.example /var/www/html/.env && \
+          ls -la /var/www/html && \
+          composer install --dev --optimize-autoloader && \
+          chown -R www-data:www-data /var/www/html/storage && \
+          chmod -R 777 /var/www/html/storage && \
+          chown -R www-data:www-data /var/www/html/vendor && \
+          chmod -R 777 /var/www/html/vendor && \
+          chown www-data:www-data /var/www/html/.env && \
+          chmod 777 /var/www/html/.env && \
+          chmod -R 777 /var/www/html/bootstrap/cache && \
+          php artisan key:generate --force && \
+          php artisan migrate --force && \
+          php artisan config:clear && \
+          php artisan cache:clear && \
+          php artisan route:clear"
+
       - name: Start server
         run: npm start &
         working-directory: src
+              
+      - name: Check APP_KEY in .env file
+        run: docker exec micelle-app-1 grep APP_KEY /var/www/html/.env
+
+      - name: Show complete .env file
+        run: docker exec micelle-app-1 cat /var/www/html/.env
+
+      - name: Get logs for micelle-app-1
+        run: docker logs micelle-app-1
+
+      - name: Check running containers
+        run: docker ps
+      
+      - name: Test container connectivity with ping
+        run: docker exec micelle-web-1 ping -c 4 micelle-app-1
+            
+      - name: Check .env file exists in app container
+        run: docker exec micelle-app-1 ls -la /var/www/html | grep "\.env"
+      
+      - name: Verify APP_KEY in .env
+        run: docker exec micelle-app-1 grep '^APP_KEY=' /var/www/html/.env
 
       - name: Wait for server to start
         run: sleep 100
-
-      - name: Check server status
-        id: check_server
-        run: |
-          echo "Checking server status..."
-          curl -I -f http://localhost:8080 || exit 1
-        working-directory: src
-
-      - name: Dump additional error logs on failure
-        if: always() && steps.check_server.outcome == 'failure'
-        run: |
-          echo "=== Docker logs for micelle-app-1 (Application) ==="
-          docker logs micelle-app-1   
 
       - name: Run Lighthouse CI
         run: npx lhci autorun --chrome-flags="--headless=false"
