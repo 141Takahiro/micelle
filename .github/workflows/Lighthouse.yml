@@ -19,7 +19,7 @@ jobs:
         run: docker logs micelle-app-1
 
       - name: Start server inside container
-        run: docker exec -it micelle-app-1 bash -c "npm start"
+        run: docker exec micelle-app-1 bash -c "npm start"
         
       - name: Wait for server to start
         run: sleep 100
