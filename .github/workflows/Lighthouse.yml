@@ -29,19 +29,20 @@ jobs:
 
       - name: Run initialization commands
         run: |
-            docker exec micelle-app-1 sh -c "ls -la /var/www/html && \
-            cp /var/www/html/.env.example /var/www/html/.env && \
-            ls -la /var/www/html && \
-             composer install --dev --optimize-autoloader && \
-            chown -R www-data:www-data /var/www/html/storage && \
-            chown -R www-data:www-data /var/www/html/vendor && \
-            chmod -R 777 /var/www/html/vendor && \
-            chown www-data:www-data /var/www/html/.env && \
-            chmod 777 /var/www/html/.env && \
-            chmod -R 777 /var/www/html/bootstrap/cache && \
-            php artisan key:generate --force && \
-            php artisan migrate --force"
-  
+          docker exec micelle-app-1 sh -c "ls -la /var/www/html && \
+          cp /var/www/html/.env.example /var/www/html/.env && \
+          ls -la /var/www/html && \
+          composer install --dev --optimize-autoloader && \
+          chown -R www-data:www-data /var/www/html/storage && \
+          chmod -R 777 /var/www/html/storage && \
+          chown -R www-data:www-data /var/www/html/vendor && \
+          chmod -R 777 /var/www/html/vendor && \
+          chown www-data:www-data /var/www/html/.env && \
+          chmod 777 /var/www/html/.env && \
+          chmod -R 777 /var/www/html/bootstrap/cache && \
+          php artisan key:generate --force && \
+          php artisan migrate --force"
+        
       - name: Check APP_KEY in .env file
         run: docker exec micelle-app-1 grep APP_KEY /var/www/html/.env
 
@@ -66,6 +67,9 @@ jobs:
       - name: Wait for server to start
         run: sleep 100
 
+      - name: List Laravel log files
+        run: docker exec micelle-app-1 ls -la /var/www/html/storage/logs/
+        
       - name: Show Laravel error log
         run: docker exec micelle-app-1 tail -n 50 /var/www/html/storage/logs/laravel.log
 
