@@ -1,0 +1,40 @@
+# ─────────────── Builder Stage  ───────────────
+FROM php:8.3-fpm AS builder
+
+RUN apt-get update && apt-get install -y \
+    curl \
+    gnupg2 \
+    git \
+    unzip
+
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+    apt-get install -y nodejs && \
+    npm install -g npm@11.3.0
+
+WORKDIR /src
+
+# package*.json をコピー
+COPY src/package*.json ./
+RUN npm install
+
+# ここを修正：プロジェクト全体ではなく、src/ 内のファイルを /src にコピー
+COPY src/ ./
+RUN npm run build
+
+# ─────────────── Runtime Stage  ───────────────
+FROM php:8.3-fpm
+
+WORKDIR /var/www/html
+
+# 本番実行に必要な SQLite のランタイムライブラリをインストール
+RUN apt-get update && apt-get install -y \
+    sqlite3 \
+    libsqlite3-dev && \
+    docker-php-ext-install pdo_sqlite
+
+# Builder ステージで構築された成果物全体を /var/www/html にコピー
+COPY --from=builder /src/ /var/www/html/
+
+EXPOSE 9000
+
+CMD ["php-fpm"]

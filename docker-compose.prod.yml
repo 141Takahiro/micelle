@@ -1,0 +1,26 @@
+services:
+  app:
+    image: micelle-app
+    env_file:
+      - ./src/.env
+    working_dir: /var/www/html
+    command: php-fpm
+    volumes:
+      - app-data:/var/www/html
+
+
+
+  web:
+    image: nginx:1.20-alpine
+    ports:
+    - "8080:80"
+    volumes:
+    - app-data:/var/www/html
+    - ./infra/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    working_dir: /var/www/html
+    depends_on:
+      - app
+  
+volumes:
+  app-data:
+
