@@ -30,7 +30,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          dockerfile: infra/php/Dockerfile.prod
+          file: infra/php/Dockerfile.prod
           push: true
           tags: ghcr.io/141takahiro/micelle-app:latest
 
