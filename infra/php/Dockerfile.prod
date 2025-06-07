@@ -1,23 +1,33 @@
 # ─────────────── Builder Stage  ───────────────
 FROM php:8.3-fpm AS builder
 
+# 必要なパッケージのインストール
 RUN apt-get update && apt-get install -y \
     curl \
     gnupg2 \
     git \
     unzip
 
+# Node.js のセットアップと npm のアップデート
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
     apt-get install -y nodejs && \
     npm install -g npm@11.3.0
 
 WORKDIR /src
 
-# package*.json をコピー
+# ── Composer による PHP 依存ライブラリのインストール ──
+# composer.json と composer.lock をコピー（依存関係のキャッシュが有効になる）
+COPY src/composer.json src/composer.lock ./
+# Composer のインストーラを使用して /usr/local/bin に composer を配置し、バージョンを 2.8.6 に更新
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer && \
+    composer self-update 2.8.6 && \
+    composer install --no-dev --optimize-autoloader
+
+# package*.json をコピーして npm パッケージのインストール
 COPY src/package*.json ./
 RUN npm install
 
-# ここを修正：プロジェクト全体ではなく、src/ 内のファイルを /src にコピー
+# プロジェクト全体（src/ 内のファイル）をコピーしてビルド実行
 COPY src/ ./
 RUN npm run build
 
@@ -26,13 +36,14 @@ FROM php:8.3-fpm
 
 WORKDIR /var/www/html
 
-# 本番実行に必要な SQLite のランタイムライブラリをインストール
+# 本番実行に必要な SQLite のランタイムライブラリと PHP 拡張のインストール
 RUN apt-get update && apt-get install -y \
     sqlite3 \
     libsqlite3-dev && \
-    docker-php-ext-install pdo_sqlite
+    docker-php-ext-install pdo_sqlite && \
+    rm -rf /var/lib/apt/lists/*
 
-# Builder ステージで構築された成果物全体を /var/www/html にコピー
+# Builder Stage で構築された成果物全体を /var/www/html にコピー
 COPY --from=builder /src/ /var/www/html/
 
 EXPOSE 9000
