@@ -15,24 +15,24 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
 
 WORKDIR /src
 
-# 1. .env.example を .env として配置（Laravel の composer スクリプト実行に必要な環境変数をセット）
+# 1. composer や Laravel の artisan スクリプトで環境ファイル(.env)が必要なため、.env.example を .env にコピー
 COPY src/.env.example .env
 
-# 2. Composer 用ファイルをコピー
+# 2. Composer 用ファイルのみをコピーし、依存ライブラリ（vendor）をインストール
 COPY src/composer.json src/composer.lock ./
-
-# 3. Composer のインストール、バージョン更新、依存ライブラリのインストールを実施
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer && \
     composer self-update 2.8.6 && \
-    composer install --no-dev --optimize-autoloader && \
-    php artisan key:generate --force
+    composer install --no-dev --optimize-autoloader
 
-# 4. npm 用依存ファイルをコピーしてインストール
+# ※もしビルド時にartisanのコマンド実行で有効な APP_KEY が必要な場合は、ここで「php artisan key:generate --force」を実行します。
+# RUN php artisan key:generate --force
+
+# 3. アプリケーション全体をコピー（vendorはそのままで上書きされないように）
+COPY src/ ./
+
+# 4. npm 用依存ファイルをコピーして npm install と npm run build を実行
 COPY src/package*.json ./
 RUN npm install
-
-# 5. プロジェクト全体のソースコードをコピーしてビルド実行
-COPY src/ ./
 RUN npm run build
 
 # ─────────────── Runtime Stage ───────────────
@@ -40,17 +40,17 @@ FROM php:8.3-fpm
 
 WORKDIR /var/www/html
 
-# 本番実行に必要な SQLite のランタイムライブラリと PHP 拡張をインストール
+# 本番実行に必要な SQLite のランタイムライブラリと PHP 拡張のインストール
 RUN apt-get update && apt-get install -y \
     sqlite3 \
     libsqlite3-dev && \
     docker-php-ext-install pdo_sqlite && \
     rm -rf /var/lib/apt/lists/*
 
-# Builder Stage で構築された成果物をコピー
+# Builder Stage で構築した成果物全体をコピー
 COPY --from=builder /src/ /var/www/html/
 
-# ビルド時に利用した .env を削除し、本番環境では外部からの環境変数が優先されるようにする
+# ビルド時に利用した一時的な .env を削除（本番環境では外部から安全に環境変数が注入される）
 RUN rm -f /var/www/html/.env
 
 EXPOSE 9000
