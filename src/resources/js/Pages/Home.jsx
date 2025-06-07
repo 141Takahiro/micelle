@@ -361,7 +361,7 @@ export default function Home({ rooms = [] }) {
 
             <div className="md:flex md:flex-row">
                 <div className="basis-1/3 border-2 border-solid rounded-sm md:m-2 shadow-xl justify-items-center ">
-                    <h2 className="text-xl font-bold mb-2">今週のタスク</h2>
+                    <h2 className="text-xl font-bold m-2">今週のタスク</h2>
 
                     {rooms.length === 0 ? (
                         <p className="text-center text-gray-500 m-4">部屋のデータがありません。</p>
@@ -409,7 +409,7 @@ export default function Home({ rooms = [] }) {
                 </div>
                 
                 <div className="basis-2/3 border-2 border-solid rounded-sm m-2 shadow-xl justify-items-center">
-                    <h2 className="text-xl font-bold mb-2">登録されている部屋</h2>
+                    <h2 className="text-xl font-bold m-2">登録されている部屋</h2>
                     
                         {rooms.length === 0 ? (
                             <p className="text-gray-500 m-4">登録されている部屋がありません。</p>
