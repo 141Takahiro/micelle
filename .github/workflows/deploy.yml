@@ -63,6 +63,10 @@ jobs:
         key:      ${{ secrets.EC2_SSH_PRIVATE_KEY }}
         envs:     GHCR_PAT=${{ secrets.FOR_GHCR }}
         script: |
+          echo "==== DEBUG: 環境変数一覧 ===="
+          env | grep GHCR_PAT
+          echo "==== DEBUG: 終了 ===="
+          echo "$GHCR_PAT" | docker login ghcr.io -u 141Takahiro --password-stdin
           echo "==== DEBUG: 環境変数とシステム情報 ===="
           echo -n "GHCR_PATの文字数: "
           echo -n "$GHCR_PAT" | wc -c  
