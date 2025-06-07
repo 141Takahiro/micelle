@@ -42,6 +42,12 @@ jobs:
     needs: build-and-push-image
     runs-on: ubuntu-latest
     steps:
+      - name: Show key length (masked)
+        run: |
+          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" | wc -l
+          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" | wc -c
+        shell: bash
+
       - name: Deploy to EC2 via SSH
         uses: appleboy/ssh-action@v0.1.7
         with:
