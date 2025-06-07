@@ -1,7 +1,6 @@
 services:
   app:
-    image: ghcr.io/141takahiro/micelle-app:${TAG}
-
+    image: ghcr.io/141takahiro/micelle-app:${TAG:-latest}
 
     env_file:
       - ./src/.env
