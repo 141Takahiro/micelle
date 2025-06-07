@@ -23,7 +23,7 @@ COPY src/.env.example .env
 
 # 2. 外部から APP_KEY が渡されていれば、.env の APP_KEY 行を置換
 RUN if [ -n "$APP_KEY" ]; then \
-      sed -i "s/^APP_KEY=.*/APP_KEY=$APP_KEY/" .env; \
+      sed -i "s~^APP_KEY=.*~APP_KEY=${APP_KEY}~" .env; \
     else \
       echo "APP_KEY not provided; .env remains unchanged"; \
     fi
