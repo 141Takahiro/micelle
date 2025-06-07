@@ -124,7 +124,10 @@ export default function Task({ rooms = [], regular_agendas = [] }) {
     }, [props]); 
 
     const filteredAgendas = regular_agendas.filter(
-        (regular_agenda) => regular_agenda.room_id === selectedRoom
+    (regular_agenda) =>
+        regular_agenda.room_id === selectedRoom &&
+        regular_agenda.day_of_the_week !== null &&
+        regular_agenda.start_time !== null
     );
 
     const dayLabel =
