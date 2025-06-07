@@ -65,6 +65,6 @@ jobs:
             echo "TAG is ${TAG}"
 
             docker-compose -f docker-compose.prod.yml pull
-            docker image ls | grep "ghcr.io/141takahiro/micelle-app:${TAG}"
+            docker images
 
             docker-compose -f docker-compose.prod.yml up -d --remove-orphans
