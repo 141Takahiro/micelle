@@ -55,20 +55,38 @@ jobs:
     steps:
  
       # 本番デプロイ
-      - name: Deploy to EC2
-        uses: appleboy/ssh-action@v0.1.7
-        with:
-          host:     ${{ secrets.EC2_HOST }}          
-          username: ${{ secrets.EC2_USER }}          
-          key:      ${{ secrets.EC2_SSH_PRIVATE_KEY }}
-          envs:     GHCR_PAT=${{ secrets.FOR_GHCR }}   
-          script: |
-            echo "$GHCR_PAT" | docker login ghcr.io -u 141Takahiro --password-stdin
-
-            cd ~/micelle
-            git fetch origin main
-            git reset --hard origin/main
-            git clean -fd
-
-            docker-compose -f docker-compose.prod.yml pull
-            docker-compose -f docker-compose.prod.yml up -d --remove-orphans
+    - name: Deploy to EC2 (Debug Mode)
+      uses: appleboy/ssh-action@v0.1.7
+      with:
+        host:     ${{ secrets.EC2_HOST }}
+        username: ${{ secrets.EC2_USER }}
+        key:      ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+        envs:     GHCR_PAT=${{ secrets.FOR_GHCR }}
+        script: |
+          echo "==== DEBUG: 環境変数とシステム情報 ===="
+          echo -n "GHCR_PATの文字数: "
+          echo -n "$GHCR_PAT" | wc -c  
+          echo " / GHCR_PAT先頭4文字: $(echo "$GHCR_PAT" | cut -c1-4)"
+          
+          echo "実行ユーザー: $(whoami)"
+          echo "TTY情報: $(tty)"
+          
+          echo "Docker version: $(docker --version)"
+                    
+          echo "==== DEBUG: 終了 ===="
+          
+          echo "$GHCR_PAT" | docker login ghcr.io -u 141Takahiro --password-stdin
+          
+          if [ $? -eq 0 ]; then
+            echo "Docker login succeeded."
+          else
+            echo "Docker login failed."
+          fi
+          
+          cd ~/micelle
+          git fetch origin main
+          git reset --hard origin/main
+          git clean -fd
+          
+          docker-compose -f docker-compose.prod.yml pull
+          docker-compose -f docker-compose.prod.yml up -d --remove-orphans
