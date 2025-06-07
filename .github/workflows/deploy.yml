@@ -33,6 +33,9 @@ jobs:
           file: infra/php/Dockerfile.prod
           push: true
           tags: ghcr.io/141takahiro/micelle-app:latest
+          build-args: |
+             APP_KEY=${{ secrets.APP_KEY }}
+
 
   deploy-to-ec2:
     needs: build-and-push-image
