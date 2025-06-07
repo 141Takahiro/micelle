@@ -1,15 +1,23 @@
 name: CI/CD Pipeline
 
+# ──────────────────────────────────────────────
+# 権限
+# ──────────────────────────────────────────────
 permissions:
-  contents: read     
-  packages: write  
-  id-token: write  
+  contents: read
+  packages: write     
+  id-token: write
 
+# ──────────────────────────────────────────────
+# トリガ
+# ──────────────────────────────────────────────
 on:
   push:
-    branches:
-      - main
+    branches: [main]
 
+# ──────────────────────────────────────────────
+# Job ①: Build & Push イメージ
+# ──────────────────────────────────────────────
 jobs:
   build-and-push-image:
     runs-on: ubuntu-latest
@@ -28,7 +36,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.FOR_GHCR }}
+          password: ${{ secrets.FOR_GHCR }}  
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
@@ -38,26 +46,29 @@ jobs:
           push: true
           tags: ghcr.io/141takahiro/micelle-app:latest
 
+# ──────────────────────────────────────────────
+# Job ②: Deploy to EC2
+# ──────────────────────────────────────────────
   deploy-to-ec2:
     needs: build-and-push-image
     runs-on: ubuntu-latest
     steps:
-      - name: Show key length (masked)
-        run: |
-          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" | wc -l
-          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" | wc -c
-        shell: bash
-
-      - name: Deploy to EC2 via SSH
+ 
+      # 本番デプロイ
+      - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.7
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+          host:     ${{ secrets.EC2_HOST }}          
+          username: ${{ secrets.EC2_USER }}          
+          key:      ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+          envs:     GHCR_PAT=${{ secrets.FOR_GHCR }}   
           script: |
+            echo "$GHCR_PAT" | docker login ghcr.io -u 141Takahiro --password-stdin
+
             cd ~/micelle
             git fetch origin main
             git reset --hard origin/main
             git clean -fd
-            docker-compose -f docker-compose.prod.yml pull
-            docker-compose -f docker-compose.prod.yml up -d
+
+            docker compose -f docker-compose.prod.yml pull
+            docker compose -f docker-compose.prod.yml up -d --remove-orphans
