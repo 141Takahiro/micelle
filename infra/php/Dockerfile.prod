@@ -1,43 +1,27 @@
 # ─────────────── Builder Stage ───────────────
 FROM php:8.3-fpm AS builder
 
-# 外部から APP_KEY を受け取るためのビルド引数
-ARG APP_KEY
-
-# 必要なパッケージのインストール
 RUN apt-get update && apt-get install -y \
     curl \
     gnupg2 \
     git \
     unzip
 
-# Node.js のセットアップと npm のアップデート
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
     apt-get install -y nodejs && \
     npm install -g npm@11.3.0
 
 WORKDIR /src
 
-# 1. .env.example を .env にコピー
 COPY src/.env.example .env
 
-# 2. 外部から APP_KEY が渡されていれば、.env の APP_KEY 行を置換
-RUN if [ -n "$APP_KEY" ]; then \
-      sed -i "s~^APP_KEY=.*~APP_KEY=${APP_KEY}~" .env; \
-    else \
-      echo "APP_KEY not provided; .env remains unchanged"; \
-    fi
-
-# 3. Composer 用ファイルのみをコピーして依存ライブラリ（vendor）をインストール
 COPY src/composer.json src/composer.lock ./
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer && \
     composer self-update 2.8.6 && \
-    composer install --no-dev --optimize-autoloader
+    composer install --no-scripts --no-dev --optimize-autoloader --prefer-dist
 
-# 4. アプリケーション全体のソースコードをコピー（vendor はそのまま）
 COPY src/ ./
 
-# 5. npm 用依存ファイルをコピーして npm install とアセットのビルドを実行
 COPY src/package*.json ./
 RUN npm install
 RUN npm run build
@@ -47,14 +31,12 @@ FROM php:8.3-fpm
 
 WORKDIR /var/www/html
 
-# 本番実行に必要な SQLite のランタイムライブラリおよび PHP 拡張のインストール
 RUN apt-get update && apt-get install -y \
     sqlite3 \
     libsqlite3-dev && \
     docker-php-ext-install pdo_sqlite && \
     rm -rf /var/lib/apt/lists/*
 
-# Builder Stage で構築した成果物全体をコピー
 COPY --from=builder /src/ /var/www/html/
 
 RUN rm -f /var/www/html/.env
