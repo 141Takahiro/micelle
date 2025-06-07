@@ -35,7 +35,8 @@ jobs:
           context: .
           file: infra/php/Dockerfile.prod
           push: true
-          tags: ghcr.io/141takahiro/micelle-app:latest
+          tags: ghcr.io/141takahiro/micelle-app:${{ github.sha }}
+
 
   deploy-to-ec2:
     needs: build-and-push-image
@@ -61,8 +62,9 @@ jobs:
             git clean -fd
 
             docker-compose -f docker-compose.prod.yml down
-
             docker system prune -a -f
+
+            export TAG=$(git rev-parse HEAD)
             
             docker-compose -f docker-compose.prod.yml pull
             docker-compose -f docker-compose.prod.yml up -d --remove-orphans

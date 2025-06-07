@@ -1,6 +1,8 @@
 services:
   app:
-    image: ghcr.io/141takahiro/micelle-app:latest
+    image: ghcr.io/141takahiro/micelle-app:${TAG}
+
+
     env_file:
       - ./src/.env
     working_dir: /var/www/html
