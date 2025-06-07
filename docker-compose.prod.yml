@@ -4,7 +4,7 @@ services:
     env_file:
       - ./src/.env
     working_dir: /var/www/html
-    command: php-fpm
+    command: sh -c "php artisan package:discover && php artisan config:cache && php-fpm"
     volumes:
       - app-data:/var/www/html
 
