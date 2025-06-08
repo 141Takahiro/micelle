@@ -41,6 +41,11 @@ COPY --from=builder /src/ /var/www/html/
 
 RUN rm -f /var/www/html/.env
 
+# ユーザーを www-data に変更
+RUN chown -R www-data:www-data /var/www/html
+RUN chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+USER www-data
+
 EXPOSE 9000
 
 CMD ["php-fpm"]
