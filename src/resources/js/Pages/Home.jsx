@@ -11,12 +11,14 @@ import cameraIcon from "../assets/icons/cameraIcon.png";
 import folderIcon from "../assets/icons/folderIcon.png";
 import cameraAdd from "../assets/icons/camera-add.png";
 import folderOpen from "../assets/icons/folder-open.png";
+import defaultImage from "../assets/icons/default-image.png";
+import micelleEvaluateImage from "../assets/icons/micelle_evaluate.jpg";
 import { usePage } from "@inertiajs/react";
 
 export default function Home({ rooms = [] }) {
 
-    const defaultImage = "/storage/images/default-image.png";
-    const micelleEvaluateImage = "/storage/images/micelle_evaluate.jpg";
+    // const defaultImage = "/storage/images/default-image.png";
+    // const micelleEvaluateImage = "/storage/images/micelle_evaluate.jpg";
     const [selectedRoomId, setSelectedRoomId] = useState(rooms.length > 0 ? rooms[0].id : null);
     const [imageSrc, setImageSrc] = useState(defaultImage);
     const [imageFile, setImageFile] = useState(null);
