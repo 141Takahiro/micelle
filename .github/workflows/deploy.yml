@@ -53,6 +53,12 @@ jobs:
 
             echo "${{ secrets.FOR_GHCR }}" | docker login ghcr.io -u 141Takahiro --password-stdin
 
+            if grep -q '"ghcr.io"' ~/.docker/config.json; then
+            echo "GHCR login successful."
+            else
+              echo "GHCR login failed." && exit 1
+            fi
+
             cd ~/micelle
             git fetch origin main
             git reset --hard origin/main
