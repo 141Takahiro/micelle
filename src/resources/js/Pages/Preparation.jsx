@@ -6,6 +6,7 @@ import folderIcon from "../assets/icons/folderIcon.png";
 import cameraAdd from "../assets/icons/camera-add.png";
 import folderOpen from "../assets/icons/folder-open.png";
 import rotateRight from "../assets/icons/rotate_right.png";
+import defaultImage from "../assets/icons/default-image.png";
 import PrimaryButton from "../Components/PrimaryButton";
 import TextInput from "../Components/TextInput";
 import Modal from "../Components/Modal";
@@ -14,7 +15,7 @@ import { usePage } from "@inertiajs/react";
 import { useEffect, useState } from "react";
 
 export default function Preparation({ rooms = [], regular_agendas = [] }) {
-        const defaultImage = "/storage/images/default-image.png";
+        // const defaultImage = "/storage/images/default-image.png";
         const [imageSrc, setImageSrc] = useState(defaultImage);
         const [imageFile, setImageFile] = useState(null);
         const [roomName, setRoomName] = useState('')
@@ -97,48 +98,6 @@ export default function Preparation({ rooms = [], regular_agendas = [] }) {
                 });
             }
         };
-
-// const openCamera = () => {
-//     const fileInput = document.createElement("input");
-//     fileInput.type = "file";
-//     fileInput.accept = "image/*";
-//     fileInput.capture = "environment"; // スマホで背面カメラを優先する場合（省略可）
-//     fileInput.style.display = "none";
-
-//     document.body.appendChild(fileInput);
-//     fileInput.click();
-
-//     fileInput.addEventListener("change", (event) => {
-//         const file = event.target.files[0];
-//         if (file) {
-
-//             const reader = new FileReader();
-//             reader.onload = (e) => {
-//                 const imageElement = document.createElement("img");
-//                 imageElement.src = e.target.result;
-//                 document.body.appendChild(imageElement);
-//             };
-//             reader.readAsDataURL(file);
-//         }
-//         document.body.removeChild(fileInput);
-//     });
-// };
-
-        // const handleImageChange = (event) => {
-        //     const file = event.target.files[0];
-        //     const imageError = validateImage(file);
-
-        //     setImageError(imageError);
-
-        //     if (!imageError) {
-        //         setImageFile(file);
-        //         const reader = new FileReader();
-        //         reader.onload = (e) => {
-        //             setImageSrc(e.target.result);
-        //         };
-        //         reader.readAsDataURL(file);
-        //     }
-        // };
 
         const handleTextChange = (event) => {
             const newRoomName = event.target.value;
