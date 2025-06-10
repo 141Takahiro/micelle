@@ -1,9 +1,9 @@
 {
   "lighthouseVersion": "12.1.0",
-  "requestedUrl": "http://localhost:8080/",
-  "mainDocumentUrl": "http://localhost:8080/",
-  "finalDisplayedUrl": "http://localhost:8080/",
-  "finalUrl": "http://localhost:8080/",
+  "requestedUrl": "http://localhost/",
+  "mainDocumentUrl": "http://localhost/",
+  "finalDisplayedUrl": "http://localhost/",
+  "finalUrl": "http://localhost/",
   "fetchTime": "2025-06-05T16:51:05.386Z",
   "gatherMode": "navigation",
   "runWarnings": [],
@@ -259,7 +259,7 @@
         ],
         "items": [
           {
-            "url": "http://localhost:8080/",
+            "url": "http://localhost/",
             "responseTime": 3324.433
           }
         ],
@@ -302,7 +302,7 @@
         "chains": {
           "0B571297B8C8AAEBB55EF90626FA1BB3": {
             "request": {
-              "url": "http://localhost:8080/",
+              "url": "http://localhost/",
               "startTime": 203374.874586,
               "endTime": 203378.20928,
               "responseReceivedTime": 203378.205662,
@@ -524,7 +524,7 @@
         ],
         "items": [
           {
-            "url": "http://localhost:8080/",
+            "url": "http://localhost/",
             "total": 989.432,
             "scripting": 106.51599999999995,
             "scriptParseCompile": 13.648
@@ -536,7 +536,7 @@
             "scriptParseCompile": 0
           },
           {
-            "url": "http://localhost:8080/build/assets/app-CzIgVdgz.js",
+            "url": "http://localhost/build/assets/app-CzIgVdgz.js",
             "total": 266.2680000000001,
             "scripting": 255.79600000000013,
             "scriptParseCompile": 2.044
@@ -702,7 +702,7 @@
         ],
         "items": [
           {
-            "url": "http://localhost:8080/",
+            "url": "http://localhost/",
             "sessionTargetType": "page",
             "protocol": "http/1.1",
             "rendererStartTime": 0,
@@ -719,7 +719,7 @@
             "entity": "localhost"
           },
           {
-            "url": "http://localhost:8080/build/assets/app-D4btvuEn.css",
+            "url": "http://localhost/build/assets/app-D4btvuEn.css",
             "sessionTargetType": "page",
             "protocol": "http/1.1",
             "rendererStartTime": 3343.852999985218,
@@ -737,7 +737,7 @@
             "entity": "localhost"
           },
           {
-            "url": "http://localhost:8080/build/assets/app-CzIgVdgz.js",
+            "url": "http://localhost/build/assets/app-CzIgVdgz.js",
             "sessionTargetType": "page",
             "protocol": "http/1.1",
             "rendererStartTime": 3351.727999985218,
@@ -754,7 +754,7 @@
             "entity": "localhost"
           },
           {
-            "url": "http://localhost:8080/build/assets/Welcome-Bvir7lsR.js",
+            "url": "http://localhost/build/assets/Welcome-Bvir7lsR.js",
             "sessionTargetType": "page",
             "protocol": "http/1.1",
             "rendererStartTime": 3352.1579999923706,
@@ -788,7 +788,7 @@
             "entity": "bunny.net"
           },
           {
-            "url": "http://localhost:8080/build/assets/AI_Evaluate-CrSPr-ZD.js",
+            "url": "http://localhost/build/assets/AI_Evaluate-CrSPr-ZD.js",
             "sessionTargetType": "page",
             "protocol": "http/1.1",
             "rendererStartTime": 3533.1590000092983,
@@ -805,7 +805,7 @@
             "entity": "localhost"
           },
           {
-            "url": "http://localhost:8080/build/assets/ConfirmPassword-CBNAzdBX.js",
+            "url": "http://localhost/build/assets/ConfirmPassword-CBNAzdBX.js",
             "sessionTargetType": "page",
             "protocol": "http/1.1",
             "rendererStartTime": 3533.3799999952316,
@@ -822,7 +822,7 @@
             "entity": "localhost"
           },
           {
-            "url": "http://localhost:8080/build/assets/InputError-Ct7PJWQw.js",
+            "url": "http://localhost/build/assets/InputError-Ct7PJWQw.js",
             "sessionTargetType": "page",
             "protocol": "http/1.1",
             "rendererStartTime": 3533.4950000047684,
@@ -890,7 +890,7 @@
             "entity": "laravel.com"
           },
           {
-            "url": "http://localhost:8080/favicon.ico",
+            "url": "http://localhost/favicon.ico",
             "sessionTargetType": "page",
             "protocol": "http/1.1",
             "rendererStartTime": 3562.6759999990463,
@@ -907,7 +907,7 @@
             "entity": "localhost"
           },
           {
-            "url": "http://localhost:8080/build/assets/InputLabel-Bv8i8-tE.js",
+            "url": "http://localhost/build/assets/InputLabel-Bv8i8-tE.js",
             "sessionTargetType": "page",
             "protocol": "http/1.1",
             "rendererStartTime": 3570.6379999816418,
@@ -958,7 +958,7 @@
             "entity": "bunny.net"
           },
           {
-            "url": "http://localhost:8080/build/assets/PrimaryButton-D-7bQB7T.js",
+            "url": "http://localhost/build/assets/PrimaryButton-D-7bQB7T.js",
             "sessionTargetType": "page",
             "protocol": "http/1.1",
             "rendererStartTime": 3746.8739999830723,
@@ -975,7 +975,7 @@
             "entity": "localhost"
           },
           {
-            "url": "http://localhost:8080/build/assets/TextInput-BR7o5Dya.js",
+            "url": "http://localhost/build/assets/TextInput-BR7o5Dya.js",
             "sessionTargetType": "page",
             "protocol": "http/1.1",
             "rendererStartTime": 3747.7909999787807,
@@ -992,7 +992,7 @@
             "entity": "localhost"
           },
           {
-            "url": "http://localhost:8080/build/assets/GuestLayout-C7Zrobxb.js",
+            "url": "http://localhost/build/assets/GuestLayout-C7Zrobxb.js",
             "sessionTargetType": "page",
             "protocol": "http/1.1",
             "rendererStartTime": 3760.0850000083447,
@@ -1009,7 +1009,7 @@
             "entity": "localhost"
           },
           {
-            "url": "http://localhost:8080/build/assets/ForgotPassword-DBAQtY8g.js",
+            "url": "http://localhost/build/assets/ForgotPassword-DBAQtY8g.js",
             "sessionTargetType": "page",
             "protocol": "http/1.1",
             "rendererStartTime": 3766.777999997139,
@@ -1026,7 +1026,7 @@
             "entity": "localhost"
           },
           {
-            "url": "http://localhost:8080/build/assets/Login-DJYoyu1Q.js",
+            "url": "http://localhost/build/assets/Login-DJYoyu1Q.js",
             "sessionTargetType": "page",
             "protocol": "http/1.1",
             "rendererStartTime": 3773.1019999980927,
@@ -1043,7 +1043,7 @@
             "entity": "localhost"
           },
           {
-            "url": "http://localhost:8080/build/assets/Register-C_MinSh1.js",
+            "url": "http://localhost/build/assets/Register-C_MinSh1.js",
             "sessionTargetType": "page",
             "protocol": "http/1.1",
             "rendererStartTime": 3782.6050000190735,
@@ -1060,7 +1060,7 @@
             "entity": "localhost"
           },
           {
-            "url": "http://localhost:8080/build/assets/ResetPassword-89jDSgBj.js",
+            "url": "http://localhost/build/assets/ResetPassword-89jDSgBj.js",
             "sessionTargetType": "page",
             "protocol": "http/1.1",
             "rendererStartTime": 3784.2400000095367,
@@ -1077,7 +1077,7 @@
             "entity": "localhost"
           },
           {
-            "url": "http://localhost:8080/build/assets/VerifyEmail-BsAUCoat.js",
+            "url": "http://localhost/build/assets/VerifyEmail-BsAUCoat.js",
             "sessionTargetType": "page",
             "protocol": "http/1.1",
             "rendererStartTime": 3793.223999977112,
@@ -1094,7 +1094,7 @@
             "entity": "localhost"
           },
           {
-            "url": "http://localhost:8080/build/assets/Home-CnhdCNnS.js",
+            "url": "http://localhost/build/assets/Home-CnhdCNnS.js",
             "sessionTargetType": "page",
             "protocol": "http/1.1",
             "rendererStartTime": 3799.826999992132,
@@ -1111,7 +1111,7 @@
             "entity": "localhost"
           },
           {
-            "url": "http://localhost:8080/build/assets/rotate_right-Cktle_MK.js",
+            "url": "http://localhost/build/assets/rotate_right-Cktle_MK.js",
             "sessionTargetType": "page",
             "protocol": "http/1.1",
             "rendererStartTime": 3804.9560000002384,
@@ -1128,7 +1128,7 @@
             "entity": "localhost"
           },
           {
-            "url": "http://localhost:8080/build/assets/Modal-CyPv75eV.js",
+            "url": "http://localhost/build/assets/Modal-CyPv75eV.js",
             "sessionTargetType": "page",
             "protocol": "http/1.1",
             "rendererStartTime": 3813.2459999918938,
@@ -1145,7 +1145,7 @@
             "entity": "localhost"
           },
           {
-            "url": "http://localhost:8080/build/assets/folder-open-BSJV2VVZ.js",
+            "url": "http://localhost/build/assets/folder-open-BSJV2VVZ.js",
             "sessionTargetType": "page",
             "protocol": "http/1.1",
             "rendererStartTime": 3819.3799999952316,
@@ -1162,7 +1162,7 @@
             "entity": "localhost"
           },
           {
-            "url": "http://localhost:8080/build/assets/RadioGroup-DsgjfYeL.js",
+            "url": "http://localhost/build/assets/RadioGroup-DsgjfYeL.js",
             "sessionTargetType": "page",
             "protocol": "http/1.1",
             "rendererStartTime": 3825.337999999523,
@@ -1179,7 +1179,7 @@
             "entity": "localhost"
           },
           {
-            "url": "http://localhost:8080/build/assets/Preparation-CQ7J6EAX.js",
+            "url": "http://localhost/build/assets/Preparation-CQ7J6EAX.js",
             "sessionTargetType": "page",
             "protocol": "http/1.1",
             "rendererStartTime": 3829.03900000453,
@@ -1196,7 +1196,7 @@
             "entity": "localhost"
           },
           {
-            "url": "http://localhost:8080/build/assets/DangerButton-B37xDSoH.js",
+            "url": "http://localhost/build/assets/DangerButton-B37xDSoH.js",
             "sessionTargetType": "page",
             "protocol": "http/1.1",
             "rendererStartTime": 3835.377000004053,
@@ -1213,7 +1213,7 @@
             "entity": "localhost"
           },
           {
-            "url": "http://localhost:8080/build/assets/Preparation2-BzrCaFPK.js",
+            "url": "http://localhost/build/assets/Preparation2-BzrCaFPK.js",
             "sessionTargetType": "page",
             "protocol": "http/1.1",
             "rendererStartTime": 3844.592999994755,
@@ -1230,7 +1230,7 @@
             "entity": "localhost"
           },
           {
-            "url": "http://localhost:8080/build/assets/Edit-BO_oqXUt.js",
+            "url": "http://localhost/build/assets/Edit-BO_oqXUt.js",
             "sessionTargetType": "page",
             "protocol": "http/1.1",
             "rendererStartTime": 3846.481000006199,
@@ -1247,7 +1247,7 @@
             "entity": "localhost"
           },
           {
-            "url": "http://localhost:8080/build/assets/DeleteUserForm-CKef4WHY.js",
+            "url": "http://localhost/build/assets/DeleteUserForm-CKef4WHY.js",
             "sessionTargetType": "page",
             "protocol": "http/1.1",
             "rendererStartTime": 3876.8779999911785,
@@ -1264,7 +1264,7 @@
             "entity": "localhost"
           },
           {
-            "url": "http://localhost:8080/build/assets/UpdatePasswordForm-BIHpM8_1.js",
+            "url": "http://localhost/build/assets/UpdatePasswordForm-BIHpM8_1.js",
             "sessionTargetType": "page",
             "protocol": "http/1.1",
             "rendererStartTime": 3877.735999971628,
@@ -1281,7 +1281,7 @@
             "entity": "localhost"
           },
           {
-            "url": "http://localhost:8080/build/assets/UpdateProfileInformationForm-Ckd76N9U.js",
+            "url": "http://localhost/build/assets/UpdateProfileInformationForm-Ckd76N9U.js",
             "sessionTargetType": "page",
             "protocol": "http/1.1",
             "rendererStartTime": 3878.4099999964237,
@@ -1298,7 +1298,7 @@
             "entity": "localhost"
           },
           {
-            "url": "http://localhost:8080/build/assets/Task-CasGNZs3.js",
+            "url": "http://localhost/build/assets/Task-CasGNZs3.js",
             "sessionTargetType": "page",
             "protocol": "http/1.1",
             "rendererStartTime": 3892.45300000906,
@@ -1315,7 +1315,7 @@
             "entity": "localhost"
           },
           {
-            "url": "http://localhost:8080/build/assets/AuthenticatedLayout-Dq1BhJ0p.js",
+            "url": "http://localhost/build/assets/AuthenticatedLayout-Dq1BhJ0p.js",
             "sessionTargetType": "page",
             "protocol": "http/1.1",
             "rendererStartTime": 3894.3369999825954,
@@ -1332,7 +1332,7 @@
             "entity": "localhost"
           },
           {
-            "url": "http://localhost:8080/build/assets/transition-pRj-41f9.js",
+            "url": "http://localhost/build/assets/transition-pRj-41f9.js",
             "sessionTargetType": "page",
             "protocol": "http/1.1",
             "rendererStartTime": 3895.042999982834,
@@ -1389,7 +1389,7 @@
             "rtt": 12.74211
           },
           {
-            "origin": "http://localhost:8080",
+            "origin": "http://localhost",
             "rtt": 0.89535
           }
         ],
@@ -1432,7 +1432,7 @@
             "serverResponseTime": 12.114999999999991
           },
           {
-            "origin": "http://localhost:8080",
+            "origin": "http://localhost",
             "serverResponseTime": 10.57265
           }
         ],
@@ -1835,17 +1835,17 @@
         ],
         "items": [
           {
-            "url": "http://localhost:8080/",
+            "url": "http://localhost/",
             "duration": 350.0000000000001,
             "startTime": 940.57265
           },
           {
-            "url": "http://localhost:8080/build/assets/app-CzIgVdgz.js",
+            "url": "http://localhost/build/assets/app-CzIgVdgz.js",
             "duration": 110,
             "startTime": 5731.71795
           },
           {
-            "url": "http://localhost:8080/build/assets/app-CzIgVdgz.js",
+            "url": "http://localhost/build/assets/app-CzIgVdgz.js",
             "duration": 90,
             "startTime": 850.57265
           },
@@ -1864,8 +1864,8 @@
         "debugData": {
           "type": "debugdata",
           "urls": [
-            "http://localhost:8080/",
-            "http://localhost:8080/build/assets/app-CzIgVdgz.js",
+            "http://localhost/",
+            "http://localhost/build/assets/app-CzIgVdgz.js",
             "Unattributable"
           ],
           "tasks": [
@@ -2003,7 +2003,7 @@
         "type": "treemap-data",
         "nodes": [
           {
-            "name": "http://localhost:8080/",
+            "name": "http://localhost/",
             "resourceBytes": 26223,
             "unusedBytes": 10853,
             "children": [
@@ -2020,12 +2020,12 @@
             ]
           },
           {
-            "name": "http://localhost:8080/build/assets/app-CzIgVdgz.js",
+            "name": "http://localhost/build/assets/app-CzIgVdgz.js",
             "resourceBytes": 278379,
             "unusedBytes": 148351
           },
           {
-            "name": "http://localhost:8080/build/assets/Welcome-Bvir7lsR.js",
+            "name": "http://localhost/build/assets/Welcome-Bvir7lsR.js",
             "resourceBytes": 19276,
             "unusedBytes": 343
           }
@@ -2683,21 +2683,21 @@
         ],
         "items": [
           {
-            "url": "http://localhost:8080/build/assets/app-CzIgVdgz.js",
+            "url": "http://localhost/build/assets/app-CzIgVdgz.js",
             "cacheLifetimeMs": 0,
             "cacheHitProbability": 0,
             "totalBytes": 278712,
             "wastedBytes": 278712
           },
           {
-            "url": "http://localhost:8080/build/assets/app-D4btvuEn.css",
+            "url": "http://localhost/build/assets/app-D4btvuEn.css",
             "cacheLifetimeMs": 0,
             "cacheHitProbability": 0,
             "totalBytes": 42315,
             "wastedBytes": 42315
           },
           {
-            "url": "http://localhost:8080/build/assets/Welcome-Bvir7lsR.js",
+            "url": "http://localhost/build/assets/Welcome-Bvir7lsR.js",
             "cacheLifetimeMs": 0,
             "cacheHitProbability": 0,
             "totalBytes": 19607,
@@ -2813,39 +2813,39 @@
         ],
         "items": [
           {
-            "url": "http://localhost:8080/build/assets/app-CzIgVdgz.js",
+            "url": "http://localhost/build/assets/app-CzIgVdgz.js",
             "totalBytes": 278712
           },
           {
-            "url": "http://localhost:8080/build/assets/Home-CnhdCNnS.js",
+            "url": "http://localhost/build/assets/Home-CnhdCNnS.js",
             "totalBytes": 115447
           },
           {
-            "url": "http://localhost:8080/build/assets/Task-CasGNZs3.js",
+            "url": "http://localhost/build/assets/Task-CasGNZs3.js",
             "totalBytes": 113066
           },
           {
-            "url": "http://localhost:8080/build/assets/RadioGroup-DsgjfYeL.js",
+            "url": "http://localhost/build/assets/RadioGroup-DsgjfYeL.js",
             "totalBytes": 109164
           },
           {
-            "url": "http://localhost:8080/build/assets/app-D4btvuEn.css",
+            "url": "http://localhost/build/assets/app-D4btvuEn.css",
             "totalBytes": 42315
           },
           {
-            "url": "http://localhost:8080/",
+            "url": "http://localhost/",
             "totalBytes": 29271
           },
           {
-            "url": "http://localhost:8080/build/assets/Modal-CyPv75eV.js",
+            "url": "http://localhost/build/assets/Modal-CyPv75eV.js",
             "totalBytes": 27557
           },
           {
-            "url": "http://localhost:8080/build/assets/Welcome-Bvir7lsR.js",
+            "url": "http://localhost/build/assets/Welcome-Bvir7lsR.js",
             "totalBytes": 19607
           },
           {
-            "url": "http://localhost:8080/build/assets/transition-pRj-41f9.js",
+            "url": "http://localhost/build/assets/transition-pRj-41f9.js",
             "totalBytes": 14952
           },
           {
@@ -3001,7 +3001,7 @@
         ],
         "items": [
           {
-            "url": "http://localhost:8080/build/assets/app-D4btvuEn.css",
+            "url": "http://localhost/build/assets/app-D4btvuEn.css",
             "wastedBytes": 33653,
             "wastedPercent": 80.1013971865851,
             "totalBytes": 42013
@@ -3066,7 +3066,7 @@
         ],
         "items": [
           {
-            "url": "http://localhost:8080/build/assets/app-CzIgVdgz.js",
+            "url": "http://localhost/build/assets/app-CzIgVdgz.js",
             "totalBytes": 278379,
             "wastedBytes": 148351,
             "wastedPercent": 53.29101692297192
@@ -3187,22 +3187,22 @@
         ],
         "items": [
           {
-            "url": "http://localhost:8080/build/assets/app-CzIgVdgz.js",
+            "url": "http://localhost/build/assets/app-CzIgVdgz.js",
             "totalBytes": 278379,
             "wastedBytes": 185930
           },
           {
-            "url": "http://localhost:8080/build/assets/app-D4btvuEn.css",
+            "url": "http://localhost/build/assets/app-D4btvuEn.css",
             "totalBytes": 42013,
             "wastedBytes": 34201
           },
           {
-            "url": "http://localhost:8080/",
+            "url": "http://localhost/",
             "totalBytes": 27803,
             "wastedBytes": 19421
           },
           {
-            "url": "http://localhost:8080/build/assets/Welcome-Bvir7lsR.js",
+            "url": "http://localhost/build/assets/Welcome-Bvir7lsR.js",
             "totalBytes": 19276,
             "wastedBytes": 13422
           }
@@ -4663,7 +4663,7 @@
     {
       "name": "localhost",
       "origins": [
-        "http://localhost:8080"
+        "http://localhost"
       ],
       "isFirstParty": true,
       "isUnrecognized": true
