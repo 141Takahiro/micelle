@@ -149,14 +149,15 @@ export default function Home({ rooms = [] }) {
             });
         };
 
-        // const handleImageChange = (event) => {
-        //     const file = event.target.files[0];
-        //     if (file) {
-        //         processFile(file, (dataURL) => {
-        //         setImageSrc(dataURL);
-        //         });
-        //     }
-        // };
+        const handleImageChange = (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                processFile(file, (dataURL) => {
+                setImageSrc(dataURL);
+                });
+            }
+        };
+        
 
     // const validateImage = (file) => {
     //     if (!file || file === null || file === undefined) { 
@@ -238,11 +239,20 @@ export default function Home({ rooms = [] }) {
         const dataURL = e.target.result;
         const img = new Image();
         img.onload = () => {
+
+        const MAX_EDGE = 4096;
+        let width = img.width;
+        let height = img.height;
+       
+        const ratio = Math.min(1, MAX_EDGE / width, MAX_EDGE / height);
+        width = width * ratio;
+        height = height * ratio;
+        
         const canvas = document.createElement("canvas");
-        canvas.width = img.width;
-        canvas.height = img.height;
+        canvas.width = width;
+        canvas.height = height;
         const ctx = canvas.getContext("2d");
-        ctx.drawImage(img, 0, 0);
+        ctx.drawImage(img, 0, 0, width, height);
 
         const initialQuality = 0.6;
         compressImage(canvas, initialQuality, (compressedBlob) => {
@@ -251,7 +261,7 @@ export default function Home({ rooms = [] }) {
             setImageError(validationError);
             return;
             }
-   
+            
             setImageFile(compressedBlob);
             const newReader = new FileReader();
             newReader.onload = (event) => {
@@ -263,15 +273,6 @@ export default function Home({ rooms = [] }) {
         img.src = dataURL;
     };
     reader.readAsDataURL(file);
-    };
-
-    const handleImageChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-        processFile(file, (dataURL) => {
-        setImageSrc(dataURL);
-        });
-    }
     };
 
     const getRandomRoom = (rooms) => {
