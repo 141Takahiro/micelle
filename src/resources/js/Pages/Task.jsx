@@ -164,7 +164,6 @@ export default function Task({ rooms = [], regular_agendas = [] }) {
 
             <div className="md:flex flex-row">
                     <div className="basis-1/3 border-2 border-solid rounded-sm m-2 shadow-xl justify-items-center">
-                     <div className="mb-4 md:mb-0">
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <div className="m-2">
                                 <FormControl>
@@ -288,22 +287,20 @@ export default function Task({ rooms = [], regular_agendas = [] }) {
                                 <p>選択された終了時間: {endTime.format("HH:mm")}</p>
                             </div>
                         </LocalizationProvider>
-
-
-
                         
-                        <PrimaryButton 
-                            className="my-2 w-24 size-12"
-                            onClick={handleSubmit}
-                            disabled={isInvalid || isSubmitting}
-                        >
-                            <span className={`"!justify-center w-full ${isSubmitting ? "text-sm" : "text-base"}`}>
-                                {isSubmitting ? "投稿中..." : "投稿"}
-                            </span>
-                        </PrimaryButton>
+                        <div className="mb-4 md:mb-0">
+                            <PrimaryButton 
+                                className="my-2 w-24 size-12"
+                                onClick={handleSubmit}
+                                disabled={isInvalid || isSubmitting}
+                            >
+                                <span className={`"!justify-center w-full ${isSubmitting ? "text-sm" : "text-base"}`}>
+                                    {isSubmitting ? "投稿中..." : "投稿"}
+                                </span>
+                            </PrimaryButton>
 
-                        {errorMessage && <p className="text-red-500 text-sm mt-1 mb-1">{errorMessage}</p>}
-                    </div>
+                            {errorMessage && <p className="text-red-500 text-sm mt-1 mb-1">{errorMessage}</p>}
+                        </div>
                 </div>
 
                 <div className="hidden md:block basis-2/3 border-2 border-solid rounded-sm m-2 shadow-xl">
