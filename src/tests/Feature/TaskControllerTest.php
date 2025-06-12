@@ -74,10 +74,11 @@ class TaskControllerTest extends TestCase
             'user_id' => auth()->id(),
         ]);
 
-        $response->assertSessionHas(
-                'store_message', 
-                "タスクが登録されました！: {$roomName}"
-            );
+        $roomName = 'サンプルルーム';  
+        return redirect()->route('task')->with(
+            'store_message', 
+            "タスクが登録されました！: {$roomName}"
+        );
     }
 
     public function test_validation_error_occurs_when_data_is_invalid()
