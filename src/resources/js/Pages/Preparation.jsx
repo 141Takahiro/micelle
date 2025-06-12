@@ -30,24 +30,7 @@ export default function Preparation({ rooms = [], regular_agendas = [] }) {
         const [showDeleteMessage, setShowDeleteMessage] = useState(false);
         const { props } = usePage();
         const [deleteMessage, setDeleteMessage] = useState(props?.delete_message || "");
-        
-
-        // const validateImage = (file) => {
-        //     if (!file || file === null || file === undefined) { 
-        //         return "ファイルが選択されていません。";
-        //     }
-        //     const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
-        //     const maxSize = 2 * 1024 * 1024;
-        //     if (!allowedTypes.includes(file.type)) {
-        //         return "許可されていないファイル形式です。JPEG, PNG, JPGのみアップロードできます。";
-        //     }
-        //     if (file.size > maxSize) {
-        //         return "ファイルサイズが２ＭＢを超えています。";
-        //     }
-        //     return null;
-        // };
-
-       
+               
         // 画像のサイズ変更
         const MAX_FILE_SIZE = 2 * 1024 * 1024; 
         const MIN_QUALITY = 0.3;      
@@ -158,26 +141,6 @@ export default function Preparation({ rooms = [], regular_agendas = [] }) {
             }
             return null;
         };
-
-        // const handleImageChange = (event) => {
-        //     const file = event.target.files[0];
-        //     if (file) {
-        //         processFile(file, (dataURL) => {
-        //         setImageSrc(dataURL);
-        //         });
-        //     }
-        // };
-
-        // const processFile = (file, onSuccess) => {
-        //     const error = validateImage(file);
-        //     setImageError(error);
-        //     if (error) return;
-
-        //     setImageFile(file);
-        //     const reader = new FileReader();
-        //     reader.onload = (e) => onSuccess(e.target.result);
-        //     reader.readAsDataURL(file);
-        // };
 
         const openCamera = () => {
             const fileInput = document.createElement("input");
@@ -299,38 +262,38 @@ export default function Preparation({ rooms = [], regular_agendas = [] }) {
         >
             <Head title="Preparation" />
 
-            <Modal show={showModal} onClose={() => setShowModal(false)} className="flex flex-col">
-                <h2 className="text-center m-4">{modalData.store_message}</h2>
-                {modalData.image_url && (
-                    <>
-                        {!imageLoaded && (
+                <Modal show={showModal} onClose={() => setShowModal(false)} className="flex flex-col">
+                    <h2 className="text-center m-4">{modalData.store_message}</h2>
+                    {modalData.image_url && (
+                        <>
+                            {!imageLoaded && (
+                                <img
+                                    src={rotateRight}
+                                    alt="ローディング中..."
+                                    className="h-48 w-96 object-scale-down rounded-sm animate-spin m-2"
+                                />
+                            )}
                             <img
-                                src={rotateRight}
-                                alt="ローディング中..."
-                                className="h-48 w-96 object-scale-down rounded-sm animate-spin m-2"
+                                src={modalData.image_url}
+                                alt="部屋の画像"
+                                className="h-48 w-96 object-cover rounded-sm m-2"
+                                onLoad={() => setImageLoaded(true)}
                             />
-                        )}
-                        <img
-                            src={modalData.image_url}
-                            alt="部屋の画像"
-                            className="h-48 w-96 object-cover rounded-sm m-2"
-                            onLoad={() => setImageLoaded(true)}
-                        />
-                    </>
-                )}
-                <div className="flex justify-around">
-                    <PrimaryButton onClick={() => setShowModal(false)} className="m-2">
-                        部屋を追加する
-                    </PrimaryButton>
-                    <PrimaryButton onClick={goToTaskPage} className="m-2">
-                        タスクを登録する
-                    </PrimaryButton>
-                </div>
-            </Modal>
+                        </>
+                    )}
+                    <div className="flex justify-around">
+                        <PrimaryButton onClick={() => setShowModal(false)} className="m-2">
+                            部屋を追加する
+                        </PrimaryButton>
+                        <PrimaryButton onClick={goToTaskPage} className="m-2">
+                            タスクを登録する
+                        </PrimaryButton>
+                    </div>
+                </Modal>
 
-            <Modal show={showDeleteMessage} onClose={() => setShowDeleteMessage(false)}>
-                <p className="font-semibold text-center my-4">{deleteMessage}</p>
-            </Modal>
+                <Modal show={showDeleteMessage} onClose={() => setShowDeleteMessage(false)}>
+                    <p className="font-semibold text-center m-4">{deleteMessage}</p>
+                </Modal>
 
             <div className="md:flex flex-row">
                 <div className="basis-1/3 border-2 border-solid rounded-sm m-2 shadow-xl">
@@ -388,11 +351,11 @@ export default function Preparation({ rooms = [], regular_agendas = [] }) {
                     </div>
                 </div>
 
-                <div className="basis-2/3 border-2 border-solid rounded-sm m-2 shadow-xl">
+                <div className="basis-2/3 border-2 border-solid rounded-sm m-4 shadow-xl">
                     <h2 className="text-xl text-center my-4">登録済みの部屋一覧</h2>
 
                     {rooms.length === 0 ? (
-                        <p className="text-center text-gray-500 m-4">部屋が登録されていません。</p>
+                        <p className="text-center text-gray-500 m-2">部屋が登録されていません。</p>
                     ) : (
                         <ul className="md:grid grid-cols-2">
                             {rooms.map((room) => {
@@ -407,20 +370,23 @@ export default function Preparation({ rooms = [], regular_agendas = [] }) {
                                     >
                                         <p className="m-2">部屋名: {room.room_name}</p>
                                         {!hasImageLoaded[room.id] && (
+                                        <div className="flex justify-center">
                                             <img
                                                 src={rotateRight}
                                                 alt="ローディング中..."
                                                 className="h-48 w-96 object-scale-down rounded-sm animate-spin m-2"
                                             />
+                                        </div>
                                         )}
-
-                                        <img 
-                                            className="h-48 w-96 object-cover rounded-sm m-2"
-                                            src={`/rooms/${room.img_name}`} 
-                                            alt={room.room_name} 
-                                            style={{ display: hasImageLoaded[room.id] ? "block" : "none" }} 
-                                            onLoad={() => handleImageLoad(room.id)}
-                                        />
+                                        <div className="flex justify-center">
+                                            <img 
+                                                className="h-48 w-96 object-cover rounded-sm m-2"
+                                                src={`/rooms/${room.img_name}`} 
+                                                alt={room.room_name} 
+                                                style={{ display: hasImageLoaded[room.id] ? "block" : "none" }} 
+                                                onLoad={() => handleImageLoad(room.id)}
+                                            />
+                                        </div>
 
                                         <div className="flex justify-around">
                                             {regularAgenda && regularAgenda.day_of_the_week && regularAgenda.start_time && regularAgenda.end_time ? (
