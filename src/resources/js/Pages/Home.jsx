@@ -409,8 +409,8 @@ export default function Home({ rooms = [] }) {
                             <div>
                                 <img src={imageSrc} alt="部屋の写真" className="w-full rounded-sm"/>
                             </div>
-                            <div className="flex justify-around">
-                                <div>
+                            <div className="flex justify-around md:justify-end md:mr-20">
+                                <div className="md:hidden">
                                     <button
                                         onClick={openCamera}
                                         onMouseEnter={() => setCameraSrc(cameraAdd)}
@@ -444,7 +444,7 @@ export default function Home({ rooms = [] }) {
             </Modal>
 
             <div className="md:flex md:flex-row">
-                <div className="basis-1/3 border-2 border-solid rounded-sm md:m-2 shadow-xl justify-items-center ">
+                <div className="basis-1/3 border-2 border-solid rounded-sm m-2 shadow-xl justify-items-center ">
                     <h2 className="text-xl font-bold m-2">今週のタスク</h2>
 
                     {rooms.length === 0 ? (
@@ -561,7 +561,7 @@ export default function Home({ rooms = [] }) {
                                     </div>
                                 </div>
 
-                                <div className="md:basis-1/2">
+                                <div className="md:basis-1/2 mb-8 md:mb-0">
                                     <div>
                                         {rooms.map((room) =>
                                             room.id === selectedRoomId ? (
