@@ -352,7 +352,7 @@ export default function Preparation({ rooms = [], regular_agendas = [] }) {
                 </div>
 
                 <div className="basis-2/3 border-2 border-solid rounded-sm m-2 shadow-xl">
-                    <div className="mb-8 md:mb-0">
+                    <div className="mb-4 md:mb-0">
                         <h2 className="text-xl text-center my-4">登録済みの部屋一覧</h2>
 
                         {rooms.length === 0 ? (

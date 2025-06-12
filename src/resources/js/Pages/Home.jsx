@@ -561,7 +561,7 @@ export default function Home({ rooms = [] }) {
                                     </div>
                                 </div>
 
-                                <div className="md:basis-1/2 mb-8 md:mb-0">
+                                <div className="md:basis-1/2 mb-4 md:mb-0">
                                     <div>
                                         {rooms.map((room) =>
                                             room.id === selectedRoomId ? (
