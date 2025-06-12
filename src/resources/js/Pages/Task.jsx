@@ -164,7 +164,7 @@ export default function Task({ rooms = [], regular_agendas = [] }) {
 
             <div className="md:flex flex-row">
                     <div className="basis-1/3 border-2 border-solid rounded-sm m-2 shadow-xl justify-items-center">
-                     <div className="mb-8 md:mb-0">
+                     <div className="mb-4 md:mb-0">
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <div className="m-2">
                                 <FormControl>
