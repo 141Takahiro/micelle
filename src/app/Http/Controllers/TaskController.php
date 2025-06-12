@@ -61,7 +61,7 @@ class TaskController extends Controller
 
             return redirect()->route('task')->with(
                 'store_message', 
-                "データが正常に登録されました！ 部屋名: {$roomName}"
+                "タスクが登録されました！: {$roomName}"
 
             );
 
