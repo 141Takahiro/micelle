@@ -158,7 +158,7 @@ export default function Task({ rooms = [], regular_agendas = [] }) {
             </Modal>
  
             <Modal show={showDeleteMessage} onClose={() => setShowDeleteMessage(false)}>
-                <p className="font-semibold text-center my-4">{deleteMessage}</p>
+                <p className="font-semibold text-center m-4">{deleteMessage}</p>
             </Modal>
 
 
@@ -183,20 +183,24 @@ export default function Task({ rooms = [], regular_agendas = [] }) {
                                                 <p>部屋名： {selectedRoomObj.room_name}</p>
 
                                                 {!hasImageLoaded[selectedRoomObj.id] && (
-                                                    <img
-                                                    src={rotateRight}
-                                                    alt="ローディング中..."
-                                                    className="h-48 w-96 object-scale-down rounded-sm animate-spin m-2"
-                                                    />
+                                                    <div className="flex justify-center">
+                                                        <img
+                                                        src={rotateRight}
+                                                        alt="ローディング中..."
+                                                        className="h-48 w-96 object-scale-down rounded-sm animate-spin m-2"
+                                                        />
+                                                    </div>
                                                 )}
 
-                                                <img
-                                                    className="md:h-48 md:w-96 object-cover rounded-sm m-2"
-                                                    src={`/rooms/${selectedRoomObj.img_name}`}
-                                                    alt={selectedRoomObj.room_name}
-                                                    style={{ display: hasImageLoaded[selectedRoomObj.id] ? "block" : "none" }}
-                                                    onLoad={() => handleImageLoad(selectedRoomObj.id)}
-                                                />
+                                                    <div className="flex justify-center">
+                                                        <img
+                                                            className="md:h-48 md:w-96 object-cover rounded-sm"
+                                                            src={`/rooms/${selectedRoomObj.img_name}`}
+                                                            alt={selectedRoomObj.room_name}
+                                                            style={{ display: hasImageLoaded[selectedRoomObj.id] ? "block" : "none" }}
+                                                            onLoad={() => handleImageLoad(selectedRoomObj.id)}
+                                                        />
+                                                    </div>
                                                 </div>
                                             ) : null;
                                             })()}
@@ -319,20 +323,24 @@ export default function Task({ rooms = [], regular_agendas = [] }) {
                                     >
                                         <p className="m-2">部屋名: {room.room_name}</p>
                                         {!hasImageLoaded[room.id] && (
+                                        <div className="flex justify-center">
                                             <img
                                                 src={rotateRight}
                                                 alt="ローディング中..."
                                                 className="h-48 w-96 object-scale-down rounded-sm animate-spin m-2"
                                             />
+                                        </div>
                                         )}
 
-                                        <img 
-                                            className="h-48 w-96 object-cover rounded-sm m-2"
-                                            src={`/rooms/${room.img_name}`} 
-                                            alt={room.room_name} 
-                                            style={{ display: hasImageLoaded[room.id] ? "block" : "none" }} 
-                                            onLoad={() => handleImageLoad(room.id)}
-                                        />
+                                        <div className="flex justify-center">
+                                            <img 
+                                                className="h-48 w-96 object-cover rounded-sm m-2"
+                                                src={`/rooms/${room.img_name}`} 
+                                                alt={room.room_name} 
+                                                style={{ display: hasImageLoaded[room.id] ? "block" : "none" }} 
+                                                onLoad={() => handleImageLoad(room.id)}
+                                            />
+                                        </div>
 
                                         <div className="flex justify-around">
                                         {regularAgenda ? (
