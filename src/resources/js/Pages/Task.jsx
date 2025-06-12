@@ -163,144 +163,147 @@ export default function Task({ rooms = [], regular_agendas = [] }) {
 
 
             <div className="md:flex flex-row">
-                <div className="basis-1/3 border-2 border-solid rounded-sm m-2 shadow-xl justify-items-center">
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <div className="m-4">
-                            <FormControl>
-                                <Typography variant="h6" className="text-center">部屋を選択してください</Typography>
+                    <div className="basis-1/3 border-2 border-solid rounded-sm m-2 shadow-xl justify-items-center">
+                     <div className="mb-8 md:mb-0">
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <div className="m-2">
+                                <FormControl>
+                                    <Typography variant="h6" className="text-center">部屋を選択してください</Typography>
 
-                            <div className="block md:hidden">
-                                {rooms.length === 0 ? (
-                                    <p className="text-gray-500 m-4">登録されている部屋がありません。</p>
-                                    ) : (
-                                    <div className="md:flex md:flex-row">
-                                        <div className="basis-1/2 justify-items-center">
-                                        <div>
-                                            {(() => {
-                                            const selectedRoomObj = rooms.find((room) => room.id === selectedRoom);
-                                            return selectedRoomObj ? (
-                                                <div key={selectedRoomObj.id} className="p-2 m-2 bg-gray-100 rounded-md">
-                                                <p>部屋名： {selectedRoomObj.room_name}</p>
-
-                                                {!hasImageLoaded[selectedRoomObj.id] && (
-                                                    <div className="flex justify-center">
-                                                        <img
-                                                        src={rotateRight}
-                                                        alt="ローディング中..."
-                                                        className="h-48 w-96 object-scale-down rounded-sm animate-spin m-2"
-                                                        />
-                                                    </div>
-                                                )}
-
-                                                    <div className="flex justify-center">
-                                                        <img
-                                                            className="md:h-48 md:w-96 object-cover rounded-sm"
-                                                            src={`/rooms/${selectedRoomObj.img_name}`}
-                                                            alt={selectedRoomObj.room_name}
-                                                            style={{ display: hasImageLoaded[selectedRoomObj.id] ? "block" : "none" }}
-                                                            onLoad={() => handleImageLoad(selectedRoomObj.id)}
-                                                        />
-                                                    </div>
-                                                </div>
-                                            ) : null;
-                                            })()}
-                                        </div>
-                                        </div>
-                                    </div>
-                                    )}
-
-                                    <div className="m-2">
-                                        {filteredAgendas.length === 0 ? (
-                                        <p className="text-gray-500">予定が登録されていません</p>
+                                <div className="block md:hidden">
+                                    {rooms.length === 0 ? (
+                                        <p className="text-gray-500 m-4">登録されている部屋がありません。</p>
                                         ) : (
-                                        filteredAgendas.map((regular_agenda) => (
-                                            <div key={regular_agenda.id} className="p-2 m-2 bg-gray-100 rounded-md">
-                                            <p>登録曜日: {dayLabel}</p>
-                                            <p>登録時間: {regular_agenda.start_time}~{regular_agenda.end_time}</p>
+                                        <div className="md:flex md:flex-row">
+                                            <div className="basis-1/2 justify-items-center">
+                                            <div>
+                                                {(() => {
+                                                const selectedRoomObj = rooms.find((room) => room.id === selectedRoom);
+                                                return selectedRoomObj ? (
+                                                    <div key={selectedRoomObj.id} className="p-2 m-2 bg-gray-100 rounded-md">
+                                                    <p>部屋名： {selectedRoomObj.room_name}</p>
+
+                                                    {!hasImageLoaded[selectedRoomObj.id] && (
+                                                        <div className="flex justify-center">
+                                                            <img
+                                                            src={rotateRight}
+                                                            alt="ローディング中..."
+                                                            className="h-48 w-96 object-scale-down rounded-sm animate-spin m-2"
+                                                            />
+                                                        </div>
+                                                    )}
+
+                                                        <div className="flex justify-center">
+                                                            <img
+                                                                className="md:h-48 md:w-96 object-cover rounded-sm"
+                                                                src={`/rooms/${selectedRoomObj.img_name}`}
+                                                                alt={selectedRoomObj.room_name}
+                                                                style={{ display: hasImageLoaded[selectedRoomObj.id] ? "block" : "none" }}
+                                                                onLoad={() => handleImageLoad(selectedRoomObj.id)}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                ) : null;
+                                                })()}
                                             </div>
-                                        ))
+                                            </div>
+                                        </div>
                                         )}
+
+                                        <div className="m-2">
+                                            {filteredAgendas.length === 0 ? (
+                                            <p className="text-gray-500">予定が登録されていません</p>
+                                            ) : (
+                                            filteredAgendas.map((regular_agenda) => (
+                                                <div key={regular_agenda.id} className="p-2 m-2 bg-gray-100 rounded-md">
+                                                <p>登録曜日: {dayLabel}</p>
+                                                <p>登録時間: {regular_agenda.start_time}~{regular_agenda.end_time}</p>
+                                                </div>
+                                            ))
+                                            )}
+                                        </div>
                                     </div>
-                                 </div>
 
 
-                                <RadioGroup
-                                    row
-                                    aria-labelledby="room-radio-group-label"
-                                    name="room=radio-group"
-                                    value={selectedRoom}
-                                    onChange={(e) => setSelectedRoom(Number(e.target.value))}
+                                    <RadioGroup
+                                        row
+                                        aria-labelledby="room-radio-group-label"
+                                        name="room=radio-group"
+                                        value={selectedRoom}
+                                        onChange={(e) => setSelectedRoom(Number(e.target.value))}
+                                    >
+                                        {rooms.map((room) => (
+                                            <FormControlLabel
+                                                key={room.id}
+                                                value={room.id}
+                                                control={<Radio />}
+                                                label={room.room_name}
+                                            />
+                                        ))}
+                                    </RadioGroup>
+                                </FormControl>
+                            </div>
+
+                            <div className="m-4">
+                            <FormControl>
+                                <Typography variant="h6">曜日を選択してください</Typography>
+                                <Select
+                                    id="day-select"
+                                    value={selectedDay}
+                                    onChange={(e) => setSelectedDay(Number(e.target.value))}
                                 >
-                                    {rooms.map((room) => (
-                                        <FormControlLabel
-                                            key={room.id}
-                                            value={room.id}
-                                            control={<Radio />}
-                                            label={room.room_name}
-                                        />
+                                    {["月曜日", "火曜日", "水曜日", "木曜日", "金曜日", "土曜日", "日曜日"].map((day, index) => (
+                                        <MenuItem key={index + 1} value={index + 1}>
+                                            {day}
+                                        </MenuItem>
                                     ))}
-                                </RadioGroup>
+                                </Select>
                             </FormControl>
-                        </div>
-
-                        <div className="m-4">
-                        <FormControl>
-                            <Typography variant="h6">曜日を選択してください</Typography>
-                            <Select
-                                id="day-select"
-                                value={selectedDay}
-                                onChange={(e) => setSelectedDay(Number(e.target.value))}
-                            >
-                                {["月曜日", "火曜日", "水曜日", "木曜日", "金曜日", "土曜日", "日曜日"].map((day, index) => (
-                                    <MenuItem key={index + 1} value={index + 1}>
-                                        {day}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                        </div>
-
-                        <div className="flex m-4">
-                            <div className="m-2">
-                                <Typography variant="h6">開始時刻</Typography>
-                                <MultiSectionDigitalClock
-                                    views={["hours", "minutes"]}
-                                    ampm={false} 
-                                    minutesStep={5}
-                                    value={startTime}
-                                    onChange={(newValue) => setStartTime(newValue)} 
-                                />
                             </div>
-                            <div className="m-2">
-                                <Typography variant="h6">終了時刻</Typography>
-                                <MultiSectionDigitalClock
-                                    views={["hours", "minutes"]}
-                                    ampm={false} 
-                                    minutesStep={5}
-                                    value={endTime}
-                                    onChange={(newValue) => setEndTime(newValue)}
-                                />
+
+                            <div className="flex m-4">
+                                <div className="m-2">
+                                    <Typography variant="h6">開始時刻</Typography>
+                                    <MultiSectionDigitalClock
+                                        views={["hours", "minutes"]}
+                                        ampm={false} 
+                                        minutesStep={5}
+                                        value={startTime}
+                                        onChange={(newValue) => setStartTime(newValue)} 
+                                    />
+                                </div>
+                                <div className="m-2">
+                                    <Typography variant="h6">終了時刻</Typography>
+                                    <MultiSectionDigitalClock
+                                        views={["hours", "minutes"]}
+                                        ampm={false} 
+                                        minutesStep={5}
+                                        value={endTime}
+                                        onChange={(newValue) => setEndTime(newValue)}
+                                    />
+                                </div>
                             </div>
-                        </div>
-                        <div className="m-4">
-                            <p>選択された開始時間: {startTime.format("HH:mm")}</p>
-                            <p>選択された終了時間: {endTime.format("HH:mm")}</p>
-                        </div>
-                    </LocalizationProvider>
+                            <div className="m-4">
+                                <p>選択された開始時間: {startTime.format("HH:mm")}</p>
+                                <p>選択された終了時間: {endTime.format("HH:mm")}</p>
+                            </div>
+                        </LocalizationProvider>
 
 
-                    
-                    <PrimaryButton 
-                        className="my-2 w-24 size-12"
-                        onClick={handleSubmit}
-                        disabled={isInvalid || isSubmitting}
-                    >
-                        <span className={`"!justify-center w-full ${isSubmitting ? "text-sm" : "text-base"}`}>
-                            {isSubmitting ? "投稿中..." : "投稿"}
-                        </span>
-                    </PrimaryButton>
 
-                    {errorMessage && <p className="text-red-500 text-sm mt-1">{errorMessage}</p>}
+                        
+                        <PrimaryButton 
+                            className="my-2 w-24 size-12"
+                            onClick={handleSubmit}
+                            disabled={isInvalid || isSubmitting}
+                        >
+                            <span className={`"!justify-center w-full ${isSubmitting ? "text-sm" : "text-base"}`}>
+                                {isSubmitting ? "投稿中..." : "投稿"}
+                            </span>
+                        </PrimaryButton>
+
+                        {errorMessage && <p className="text-red-500 text-sm mt-1 mb-1">{errorMessage}</p>}
+                    </div>
                 </div>
 
                 <div className="hidden md:block basis-2/3 border-2 border-solid rounded-sm m-2 shadow-xl">

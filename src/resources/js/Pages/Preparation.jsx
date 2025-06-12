@@ -302,8 +302,8 @@ export default function Preparation({ rooms = [], regular_agendas = [] }) {
                         <div>
                             <img src={imageSrc} alt="部屋の写真" className="w-full rounded-sm"/>
                         </div>
-                        <div className="flex justify-around">
-                            <div>
+                        <div className="flex justify-around md:justify-end md:mr-20">
+                            <div className="md:hidden">
                                 <button
                                     onClick={openCamera}
                                     onMouseEnter={() => setCameraSrc(cameraAdd)}
@@ -351,60 +351,62 @@ export default function Preparation({ rooms = [], regular_agendas = [] }) {
                     </div>
                 </div>
 
-                <div className="basis-2/3 border-2 border-solid rounded-sm m-4 shadow-xl">
-                    <h2 className="text-xl text-center my-4">登録済みの部屋一覧</h2>
+                <div className="basis-2/3 border-2 border-solid rounded-sm m-2 shadow-xl">
+                    <div className="mb-8 md:mb-0">
+                        <h2 className="text-xl text-center my-4">登録済みの部屋一覧</h2>
 
-                    {rooms.length === 0 ? (
-                        <p className="text-center text-gray-500 m-2">部屋が登録されていません。</p>
-                    ) : (
-                        <ul className="md:grid grid-cols-2">
-                            {rooms.map((room) => {
-                                const regularAgenda = regular_agendas.find(agenda => agenda.room_id === room.id) || null;
-                                const weekDays = ["月曜日", "火曜日", "水曜日", "木曜日", "金曜日", "土曜日", "日曜日"];
-                                const dayLabel = regularAgenda ? weekDays[regularAgenda.day_of_the_week - 1] : "未定義";
+                        {rooms.length === 0 ? (
+                            <p className="text-center text-gray-500 m-2">部屋が登録されていません。</p>
+                        ) : (
+                            <ul className="md:grid grid-cols-2">
+                                {rooms.map((room) => {
+                                    const regularAgenda = regular_agendas.find(agenda => agenda.room_id === room.id) || null;
+                                    const weekDays = ["月曜日", "火曜日", "水曜日", "木曜日", "金曜日", "土曜日", "日曜日"];
+                                    const dayLabel = regularAgenda ? weekDays[regularAgenda.day_of_the_week - 1] : "未定義";
 
-                                return (
-                                    <li 
-                                        key={room.id}
-                                        className="relative p-2 rounded-md transition m-2 bg-gray-200"
-                                    >
-                                        <p className="m-2">部屋名: {room.room_name}</p>
-                                        {!hasImageLoaded[room.id] && (
-                                        <div className="flex justify-center">
-                                            <img
-                                                src={rotateRight}
-                                                alt="ローディング中..."
-                                                className="h-48 w-96 object-scale-down rounded-sm animate-spin m-2"
-                                            />
-                                        </div>
-                                        )}
-                                        <div className="flex justify-center">
-                                            <img 
-                                                className="h-48 w-96 object-cover rounded-sm m-2"
-                                                src={`/rooms/${room.img_name}`} 
-                                                alt={room.room_name} 
-                                                style={{ display: hasImageLoaded[room.id] ? "block" : "none" }} 
-                                                onLoad={() => handleImageLoad(room.id)}
-                                            />
-                                        </div>
-
-                                        <div className="flex justify-around">
-                                            {regularAgenda && regularAgenda.day_of_the_week && regularAgenda.start_time && regularAgenda.end_time ? (
-                                                <div className="m-2 p-2 bg-gray-100 rounded-md">
-                                                    {weekDays[regularAgenda.day_of_the_week -1]} | {regularAgenda.start_time}~{regularAgenda.end_time}
-                                                </div>
-                                            ) : (
-                                                <p className="m-2 p-2 bg-gray-100 rounded-md">予定が登録されていません</p>
+                                    return (
+                                        <li 
+                                            key={room.id}
+                                            className="relative p-2 rounded-md transition m-2 bg-gray-200"
+                                        >
+                                            <p className="m-2">部屋名: {room.room_name}</p>
+                                            {!hasImageLoaded[room.id] && (
+                                            <div className="flex justify-center">
+                                                <img
+                                                    src={rotateRight}
+                                                    alt="ローディング中..."
+                                                    className="h-48 w-96 object-scale-down rounded-sm animate-spin m-2"
+                                                />
+                                            </div>
                                             )}
-                                            <DangerButton onClick={() => handleDelete(room.id)} className="m-2">                                        
-                                                削除
-                                            </DangerButton>
-                                        </div>
-                                    </li>
-                                );
-                            })}
-                        </ul>
-                    )}
+                                            <div className="flex justify-center">
+                                                <img 
+                                                    className="h-48 w-96 object-cover rounded-sm m-2"
+                                                    src={`/rooms/${room.img_name}`} 
+                                                    alt={room.room_name} 
+                                                    style={{ display: hasImageLoaded[room.id] ? "block" : "none" }} 
+                                                    onLoad={() => handleImageLoad(room.id)}
+                                                />
+                                            </div>
+
+                                            <div className="flex justify-around">
+                                                {regularAgenda && regularAgenda.day_of_the_week && regularAgenda.start_time && regularAgenda.end_time ? (
+                                                    <div className="m-2 p-2 bg-gray-100 rounded-md">
+                                                        {weekDays[regularAgenda.day_of_the_week -1]} | {regularAgenda.start_time}~{regularAgenda.end_time}
+                                                    </div>
+                                                ) : (
+                                                    <p className="m-2 p-2 bg-gray-100 rounded-md">予定が登録されていません</p>
+                                                )}
+                                                <DangerButton onClick={() => handleDelete(room.id)} className="m-2">                                        
+                                                    削除
+                                                </DangerButton>
+                                            </div>
+                                        </li>
+                                    );
+                                })}
+                            </ul>
+                        )}
+                    </div>
                 </div>
             </div>
         </AuthenticatedLayout>
