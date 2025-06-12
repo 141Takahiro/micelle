@@ -90,38 +90,54 @@ export default function Preparation({ rooms = [], regular_agendas = [] }) {
 
         // ファイルをData URLに変換
         const processFile = (file, onSuccess) => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const dataURL = e.target.result;
-            const img = new Image();
-            img.onload = () => {
-            const canvas = document.createElement("canvas");
-            canvas.width = img.width;
-            canvas.height = img.height;
-            const ctx = canvas.getContext("2d");
-            ctx.drawImage(img, 0, 0);
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        const dataURL = e.target.result;
+        const img = new Image();
+        img.onload = () => {
 
-            const initialQuality = 0.6;
-            compressImage(canvas, initialQuality, (compressedBlob) => {
-                const validationError = validateImage(compressedBlob);
-                if (validationError) {
-                setImageError(validationError);
-                return;
-                }
+        const MAX_EDGE = 4096;
+        let width = img.width;
+        let height = img.height;
+       
+        const ratio = Math.min(1, MAX_EDGE / width, MAX_EDGE / height);
+        width = width * ratio;
+        height = height * ratio;
+        
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, width, height);
+
+        const initialQuality = 0.6;
+        compressImage(canvas, initialQuality, (compressedBlob) => {
+            const validationError = validateImage(compressedBlob);
+            if (validationError) {
+            setImageError(validationError);
+            return;
+            }
             
-                setImageFile(compressedBlob);
-    
-                const newReader = new FileReader();
-                newReader.onload = (event) => {
-                onSuccess(event.target.result);
-                };
-                newReader.readAsDataURL(compressedBlob);
-            });
+            setImageFile(compressedBlob);
+            const newReader = new FileReader();
+            newReader.onload = (event) => {
+            onSuccess(event.target.result);
             };
-            img.src = dataURL;
+            newReader.readAsDataURL(compressedBlob);
+        });
         };
-        reader.readAsDataURL(file);
-        };
+        img.src = dataURL;
+    };
+    reader.readAsDataURL(file);
+    };
+
+    const getRandomRoom = (rooms) => {
+        if (!rooms || rooms.length === 0) {
+            console.error("部屋が存在しません！");
+            return null;
+        }
+        return rooms[Math.floor(Math.random() * rooms.length)];
+    };
 
         // 画像取得後のハンドル関数
         const handleImageChange = (event) => {
