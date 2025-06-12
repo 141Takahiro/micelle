@@ -15,7 +15,6 @@ import { usePage } from "@inertiajs/react";
 import { useEffect, useState } from "react";
 
 export default function Preparation({ rooms = [], regular_agendas = [] }) {
-        // const defaultImage = "/storage/images/default-image.png";
         const [imageSrc, setImageSrc] = useState(defaultImage);
         const [imageFile, setImageFile] = useState(null);
         const [roomName, setRoomName] = useState('')
@@ -33,19 +32,105 @@ export default function Preparation({ rooms = [], regular_agendas = [] }) {
         const [deleteMessage, setDeleteMessage] = useState(props?.delete_message || "");
         
 
+        // const validateImage = (file) => {
+        //     if (!file || file === null || file === undefined) { 
+        //         return "ファイルが選択されていません。";
+        //     }
+        //     const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
+        //     const maxSize = 2 * 1024 * 1024;
+        //     if (!allowedTypes.includes(file.type)) {
+        //         return "許可されていないファイル形式です。JPEG, PNG, JPGのみアップロードできます。";
+        //     }
+        //     if (file.size > maxSize) {
+        //         return "ファイルサイズが２ＭＢを超えています。";
+        //     }
+        //     return null;
+        // };
+
+       
+        // 画像のサイズ変更
+        const MAX_FILE_SIZE = 2 * 1024 * 1024; 
+        const MIN_QUALITY = 0.3;      
+        const QUALITY_DECREMENT = 0.1; 
+
+        const compressImage = (canvas, quality, callback) => {
+        canvas.toBlob(
+            (blob) => {
+            if (!blob) {
+                console.error("Blobの生成に失敗しました");
+                return;
+            }
+
+            if (blob.size > MAX_FILE_SIZE && quality > MIN_QUALITY) {
+                compressImage(canvas, quality - QUALITY_DECREMENT, callback);
+            } else {
+                callback(blob);
+            }
+            },
+            "image/jpeg",
+            quality
+        );
+        };
+
+        // 画像のvalidation
         const validateImage = (file) => {
-            if (!file || file === null || file === undefined) { 
-                return "ファイルが選択されていません。";
-            }
-            const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
-            const maxSize = 2 * 1024 * 1024;
-            if (!allowedTypes.includes(file.type)) {
-                return "許可されていないファイル形式です。JPEG, PNG, JPGのみアップロードできます。";
-            }
-            if (file.size > maxSize) {
-                return "ファイルサイズが２ＭＢを超えています。";
-            }
-            return null;
+        if (!file || file === null || file === undefined) {
+            return "ファイルが選択されていません。";
+        }
+        const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
+        const maxSize = 2 * 1024 * 1024;
+        if (!allowedTypes.includes(file.type)) {
+            return "許可されていないファイル形式です。JPEG, PNG, JPGのみアップロードできます。";
+        }
+        if (file.size > maxSize) {
+            return "ファイルサイズが２ＭＢを超えています。";
+        }
+        return null;
+        };
+
+        // ファイルをData URLに変換
+        const processFile = (file, onSuccess) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const dataURL = e.target.result;
+            const img = new Image();
+            img.onload = () => {
+            const canvas = document.createElement("canvas");
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0);
+
+            const initialQuality = 0.6;
+            compressImage(canvas, initialQuality, (compressedBlob) => {
+                const validationError = validateImage(compressedBlob);
+                if (validationError) {
+                setImageError(validationError);
+                return;
+                }
+            
+                setImageFile(compressedBlob);
+    
+                const newReader = new FileReader();
+                newReader.onload = (event) => {
+                onSuccess(event.target.result);
+                };
+                newReader.readAsDataURL(compressedBlob);
+            });
+            };
+            img.src = dataURL;
+        };
+        reader.readAsDataURL(file);
+        };
+
+        // 画像取得後のハンドル関数
+        const handleImageChange = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            processFile(file, (dataURL) => {
+            setImageSrc(dataURL);
+            });
+        }
         };
 
         const validateText = (text) => {
@@ -58,16 +143,25 @@ export default function Preparation({ rooms = [], regular_agendas = [] }) {
             return null;
         };
 
-        const processFile = (file, onSuccess) => {
-            const error = validateImage(file);
-            setImageError(error);
-            if (error) return;
+        // const handleImageChange = (event) => {
+        //     const file = event.target.files[0];
+        //     if (file) {
+        //         processFile(file, (dataURL) => {
+        //         setImageSrc(dataURL);
+        //         });
+        //     }
+        // };
 
-            setImageFile(file);
-            const reader = new FileReader();
-            reader.onload = (e) => onSuccess(e.target.result);
-            reader.readAsDataURL(file);
-        };
+        // const processFile = (file, onSuccess) => {
+        //     const error = validateImage(file);
+        //     setImageError(error);
+        //     if (error) return;
+
+        //     setImageFile(file);
+        //     const reader = new FileReader();
+        //     reader.onload = (e) => onSuccess(e.target.result);
+        //     reader.readAsDataURL(file);
+        // };
 
         const openCamera = () => {
             const fileInput = document.createElement("input");
@@ -88,15 +182,6 @@ export default function Preparation({ rooms = [], regular_agendas = [] }) {
             }
                 document.body.removeChild(fileInput);
             });
-        };
-
-        const handleImageChange = (event) => {
-            const file = event.target.files[0];
-            if (file) {
-                processFile(file, (dataURL) => {
-                setImageSrc(dataURL);
-                });
-            }
         };
 
         const handleTextChange = (event) => {
