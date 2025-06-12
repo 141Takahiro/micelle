@@ -20,8 +20,6 @@ services:
 
   web:
     image: nginx:1.20-alpine
-    # ports:
-    #   - 8080:80
     ports:
       - 80:80
     volumes:

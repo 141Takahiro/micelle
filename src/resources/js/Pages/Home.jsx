@@ -117,16 +117,16 @@ export default function Home({ rooms = [] }) {
    
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const processFile = (file, onSuccess) => {
-            const error = validateImage(file);
-            setImageError(error);
-            if (error) return;
+    // const processFile = (file, onSuccess) => {
+    //         const error = validateImage(file);
+    //         setImageError(error);
+    //         if (error) return;
 
-            setImageFile(file);
-            const reader = new FileReader();
-            reader.onload = (e) => onSuccess(e.target.result);
-            reader.readAsDataURL(file);
-        };
+    //         setImageFile(file);
+    //         const reader = new FileReader();
+    //         reader.onload = (e) => onSuccess(e.target.result);
+    //         reader.readAsDataURL(file);
+    //     };
 
     const openCamera = () => {
         const fileInput = document.createElement("input");
@@ -149,29 +149,29 @@ export default function Home({ rooms = [] }) {
             });
         };
 
-        const handleImageChange = (event) => {
-            const file = event.target.files[0];
-            if (file) {
-                processFile(file, (dataURL) => {
-                setImageSrc(dataURL);
-                });
-            }
-        };
+        // const handleImageChange = (event) => {
+        //     const file = event.target.files[0];
+        //     if (file) {
+        //         processFile(file, (dataURL) => {
+        //         setImageSrc(dataURL);
+        //         });
+        //     }
+        // };
 
-    const validateImage = (file) => {
-        if (!file || file === null || file === undefined) { 
-            return "ファイルが選択されていません。";
-        }
-        const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
-        const maxSize = 2 * 1024 * 1024;
-            if (!allowedTypes.includes(file.type)) {
-                return "許可されていないファイル形式です。JPEG, PNG, JPGのみアップロードできます。";
-            }
-            if (file.size > maxSize) {
-                return "ファイルサイズが２ＭＢを超えています。";
-            }
-        return null;
-    };
+    // const validateImage = (file) => {
+    //     if (!file || file === null || file === undefined) { 
+    //         return "ファイルが選択されていません。";
+    //     }
+    //     const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
+    //     const maxSize = 2 * 1024 * 1024;
+    //         if (!allowedTypes.includes(file.type)) {
+    //             return "許可されていないファイル形式です。JPEG, PNG, JPGのみアップロードできます。";
+    //         }
+    //         if (file.size > maxSize) {
+    //             return "ファイルサイズが２ＭＢを超えています。";
+    //         }
+    //     return null;
+    // };
 
     const handleSubmit = async () => {
         const newImageError = validateImage(imageFile);
@@ -191,6 +191,87 @@ export default function Home({ rooms = [] }) {
             onFinish: () => setIsSubmitting(false),
         });
 
+    };
+
+    const MAX_FILE_SIZE = 2 * 1024 * 1024; 
+    const MIN_QUALITY = 0.3;      
+    const QUALITY_DECREMENT = 0.1; 
+
+    const compressImage = (canvas, quality, callback) => {
+    canvas.toBlob(
+        (blob) => {
+        if (!blob) {
+            console.error("Blobの生成に失敗しました");
+            return;
+        }
+  
+        if (blob.size > MAX_FILE_SIZE && quality > MIN_QUALITY) {
+            compressImage(canvas, quality - QUALITY_DECREMENT, callback);
+        } else {
+            callback(blob);
+        }
+        },
+        "image/jpeg",
+        quality
+    );
+    };
+
+    const validateImage = (file) => {
+    if (!file || file === null || file === undefined) {
+        return "ファイルが選択されていません。";
+    }
+    const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
+    const maxSize = 2 * 1024 * 1024;
+    if (!allowedTypes.includes(file.type)) {
+        return "許可されていないファイル形式です。JPEG, PNG, JPGのみアップロードできます。";
+    }
+    if (file.size > maxSize) {
+        return "ファイルサイズが２ＭＢを超えています。";
+    }
+    return null;
+    };
+
+
+    const processFile = (file, onSuccess) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        const dataURL = e.target.result;
+        const img = new Image();
+        img.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0);
+
+        const initialQuality = 0.6;
+        compressImage(canvas, initialQuality, (compressedBlob) => {
+            const validationError = validateImage(compressedBlob);
+            if (validationError) {
+            setImageError(validationError);
+            return;
+            }
+   
+            setImageFile(compressedBlob);
+            const newReader = new FileReader();
+            newReader.onload = (event) => {
+            onSuccess(event.target.result);
+            };
+            newReader.readAsDataURL(compressedBlob);
+        });
+        };
+        img.src = dataURL;
+    };
+    reader.readAsDataURL(file);
+    };
+
+    const handleImageChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+        processFile(file, (dataURL) => {
+        setImageSrc(dataURL);
+        });
+    }
     };
 
     const getRandomRoom = (rooms) => {
