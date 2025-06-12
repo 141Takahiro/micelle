@@ -146,7 +146,7 @@ export default function Task({ rooms = [], regular_agendas = [] }) {
             <Head title="Task" />
 
             <Modal show={showStoreMessage} onClose={() => setShowStoreMessage(false)}>
-                <p className="font-semibold text-center my-4">{storeMessage}</p>
+                <p className="font-semibold text-center m-4">{storeMessage}</p>
                 <div className="flex justify-around m-4">
                     <PrimaryButton onClick={() => setShowStoreMessage(false)}>
                         閉じる
@@ -163,11 +163,11 @@ export default function Task({ rooms = [], regular_agendas = [] }) {
 
 
             <div className="md:flex flex-row">
-                    <div className="basis-1/3 border-2 border-solid rounded-sm m-2 shadow-xl justify-items-center">
+                    <div className="basis-1/3 border-2 border-solid rounded-sm m-1 shadow-xl justify-items-center">
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <div className="m-2">
+                            <div>
                                 <FormControl>
-                                    <Typography variant="h6" className="text-center">部屋を選択してください</Typography>
+                                    <h2 className="text-xl text-center my-4">部屋を選択してください</h2>
 
                                 <div className="block md:hidden">
                                     {rooms.length === 0 ? (
@@ -303,7 +303,7 @@ export default function Task({ rooms = [], regular_agendas = [] }) {
                         </div>
                 </div>
 
-                <div className="hidden md:block basis-2/3 border-2 border-solid rounded-sm m-2 shadow-xl">
+                <div className="hidden md:block basis-2/3 border-2 border-solid rounded-sm m-1 shadow-xl">
                     <h2 className="text-xl text-center my-4">登録済みの部屋一覧</h2>
 
                     {rooms.length === 0 ? (
@@ -317,7 +317,7 @@ export default function Task({ rooms = [], regular_agendas = [] }) {
                                 return (
                                     <li 
                                         key={room.id}
-                                        className={`relative p-2 rounded-md transition duration-300 m-2 ${
+                                        className={`relative p-1 rounded-md transition duration-300 m-1 ${
                                             selectedRoom === room.id ? "bg-blue-500 bg-opacity-50" : "bg-gray-200"
                                         }`}
                                     >
@@ -327,14 +327,14 @@ export default function Task({ rooms = [], regular_agendas = [] }) {
                                             <img
                                                 src={rotateRight}
                                                 alt="ローディング中..."
-                                                className="h-48 w-96 object-scale-down rounded-sm animate-spin m-2"
+                                                className="h-48 w-96 object-scale-down rounded-sm animate-spin m-1"
                                             />
                                         </div>
                                         )}
 
                                         <div className="flex justify-center">
                                             <img 
-                                                className="h-48 w-96 object-cover rounded-sm m-2"
+                                                className="h-48 w-96 object-cover rounded-sm m-1"
                                                 src={`/rooms/${room.img_name}`} 
                                                 alt={room.room_name} 
                                                 style={{ display: hasImageLoaded[room.id] ? "block" : "none" }} 

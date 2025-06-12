@@ -296,7 +296,7 @@ export default function Preparation({ rooms = [], regular_agendas = [] }) {
                 </Modal>
 
             <div className="md:flex flex-row">
-                <div className="basis-1/3 border-2 border-solid rounded-sm m-2 shadow-xl">
+                <div className="basis-1/3 border-2 border-solid rounded-sm m-1 shadow-xl">
                     <div className="flex flex-col">
                         <h2 className="text-xl text-center my-4">新しい部屋を登録しましょう！</h2>
                         <div>
@@ -351,7 +351,7 @@ export default function Preparation({ rooms = [], regular_agendas = [] }) {
                     </div>
                 </div>
 
-                <div className="basis-2/3 border-2 border-solid rounded-sm m-2 shadow-xl">
+                <div className="basis-2/3 border-2 border-solid rounded-sm m-1 shadow-xl">
                     <div className="mb-8 md:mb-0">
                         <h2 className="text-xl text-center my-4">登録済みの部屋一覧</h2>
 
@@ -367,7 +367,7 @@ export default function Preparation({ rooms = [], regular_agendas = [] }) {
                                     return (
                                         <li 
                                             key={room.id}
-                                            className="relative p-2 rounded-md transition m-2 bg-gray-200"
+                                            className="relative p-1 rounded-md transition m-1 bg-gray-200"
                                         >
                                             <p className="m-2">部屋名: {room.room_name}</p>
                                             {!hasImageLoaded[room.id] && (
@@ -375,13 +375,13 @@ export default function Preparation({ rooms = [], regular_agendas = [] }) {
                                                 <img
                                                     src={rotateRight}
                                                     alt="ローディング中..."
-                                                    className="h-48 w-96 object-scale-down rounded-sm animate-spin m-2"
+                                                    className="h-48 w-96 object-scale-down rounded-sm animate-spin m-1"
                                                 />
                                             </div>
                                             )}
                                             <div className="flex justify-center">
                                                 <img 
-                                                    className="h-48 w-96 object-cover rounded-sm m-2"
+                                                    className="h-48 w-96 object-cover rounded-sm m-1"
                                                     src={`/rooms/${room.img_name}`} 
                                                     alt={room.room_name} 
                                                     style={{ display: hasImageLoaded[room.id] ? "block" : "none" }} 
