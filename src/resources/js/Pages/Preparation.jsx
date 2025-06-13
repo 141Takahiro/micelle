@@ -267,18 +267,22 @@ export default function Preparation({ rooms = [], regular_agendas = [] }) {
                     {modalData.image_url && (
                         <>
                             {!imageLoaded && (
-                                <img
-                                    src={rotateRight}
-                                    alt="ローディング中..."
-                                    className="h-48 w-96 object-scale-down rounded-sm animate-spin m-2"
-                                />
+                                <div class="flex justify-center">
+                                    <img
+                                        src={rotateRight}
+                                        alt="ローディング中..."
+                                        className="h-48 w-96 object-scale-down rounded-sm animate-spin m-2"
+                                    />
+                                </div>
                             )}
-                            <img
-                                src={modalData.image_url}
-                                alt="部屋の画像"
-                                className="h-48 w-96 object-cover rounded-sm m-2"
-                                onLoad={() => setImageLoaded(true)}
-                            />
+                                <div className="flex justify-center">
+                                    <img
+                                        src={modalData.image_url}
+                                        alt="部屋の画像"
+                                        className="md:h-48 md:w-96 object-cover rounded-sm m-2"
+                                        onLoad={() => setImageLoaded(true)}
+                                    />
+                                </div>
                         </>
                     )}
                     <div className="flex justify-around">

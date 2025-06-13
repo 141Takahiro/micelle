@@ -63,10 +63,17 @@ export default function Task({ rooms = [], regular_agendas = [] }) {
             setErrorMessage("終了時刻は開始時刻より後に設定してください。")
             return true;
         }
-        if (startTime.hour() >= 23 && endTime.hour() < 6) {
-            setErrorMessage("日付を跨ぐ時間設定はできません。");
-            return true;
+        if (startTime.hour() >= 23) {
+            if (endTime.hour() !== 23) {
+                setErrorMessage("日付を跨ぐ時間設定はできません。");
+                return true;
+            }
+            if (endTime.minute() <= startTime.minute()) {
+                setErrorMessage("終了時刻は開始時刻より後に設定してください。");
+                return true;
+            }
         }
+
         setErrorMessage("");
         return false;
     };
@@ -288,19 +295,17 @@ export default function Task({ rooms = [], regular_agendas = [] }) {
                             </div>
                         </LocalizationProvider>
                         
-                        <div className="mb-4 md:mb-0">
-                            <PrimaryButton 
-                                className="my-2 w-24 size-12"
-                                onClick={handleSubmit}
-                                disabled={isInvalid || isSubmitting}
-                            >
-                                <span className={`"!justify-center w-full ${isSubmitting ? "text-sm" : "text-base"}`}>
-                                    {isSubmitting ? "投稿中..." : "投稿"}
-                                </span>
-                            </PrimaryButton>
-
-                            {errorMessage && <p className="text-red-500 text-sm mt-1 mb-1">{errorMessage}</p>}
-                        </div>
+                        <PrimaryButton 
+                            className="my-2 w-24 size-12"
+                            onClick={handleSubmit}
+                            disabled={isInvalid || isSubmitting}
+                        >
+                            <span className={`"!justify-center w-full ${isSubmitting ? "text-sm" : "text-base"}`}>
+                                {isSubmitting ? "投稿中..." : "投稿"}
+                            </span>
+                        </PrimaryButton>
+                        {errorMessage && <p className="text-red-500 text-sm mt-1 mb-1">{errorMessage}</p>}
+                    <div className="mb-4 md:mb-0"></div>
                 </div>
 
                 <div className="hidden md:block basis-2/3 border-2 border-solid rounded-sm m-1 shadow-xl">
