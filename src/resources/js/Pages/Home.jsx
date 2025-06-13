@@ -157,22 +157,6 @@ export default function Home({ rooms = [] }) {
                 });
             }
         };
-        
-
-    // const validateImage = (file) => {
-    //     if (!file || file === null || file === undefined) { 
-    //         return "ファイルが選択されていません。";
-    //     }
-    //     const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
-    //     const maxSize = 2 * 1024 * 1024;
-    //         if (!allowedTypes.includes(file.type)) {
-    //             return "許可されていないファイル形式です。JPEG, PNG, JPGのみアップロードできます。";
-    //         }
-    //         if (file.size > maxSize) {
-    //             return "ファイルサイズが２ＭＢを超えています。";
-    //         }
-    //     return null;
-    // };
 
     const handleSubmit = async () => {
         const newImageError = validateImage(imageFile);
@@ -337,18 +321,22 @@ export default function Home({ rooms = [] }) {
                     {modalData.image_url && (
                         <>
                             {!imageLoaded && (
-                                <img
-                                    src={rotateRight}
-                                    alt="ローディング中..."
-                                    className="h-48 w-96 object-scale-down rounded-sm animate-spin m-2"
-                                />
+                                <div class="flex justify-center">
+                                    <img
+                                        src={rotateRight}
+                                        alt="ローディング中..."
+                                        className="h-48 w-96 object-scale-down rounded-sm animate-spin m-2"
+                                    />
+                                </div>
                             )}
-                                <img
-                                    src={modalData.image_url}
-                                    alt="部屋の画像"
-                                    className="h-48 w-96 object-cover rounded-sm m-2"
-                                    onLoad={() => setImageLoaded(true)}
-                                />
+                                <div class="flex justify-center">
+                                    <img
+                                        src={modalData.image_url}
+                                        alt="部屋の画像"
+                                        className="md:max-h-[32rem] object-cover rounded-sm"
+                                        onLoad={() => setImageLoaded(true)}
+                                    />
+                                </div>
                         </>
                     )}
 
@@ -406,8 +394,8 @@ export default function Home({ rooms = [] }) {
                     </h2>
                 )}
 
-                            <div>
-                                <img src={imageSrc} alt="部屋の写真" className="w-full rounded-sm"/>
+                            <div className="flex justify-center">
+                                <img src={imageSrc} alt="部屋の写真" className="md:max-h-[32rem] object-cover rounded-sm"/>
                             </div>
                             <div className="flex justify-around md:justify-end md:mr-20">
                                 <div className="md:hidden">
