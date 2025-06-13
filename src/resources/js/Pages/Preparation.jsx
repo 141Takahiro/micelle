@@ -279,7 +279,7 @@ export default function Preparation({ rooms = [], regular_agendas = [] }) {
                                     <img
                                         src={modalData.image_url}
                                         alt="部屋の画像"
-                                        className="md:h-48 md:w-96 object-cover rounded-sm m-2"
+                                        className="md:max-h-[32rem] object-cover rounded-sm"
                                         onLoad={() => setImageLoaded(true)}
                                     />
                                 </div>
