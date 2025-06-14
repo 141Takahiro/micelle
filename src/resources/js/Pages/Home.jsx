@@ -17,8 +17,6 @@ import { usePage } from "@inertiajs/react";
 
 export default function Home({ rooms = [] }) {
 
-    // const defaultImage = "/storage/images/default-image.png";
-    // const micelleEvaluateImage = "/storage/images/micelle_evaluate.jpg";
     const [selectedRoomId, setSelectedRoomId] = useState(rooms.length > 0 ? rooms[0].id : null);
     const [imageSrc, setImageSrc] = useState(defaultImage);
     const [imageFile, setImageFile] = useState(null);
@@ -116,17 +114,6 @@ export default function Home({ rooms = [] }) {
     const hasAiEvaluate = agendas.some(agenda => agenda && agenda.ai_evaluate);
    
     const [isModalOpen, setIsModalOpen] = useState(false);
-
-    // const processFile = (file, onSuccess) => {
-    //         const error = validateImage(file);
-    //         setImageError(error);
-    //         if (error) return;
-
-    //         setImageFile(file);
-    //         const reader = new FileReader();
-    //         reader.onload = (e) => onSuccess(e.target.result);
-    //         reader.readAsDataURL(file);
-    //     };
 
     const openCamera = () => {
         const fileInput = document.createElement("input");

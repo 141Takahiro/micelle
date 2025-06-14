@@ -12,8 +12,7 @@ export default function AuthenticatedLayout({ header, children }) {
     const navLabels = {
         home: "Home",
         task: "Task",
-        preparation: "Preparation",
-        ai_evaluate: "AI_Evaluate"
+        preparation: "Preparation"
     };
 
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
@@ -27,7 +26,7 @@ export default function AuthenticatedLayout({ header, children }) {
                         <div className="flex">
                             <div className="flex shrink-0 items-center">
                                 <Link href="/">
-                                    <img src={micelleImage} alt="ミセル判定ロゴ" className="h-14" />
+                                    <img src={micelleImage} alt="ミセルロゴ" className="h-14" />
                                 </Link>
                             </div>
 
