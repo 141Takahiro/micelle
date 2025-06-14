@@ -53,10 +53,8 @@ export default function DeleteUserForm({ className = '' }) {
                 </h2>
 
                 <p className="mt-1 text-sm text-gray-600">
-                    Once your account is deleted, all of its resources and data
-                    will be permanently deleted. Before deleting your account,
-                    please download any data or information that you wish to
-                    retain.
+                    アカウントを一度消去してしまうと、やり直すことが出来ません。
+                    アカウントを消す前に、留めたいデータや情報はダウンロードして下さい。
                 </p>
             </header>
 
@@ -67,14 +65,12 @@ export default function DeleteUserForm({ className = '' }) {
             <Modal show={confirmingUserDeletion} onClose={closeModal}>
                 <form onSubmit={deleteUser} className="p-6">
                     <h2 className="text-lg font-medium text-gray-900">
-                        Are you sure you want to delete your account?
+                        本当にアカウントを削除してよろしいですか？
                     </h2>
 
                     <p className="mt-1 text-sm text-gray-600">
-                        Once your account is deleted, all of its resources and
-                        data will be permanently deleted. Please enter your
-                        password to confirm you would like to permanently delete
-                        your account.
+                        アカウントを一度消去してしまうと、やり直すことが出来ません。
+                        消去を続行する場合は、パスワードを入力して下さい。
                     </p>
 
                     <div className="mt-6">
