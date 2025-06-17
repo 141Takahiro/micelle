@@ -129,20 +129,6 @@ class HomeController extends Controller
         }
     }
 
-    // public function getRoomImage($img_name)
-    // {
-    //     $path = "rooms/{$img_name}";
-        
-    // if (!Storage::disk('private')->exists($path)) {
-    //     return response()->json(['message' => '画像が見つかりません'], 404);
-    // }
-
-    //     return Response::make(Storage::disk('private')->get($path), 200, [
-    //         'Content-Type' => Storage::disk('private')->mimeType($path),
-    //         'Content-Disposition' => 'inline; filename="' . $img_name . '"'
-    //     ]);
-    // }
-
     public function getRoomImage($img_name)
     {
         $path = "rooms/{$img_name}";

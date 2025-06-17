@@ -14,7 +14,7 @@ import folderOpen from "../assets/icons/folder-open.png";
 import defaultImage from "../assets/icons/default-image.png";
 import micelleEvaluateImage from "../assets/icons/micelle_evaluate.jpg";
 import { usePage } from "@inertiajs/react";
-import micelle_bg from "../assets/layout/micelle-bg.jpg";
+import React, { useRef } from 'react';
 
 export default function Home({ rooms = [] }) {
 
@@ -29,6 +29,7 @@ export default function Home({ rooms = [] }) {
     const [updateModalOpen, setUpdateModalOpen] = useState(false);
     const [imageLoaded, setImageLoaded] = useState(false);
     const currentRoom = rooms.find(room => room.id === selectedRoom);
+    const fileInputRef = useRef(null);
 
     const [modalData, setModalData] = useState({ 
         updatePhoto_message: "", 
@@ -51,8 +52,8 @@ export default function Home({ rooms = [] }) {
     const GaugeComponentA = ({ value }) => (
         <Gauge
             value={value}
-            width={230}
-            height={230}
+            width={220}
+            height={220}
             valueMin={0}
             valueMax={100}
             startAngle={-135}
@@ -67,8 +68,8 @@ export default function Home({ rooms = [] }) {
         <Gauge
             sx={{ [`& .${gaugeClasses.valueArc}`]: { fill: '#FF0000' } }}
             value={value}
-            width={230}
-            height={230}
+            width={220}
+            height={220}
             valueMin={0}
             valueMax={100}
             startAngle={-135}
@@ -138,14 +139,17 @@ export default function Home({ rooms = [] }) {
             });
         };
 
-        const handleImageChange = (event) => {
-            const file = event.target.files[0];
-            if (file) {
-                processFile(file, (dataURL) => {
+    const handleImageChange = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            processFile(file, (dataURL) => {
                 setImageSrc(dataURL);
-                });
-            }
-        };
+                    if (fileInputRef.current) {
+                        fileInputRef.current.value = "";
+                    }
+            });
+        }
+    };
 
     const handleSubmit = async () => {
         const newImageError = validateImage(imageFile);
@@ -248,37 +252,53 @@ export default function Home({ rooms = [] }) {
     reader.readAsDataURL(file);
     };
 
+
+    //初期化処理
     useEffect(() => {
         if (props.updatePhoto_message || props.score || props.micelle_message || props.image_url) {
             setModalData({
                 updatePhoto_message: props.updatePhoto_message || "",
-                score: props.score ?? null, 
+                score: props.score ?? null,
                 micelle_message: props.micelle_message || "",
                 image_url: props.image_url || "",
             });
             setUpdateModalOpen(true);
-            }
-        }, [props.updatePhoto_message, props.score, props.micelle_message]);
+        }
 
-    useEffect(() => {
-        setImageLoaded(false);
-    }, [modalData.image_url]);
+        setImageLoaded(false);    
+        setIsModalOpen(false);      
+        setIsSubmitting(false);    
+    }, [props]);
+
+    // useEffect(() => {
+    //     if (props.updatePhoto_message || props.score || props.micelle_message || props.image_url) {
+    //         setModalData({
+    //             updatePhoto_message: props.updatePhoto_message || "",
+    //             score: props.score ?? null, 
+    //             micelle_message: props.micelle_message || "",
+    //             image_url: props.image_url || "",
+    //         });
+    //         setUpdateModalOpen(true);
+    //         }
+    //     }, [props.updatePhoto_message, props.score, props.micelle_message]);
+
+    // useEffect(() => {
+    //     setImageLoaded(false);
+    // }, [modalData.image_url]);
+
+    // useEffect(() => {
+    //     setIsModalOpen(false);
+    // }, []);
+
+    // useEffect(() => {
+    //     setIsSubmitting(false);
+    // }, []);
+
+    
 
     useEffect(() => {
         setImageSrc(defaultImage);
-    }, []);
-
-    useEffect(() => {
-        setIsModalOpen(false);
-    }, []);
-
-    useEffect(() => {
-        setIsSubmitting(false);
-    }, []);
-
-    useEffect(() => {
-        setImageSrc(defaultImage); 
-    }, []); 
+    }, [isSubmitting]);
 
 
     return (
@@ -345,7 +365,7 @@ export default function Home({ rooms = [] }) {
             </Modal>
 
             <Modal show={isModalOpen} onClose={() => setIsModalOpen(false)}>
-                <h2 className="text-center m-4">{modalData.updatePhoto_message}</h2>
+                {/* <h2 className="text-center m-4">{modalData.updatePhoto_message}</h2> */}
                 <div className="p-4">
                     <div className="flex flex-col">
                         <label className="text-sm font-bold">部屋を選択：</label>
@@ -381,7 +401,14 @@ export default function Home({ rooms = [] }) {
                                     </button>
                                 </div>
                                 <div>
-                                    <input type="file" accept="image/*" onChange={handleImageChange} style={{ display: "none" }} id="fileInput" />
+                                    <input 
+                                        type="file" 
+                                        ref={fileInputRef}
+                                        accept="image/*"   
+                                        onChange={handleImageChange} 
+                                        style={{ display: "none" }} 
+                                        id="fileInput" 
+                                    />
                                         <button
                                             onClick={() => document.getElementById("fileInput").click()}
                                             onMouseEnter={() => setFolderSrc(folderOpen)}
@@ -481,8 +508,8 @@ export default function Home({ rooms = [] }) {
                                         {rooms.map((room) =>
                                             room.id === selectedRoom ? (
                                                 <div key={room.id} className="p-2 m-2 bg-gray-100 rounded-md">
-                                                    <h3 className="m-2 text-lg font-semibold text-gray-800">
-                                                        部屋名： {room.room_name}
+                                                    <h3 className="flex justify-center mt-2 mb-7 text-lg font-semibold text-gray-800">
+                                                        部屋名：{room.room_name}
                                                     </h3>
 
 
@@ -540,13 +567,13 @@ export default function Home({ rooms = [] }) {
                                     </div>
                                 </div>
 
-                                <div className="md:basis-1/2 mb-4 md:mb-0 md:border-l-4 border-gray-200">
+                                <div className="md:basis-1/2 mt-6 mb-4 md:mb-0 md:border-l-4 border-gray-200">
 
                                     <div className="md:mr-4">
                                         {rooms.map((room) =>
                                             room.id === selectedRoom ? (
                                                 <div key={room.id} className="flex flex-col items-center mb-8">
-                                                    <p className="text-lg font-semibold text-gray-800">達成率: {Math.round((room.agendas.filter(agenda => agenda.status).length / room.agendas.length) * 100) || 0}%</p>
+                                                    <p className="text-lg font-semibold text-gray-800">達成率：{Math.round((room.agendas.filter(agenda => agenda.status).length / room.agendas.length) * 100) || 0}%</p>
                                                         <GaugeComponentA
                                                             value={(room.agendas.filter(agenda => agenda.status).length / room.agendas.length) * 100 || 0}
                                                         />
@@ -556,9 +583,9 @@ export default function Home({ rooms = [] }) {
 
                                         {rooms.map((room) =>
                                             room.id === selectedRoom ? (
-                                                <div key={room.id} className="flex flex-col items-center mb-4">
+                                                <div key={room.id} className="flex flex-col items-center mb-2">
                                                     <p className="text-lg font-semibold text-gray-800">
-                                                        AIスコアの平均:{" "}
+                                                        AIスコアの平均：{" "}
                                                         {room.agendas.length > 0
                                                             ? Math.round(
                                                                 room.agendas.reduce((acc, agenda) => acc + (agenda.ai_evaluate || 0), 0) / room.agendas.length

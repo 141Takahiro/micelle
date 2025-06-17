@@ -13,6 +13,7 @@ import Modal from "../Components/Modal";
 import DangerButton from "../Components/DangerButton";
 import { usePage } from "@inertiajs/react";
 import { useEffect, useState } from "react";
+import React, { useRef } from 'react';
 
 export default function Preparation({ rooms = [], regular_agendas = [] }) {
         const [imageSrc, setImageSrc] = useState(defaultImage);
@@ -30,6 +31,8 @@ export default function Preparation({ rooms = [], regular_agendas = [] }) {
         const [showDeleteMessage, setShowDeleteMessage] = useState(false);
         const { props } = usePage();
         const [deleteMessage, setDeleteMessage] = useState(props?.delete_message || "");
+        const fileInputRef = useRef(null);
+
                
         // 画像のサイズ変更
         const MAX_FILE_SIZE = 2 * 1024 * 1024; 
@@ -73,63 +76,66 @@ export default function Preparation({ rooms = [], regular_agendas = [] }) {
 
         // ファイルをData URLに変換
         const processFile = (file, onSuccess) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        const dataURL = e.target.result;
-        const img = new Image();
-        img.onload = () => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const dataURL = e.target.result;
+            const img = new Image();
+            img.onload = () => {
 
-        const MAX_EDGE = 4096;
-        let width = img.width;
-        let height = img.height;
-       
-        const ratio = Math.min(1, MAX_EDGE / width, MAX_EDGE / height);
-        width = width * ratio;
-        height = height * ratio;
+            const MAX_EDGE = 4096;
+            let width = img.width;
+            let height = img.height;
         
-        const canvas = document.createElement("canvas");
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext("2d");
-        ctx.drawImage(img, 0, 0, width, height);
-
-        const initialQuality = 0.6;
-        compressImage(canvas, initialQuality, (compressedBlob) => {
-            const validationError = validateImage(compressedBlob);
-            if (validationError) {
-            setImageError(validationError);
-            return;
-            }
+            const ratio = Math.min(1, MAX_EDGE / width, MAX_EDGE / height);
+            width = width * ratio;
+            height = height * ratio;
             
-            setImageFile(compressedBlob);
-            const newReader = new FileReader();
-            newReader.onload = (event) => {
-            onSuccess(event.target.result);
-            };
-            newReader.readAsDataURL(compressedBlob);
-        });
-        };
-        img.src = dataURL;
-    };
-    reader.readAsDataURL(file);
-    };
+            const canvas = document.createElement("canvas");
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0, width, height);
 
-    const getRandomRoom = (rooms) => {
-        if (!rooms || rooms.length === 0) {
-            console.error("部屋が存在しません！");
-            return null;
-        }
-        return rooms[Math.floor(Math.random() * rooms.length)];
-    };
+            const initialQuality = 0.6;
+            compressImage(canvas, initialQuality, (compressedBlob) => {
+                const validationError = validateImage(compressedBlob);
+                if (validationError) {
+                setImageError(validationError);
+                return;
+                }
+                
+                setImageFile(compressedBlob);
+                const newReader = new FileReader();
+                newReader.onload = (event) => {
+                onSuccess(event.target.result);
+                };
+                newReader.readAsDataURL(compressedBlob);
+                });
+            };
+            img.src = dataURL;
+        };
+        reader.readAsDataURL(file);
+        };
+
+        const getRandomRoom = (rooms) => {
+            if (!rooms || rooms.length === 0) {
+                console.error("部屋が存在しません！");
+                return null;
+            }
+            return rooms[Math.floor(Math.random() * rooms.length)];
+        };
 
         // 画像取得後のハンドル関数
         const handleImageChange = (event) => {
-        const file = event.target.files[0];
-        if (file) {
-            processFile(file, (dataURL) => {
-            setImageSrc(dataURL);
-            });
-        }
+            const file = event.target.files[0];
+                if (file) {
+                    processFile(file, (dataURL) => {
+                        setImageSrc(dataURL);
+                        if (fileInputRef.current) {
+                            fileInputRef.current.value = "";
+                        }
+                    });
+                }
         };
 
         const validateText = (text) => {
@@ -212,44 +218,96 @@ export default function Preparation({ rooms = [], regular_agendas = [] }) {
             }
         };
 
-        useEffect(() => {
-            if (props.store_message || props.image_url) {
-                setModalData({
-                    store_message: props.store_message || "",
-                    image_url: props.image_url || "",
-                });
-
-                setShowModal(true);
-            }
-        }, [props.store_message, props.image_url]);
-
-
-        useEffect(() => {
-            setIsSubmitting(false);
-        }, [props]);
-
-        useEffect(() => {
-            if (props.delete_message) {
-                setDeleteMessage(props.delete_message);
-                setShowDeleteMessage(true);
-        
-                setTimeout(() => {
-                    setShowDeleteMessage(false);
-                }, 3000);
-            }
-        }, [props]); 
-
         const goToTaskPage = () => {
             router.get(route('task')); 
         };
-        
+
         useEffect(() => {
+            if (props.store_message || props.image_url) {
+                setModalData({
+                store_message: props.store_message || "",
+                image_url: props.image_url || "",
+                });
+                setShowModal(true);
+            }
+
+            setIsSubmitting(false);
+
+            if (props.delete_message) {
+                setDeleteMessage(props.delete_message);
+                setShowDeleteMessage(true);
+                setTimeout(() => {
+                setShowDeleteMessage(false);
+                }, 3000);
+            }
+
             setImageLoaded(false);
-        }, [modalData.image_url]);
+        }, [props]);
 
         useEffect(() => {
             setImageSrc(defaultImage);
-        }, []);
+
+            if (isSubmitting) {
+                setRoomName("");
+            }
+        }, [isSubmitting]);
+
+
+        // useEffect(() => {
+        //     if (props.store_message || props.image_url) {
+        //         setModalData({
+        //             store_message: props.store_message || "",
+        //             image_url: props.image_url || "",
+        //         });
+
+        //         setShowModal(true);
+        //     }
+        // }, [props]);
+
+
+        // useEffect(() => {
+        //     setIsSubmitting(false);
+        // }, [props]);
+
+        // useEffect(() => {
+        //     if (props.delete_message) {
+        //         setDeleteMessage(props.delete_message);
+        //         setShowDeleteMessage(true);
+        
+        //         setTimeout(() => {
+        //             setShowDeleteMessage(false);
+        //         }, 3000);
+        //     }
+        // }, [props]); 
+
+        // useEffect(() => {
+        //     setImageLoaded(false);
+        // }, [props]);
+
+        // useEffect(() => {
+        //     setImageSrc(defaultImage);
+        // }, [props]);
+
+        // useEffect(() => {
+        //     if (isSubmitting) {
+        //     setRoomName("");
+        //     }
+        // }, [props]);
+        
+        // useEffect(() => {
+        //     setImageLoaded(false);
+        // }, [modalData.image_url]);
+
+        // useEffect(() => {
+        //     setImageSrc(defaultImage);
+        // }, [isSubmitting]);
+
+        // useEffect(() => {
+        //     if (isSubmitting) {
+        //     setRoomName("");
+        //     }
+        // }, [isSubmitting]);
+
 
 
     return (
@@ -302,7 +360,7 @@ export default function Preparation({ rooms = [], regular_agendas = [] }) {
             <div className="md:flex flex-row">
                 <div className="basis-1/3 border-2 border-solid rounded-sm m-1 shadow-xl">
                     <div className="flex flex-col">
-                        <h2 className="text-xl text-center font-bold my-4">新しい部屋を登録しましょう！</h2>
+                        <h2 className="text-xl text-center font-bold mt-4 mb-5">新しい部屋を登録しましょう！</h2>
                         
                         <div>
                             <img src={imageSrc} alt="部屋の写真" className="w-full rounded-sm"/>
@@ -318,7 +376,14 @@ export default function Preparation({ rooms = [], regular_agendas = [] }) {
                                 </button>
                             </div>
                             <div>
-                                <input type="file" accept="image/*" onChange={handleImageChange} style={{ display: "none" }} id="fileInput" />
+                                <input 
+                                    type="file" 
+                                    ref={fileInputRef}
+                                    accept="image/*"   
+                                    onChange={handleImageChange} 
+                                    style={{ display: "none" }} 
+                                    id="fileInput" 
+                                />
                                 <button
                                     onClick={() => document.getElementById("fileInput").click()}
                                     onMouseEnter={() => setFolderSrc(folderOpen)}
