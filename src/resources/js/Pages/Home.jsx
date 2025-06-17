@@ -14,10 +14,11 @@ import folderOpen from "../assets/icons/folder-open.png";
 import defaultImage from "../assets/icons/default-image.png";
 import micelleEvaluateImage from "../assets/icons/micelle_evaluate.jpg";
 import { usePage } from "@inertiajs/react";
+import micelle_bg from "../assets/layout/micelle-bg.jpg";
 
 export default function Home({ rooms = [] }) {
 
-    const [selectedRoomId, setSelectedRoomId] = useState(rooms.length > 0 ? rooms[0].id : null);
+    const [selectedRoom, setselectedRoom] = useState(rooms.length > 0 ? rooms[0].id : null);
     const [imageSrc, setImageSrc] = useState(defaultImage);
     const [imageFile, setImageFile] = useState(null);
     const [imageError, setImageError] = useState('');
@@ -27,6 +28,7 @@ export default function Home({ rooms = [] }) {
     const { props } = usePage();
     const [updateModalOpen, setUpdateModalOpen] = useState(false);
     const [imageLoaded, setImageLoaded] = useState(false);
+    const currentRoom = rooms.find(room => room.id === selectedRoom);
 
     const [modalData, setModalData] = useState({ 
         updatePhoto_message: "", 
@@ -49,6 +51,8 @@ export default function Home({ rooms = [] }) {
     const GaugeComponentA = ({ value }) => (
         <Gauge
             value={value}
+            width={230}
+            height={230}
             valueMin={0}
             valueMax={100}
             startAngle={-135}
@@ -63,6 +67,8 @@ export default function Home({ rooms = [] }) {
         <Gauge
             sx={{ [`& .${gaugeClasses.valueArc}`]: { fill: '#FF0000' } }}
             value={value}
+            width={230}
+            height={230}
             valueMin={0}
             valueMax={100}
             startAngle={-135}
@@ -72,10 +78,6 @@ export default function Home({ rooms = [] }) {
             text={({ value }) => `${Math.round(value)}点`}
         />
     );
-
-    useEffect(() => {
-        console.log(`選択された Room ID: ${selectedRoomId}`);
-    }, [selectedRoomId]);
 
     const [agendas, setAgendas] = useState([]);
 
@@ -246,17 +248,6 @@ export default function Home({ rooms = [] }) {
     reader.readAsDataURL(file);
     };
 
-    const getRandomRoom = (rooms) => {
-        if (!rooms || rooms.length === 0) {
-            console.error("部屋が存在しません！");
-            return null;
-        }
-        return rooms[Math.floor(Math.random() * rooms.length)];
-    };
-
-    const randomRoom = getRandomRoom(rooms);
-    const [selectedRoom, setSelectedRoom] = useState(randomRoom || rooms[0]);
-
     useEffect(() => {
         if (props.updatePhoto_message || props.score || props.micelle_message || props.image_url) {
             setModalData({
@@ -360,13 +351,8 @@ export default function Home({ rooms = [] }) {
                         <label className="text-sm font-bold">部屋を選択：</label>
                         <select
                             className="p-2 border rounded mt-2"
-                            value={selectedRoom?.id}
-                            onChange={(e) => {
-                                const chosenRoom = rooms.find(room => room.id === Number(e.target.value));
-                                if (chosenRoom) {
-                                    setSelectedRoom(chosenRoom);
-                                }
-                            }}
+                            value={selectedRoom}
+                            onChange={(e) => setselectedRoom(Number(e.target.value))}
                         >
                     {rooms.map(room => (
                         <option key={room.id} value={String(room.id)}>
@@ -375,11 +361,11 @@ export default function Home({ rooms = [] }) {
                     ))}
                 </select>
 
-                {selectedRoom && (
-                    <h2 className="text-xl text-center my-4">
-                        「{selectedRoom.room_name}」の写真を更新しましょう！
-                    </h2>
-                )}
+                    {currentRoom && (
+                        <h2 className="text-xl text-center my-4">
+                            「{currentRoom.room_name}」の写真を更新しましょう！
+                        </h2>
+                    )}
 
                             <div className="flex justify-center">
                                 <img src={imageSrc} alt="部屋の写真" className="md:max-h-[32rem] object-cover rounded-sm"/>
@@ -419,7 +405,7 @@ export default function Home({ rooms = [] }) {
             </Modal>
 
             <div className="md:flex md:flex-row">
-                <div className="basis-1/3 border-2 border-solid rounded-sm m-2 shadow-xl justify-items-center ">
+                <div className="basis-1/3 border-2 border-solid rounded-sm m-1 shadow-xl justify-items-center">
                     <h2 className="text-xl font-bold m-2">今週のタスク</h2>
 
                     {rooms.length === 0 ? (
@@ -431,12 +417,13 @@ export default function Home({ rooms = [] }) {
 
                             return (
                                 <div 
-                                    className="w-full"
+                                    className="w-full mt-8"
                                     key={room.id}
                                 >
-                                    <h2 className="m-2">{room.room_name}</h2>
+                                    <h2 className="ml-2 text-lg font-semibold text-gray-800">{room.room_name}</h2>
+                                    <div className="md:flex md:justify-center">
                                         <div 
-                                            className={`md:w-5/6 p-4 text-white rounded-md shadow-md transition m-4
+                                            className={`md:w-5/6 p-4 font-semibold text-white rounded-md shadow-md transition ml-4 mr-4 mt-1 mb-2
                                                 ${isLoading || !agenda?.day_of_the_week || !agenda?.start_time || !agenda?.end_time 
                                                     ? "bg-gray-400 opacity-50 cursor-not-allowed" 
                                                     : agenda?.status === 1 
@@ -446,28 +433,42 @@ export default function Home({ rooms = [] }) {
                                             onClick={() => {
                                                 if (!isLoading && agenda) { 
                                                     handleStatusUpdate(agenda.id, agenda.status);
-                                                    setSelectedRoomId(room.id);
+                                                    setselectedRoom(room.id);
                                                 }
                                             }}
                                         >
-                                        {agenda && agenda.day_of_the_week !== null && agenda.start_time !== null && agenda.end_time !== null ? (
-                                        <div>
-                                                <p>曜日: {weekDays[agenda.day_of_the_week - 1]} </p>
-                                                <p>{agenda.start_time}~{agenda.end_time}</p>
-                                                {agenda.status === 0 && <p className="text-center font-bold">未完了</p>}
-                                                {agenda.status === 1 && <p className="text-center font-bold">OK！</p>}
+                                            {agenda && agenda.day_of_the_week !== null && agenda.start_time !== null && agenda.end_time !== null ? (
+                                            <div>
+                                                    <p>曜日: {weekDays[agenda.day_of_the_week - 1]} </p>
+                                                    <p>{agenda.start_time}~{agenda.end_time}</p>
+                                                    {agenda.status === 0 && <p className="text-center font-bold">未完了</p>}
+                                                    {agenda.status === 1 && <p className="text-center font-bold">OK！</p>}
                                             </div>
-                                        ) : (
+                                            ) : (
                                             <p className="text-center text-white">タスクが未登録です</p>
-                                        )}
+                                            )}
                                         </div>
+                                    </div>
                                 </div>
                             );
                         })
                     )}
                 </div>
+
+                <div 
+                    className={`flex justify-center border-2 border-solid rounded-sm m-2 shadow-xl transition duration-300 ease-in-out h-auto md:hidden
+                        ${allCompleted && !hasAiEvaluate ? "border-4 border-red-500 bg-red-500" : ""}`}
+                >
+                    <img 
+                        src={micelleEvaluateImage} 
+                        alt="ミセル判定画像" 
+                        className={`h-auto w-auto m-4 transition ease-in-out hover:scale-105 hover:border-4 hover:border-blue-500 rounded
+                        ${allCompleted && !hasAiEvaluate ? "border-4 border-red-500" : ""}`}
+                        onClick={() => setIsModalOpen(true)}
+                    />
+                </div>
                 
-                <div className="basis-2/3 border-2 border-solid rounded-sm m-2 shadow-xl justify-items-center">
+                <div className="basis-2/3 border-2 border-solid rounded-sm m-1 shadow-xl justify-items-center">
                     <h2 className="text-xl font-bold m-2">登録されている部屋</h2>
                     
                         {rooms.length === 0 ? (
@@ -478,9 +479,12 @@ export default function Home({ rooms = [] }) {
                                 <div  className="basis-1/2 justify-items-center">
                                     <div>
                                         {rooms.map((room) =>
-                                            room.id === selectedRoomId ? (
+                                            room.id === selectedRoom ? (
                                                 <div key={room.id} className="p-2 m-2 bg-gray-100 rounded-md">
-                                                    部屋名： {room.room_name}
+                                                    <h3 className="m-2 text-lg font-semibold text-gray-800">
+                                                        部屋名： {room.room_name}
+                                                    </h3>
+
 
                                                     {!hasImageLoaded[room.id] && (
                                                         <img
@@ -503,12 +507,12 @@ export default function Home({ rooms = [] }) {
                                             ) : null
                                         )}
                                     </div>
-                                   <div className="block md:hidden justify-center m-4">
+                                   <div className="block justify-center mb-8">
                                         <FormControl component="fieldset">
                                             <RadioGroup
                                                 row
-                                                value={selectedRoomId}
-                                                onChange={(e) => setSelectedRoomId(Number(e.target.value))}
+                                                value={selectedRoom}
+                                                onChange={(e) => setselectedRoom(Number(e.target.value))}
                                             >
                                                 {rooms.map((room) => (
                                                     <FormControlLabel
@@ -522,7 +526,7 @@ export default function Home({ rooms = [] }) {
                                         </FormControl>
                                     </div>
                                     <div 
-                                        className={`flex justify-center border-2 border-solid rounded-sm m-2 shadow-xl transition duration-300 ease-in-out h-auto md:w-4/5
+                                        className={`md:flex justify-center border-2 border-solid rounded-sm m-2 shadow-xl transition duration-300 ease-in-out h-auto md:w-4/5 hidden
                                             ${allCompleted && !hasAiEvaluate ? "border-4 border-red-500 bg-red-500" : ""}`}
                                     >
                                         <img 
@@ -536,12 +540,13 @@ export default function Home({ rooms = [] }) {
                                     </div>
                                 </div>
 
-                                <div className="md:basis-1/2 mb-4 md:mb-0">
-                                    <div>
+                                <div className="md:basis-1/2 mb-4 md:mb-0 md:border-l-4 border-gray-200">
+
+                                    <div className="md:mr-4">
                                         {rooms.map((room) =>
-                                            room.id === selectedRoomId ? (
-                                                <div key={room.id}>
-                                                    <p>達成率: {Math.round((room.agendas.filter(agenda => agenda.status).length / room.agendas.length) * 100) || 0}%</p>
+                                            room.id === selectedRoom ? (
+                                                <div key={room.id} className="flex flex-col items-center mb-8">
+                                                    <p className="text-lg font-semibold text-gray-800">達成率: {Math.round((room.agendas.filter(agenda => agenda.status).length / room.agendas.length) * 100) || 0}%</p>
                                                         <GaugeComponentA
                                                             value={(room.agendas.filter(agenda => agenda.status).length / room.agendas.length) * 100 || 0}
                                                         />
@@ -550,9 +555,9 @@ export default function Home({ rooms = [] }) {
                                         )}
 
                                         {rooms.map((room) =>
-                                            room.id === selectedRoomId ? (
-                                                <div key={room.id}>
-                                                    <p>
+                                            room.id === selectedRoom ? (
+                                                <div key={room.id} className="flex flex-col items-center mb-4">
+                                                    <p className="text-lg font-semibold text-gray-800">
                                                         AIスコアの平均:{" "}
                                                         {room.agendas.length > 0
                                                             ? Math.round(
@@ -569,12 +574,12 @@ export default function Home({ rooms = [] }) {
                                             ) : null
                                         )}
                                     </div>
-                                    <div className="hidden md:flex justify-center m-4">
+                                    {/* <div className="hidden md:flex justify-center m-4">
                                         <FormControl component="fieldset">
                                             <RadioGroup
                                                 row
-                                                value={selectedRoomId}
-                                                onChange={(e) => setSelectedRoomId(Number(e.target.value))}
+                                                value={selectedRoom}
+                                                onChange={(e) => setselectedRoom(Number(e.target.value))}
                                             >
                                                 {rooms.map((room) => (
                                                     <FormControlLabel
@@ -586,7 +591,7 @@ export default function Home({ rooms = [] }) {
                                                 ))}
                                             </RadioGroup>
                                         </FormControl>
-                                    </div>
+                                    </div> */}
                                 </div>
                             </div>
                         </>

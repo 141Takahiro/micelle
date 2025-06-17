@@ -172,9 +172,9 @@ export default function Task({ rooms = [], regular_agendas = [] }) {
             <div className="md:flex flex-row">
                     <div className="basis-1/3 border-2 border-solid rounded-sm m-1 shadow-xl justify-items-center">
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <div>
+                            <div className="border-b-4 border-gray-200">
                                 <FormControl>
-                                    <h2 className="text-xl text-center my-4">部屋を選択してください</h2>
+                                    <h2 className="text-xl text-center font-bold mt-4">部屋を選択してください</h2>
 
                                 <div className="block md:hidden">
                                     {rooms.length === 0 ? (
@@ -230,46 +230,47 @@ export default function Task({ rooms = [], regular_agendas = [] }) {
                                         </div>
                                     </div>
 
-
-                                    <RadioGroup
-                                        row
-                                        aria-labelledby="room-radio-group-label"
-                                        name="room=radio-group"
-                                        value={selectedRoom}
-                                        onChange={(e) => setSelectedRoom(Number(e.target.value))}
-                                    >
-                                        {rooms.map((room) => (
-                                            <FormControlLabel
-                                                key={room.id}
-                                                value={room.id}
-                                                control={<Radio />}
-                                                label={room.room_name}
-                                            />
-                                        ))}
-                                    </RadioGroup>
+                                    <div className="flex justify-center m-4">
+                                        <RadioGroup
+                                            row
+                                            aria-labelledby="room-radio-group-label"
+                                            name="room=radio-group"
+                                            value={selectedRoom}
+                                            onChange={(e) => setSelectedRoom(Number(e.target.value))}
+                                        >
+                                            {rooms.map((room) => (
+                                                <FormControlLabel
+                                                    key={room.id}
+                                                    value={room.id}
+                                                    control={<Radio />}
+                                                    label={room.room_name}
+                                                />
+                                            ))}
+                                        </RadioGroup>
+                                    </div>
                                 </FormControl>
                             </div>
 
                             <div className="m-4">
-                            <FormControl>
-                                <Typography variant="h6">曜日を選択してください</Typography>
-                                <Select
-                                    id="day-select"
-                                    value={selectedDay}
-                                    onChange={(e) => setSelectedDay(Number(e.target.value))}
-                                >
-                                    {["月曜日", "火曜日", "水曜日", "木曜日", "金曜日", "土曜日", "日曜日"].map((day, index) => (
-                                        <MenuItem key={index + 1} value={index + 1}>
-                                            {day}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
+                                <FormControl>
+                                    <h2 className="text-xl text-center font-bold m-2">曜日を選択してください</h2>
+                                    <Select
+                                        id="day-select"
+                                        value={selectedDay}
+                                        onChange={(e) => setSelectedDay(Number(e.target.value))}
+                                    >
+                                        {["月曜日", "火曜日", "水曜日", "木曜日", "金曜日", "土曜日", "日曜日"].map((day, index) => (
+                                            <MenuItem key={index + 1} value={index + 1}>
+                                                {day}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
                             </div>
 
                             <div className="flex m-4">
                                 <div className="m-2">
-                                    <Typography variant="h6">開始時刻</Typography>
+                                    <h2 className="text-xl text-center font-semibold">開始時刻</h2>
                                     <MultiSectionDigitalClock
                                         views={["hours", "minutes"]}
                                         ampm={false} 
@@ -279,7 +280,7 @@ export default function Task({ rooms = [], regular_agendas = [] }) {
                                     />
                                 </div>
                                 <div className="m-2">
-                                    <Typography variant="h6">終了時刻</Typography>
+                                    <h2 className="text-xl text-center font-semibold">終了時刻</h2>
                                     <MultiSectionDigitalClock
                                         views={["hours", "minutes"]}
                                         ampm={false} 
@@ -309,7 +310,7 @@ export default function Task({ rooms = [], regular_agendas = [] }) {
                 </div>
 
                 <div className="hidden md:block basis-2/3 border-2 border-solid rounded-sm m-1 shadow-xl">
-                    <h2 className="text-xl text-center my-4">登録済みの部屋一覧</h2>
+                    <h2 className="text-xl text-center font-bold my-4">登録済みの部屋一覧</h2>
 
                     {rooms.length === 0 ? (
                         <p className="text-center text-gray-500 m-4">部屋が登録されていません。</p>
@@ -326,7 +327,7 @@ export default function Task({ rooms = [], regular_agendas = [] }) {
                                             selectedRoom === room.id ? "bg-blue-500 bg-opacity-50" : "bg-gray-200"
                                         }`}
                                     >
-                                        <p className="m-2">部屋名: {room.room_name}</p>
+                                        <p className="m-2 font-bold">部屋名: {room.room_name}</p>
                                         {!hasImageLoaded[room.id] && (
                                         <div className="flex justify-center">
                                             <img
