@@ -139,6 +139,7 @@ export default function Home({ rooms = [] }) {
             });
         };
 
+    //画像のプレビュー
     const handleImageChange = (event) => {
         const file = event.target.files[0];
         if (file) {
@@ -151,6 +152,7 @@ export default function Home({ rooms = [] }) {
         }
     };
 
+    //画像の投稿管理
     const handleSubmit = async () => {
         const newImageError = validateImage(imageFile);
         setImageError(newImageError);
@@ -164,7 +166,7 @@ export default function Home({ rooms = [] }) {
         const formData = new FormData();
         formData.append("image", imageFile);
 
-        router.post(`/updatePhoto/${selectedRoom.id}`, formData, {
+        router.post(`/updatePhoto/${selectedRoom}`, formData, {
             replace: true,
             onFinish: () => setIsSubmitting(false),
         });
@@ -210,45 +212,46 @@ export default function Home({ rooms = [] }) {
     };
 
 
+    //画像のサイズ変更及びファイルへ保存
     const processFile = (file, onSuccess) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        const dataURL = e.target.result;
-        const img = new Image();
-        img.onload = () => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const dataURL = e.target.result;
+            const img = new Image();
+                img.onload = () => {
 
-        const MAX_EDGE = 4096;
-        let width = img.width;
-        let height = img.height;
+                const MAX_EDGE = 4096;
+                let width = img.width;
+                let height = img.height;
        
-        const ratio = Math.min(1, MAX_EDGE / width, MAX_EDGE / height);
-        width = width * ratio;
-        height = height * ratio;
+                const ratio = Math.min(1, MAX_EDGE / width, MAX_EDGE / height);
+                width = width * ratio;
+                height = height * ratio;
         
-        const canvas = document.createElement("canvas");
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext("2d");
-        ctx.drawImage(img, 0, 0, width, height);
+                const canvas = document.createElement("canvas");
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext("2d");
+                ctx.drawImage(img, 0, 0, width, height);
 
-        const initialQuality = 0.6;
-        compressImage(canvas, initialQuality, (compressedBlob) => {
-            const validationError = validateImage(compressedBlob);
-            if (validationError) {
-            setImageError(validationError);
-            return;
-            }
+                const initialQuality = 0.6;
+                compressImage(canvas, initialQuality, (compressedBlob) => {
+                    const validationError = validateImage(compressedBlob);
+                        if (validationError) {
+                            setImageError(validationError);
+                            return;
+                        }
             
-            setImageFile(compressedBlob);
-            const newReader = new FileReader();
-            newReader.onload = (event) => {
-            onSuccess(event.target.result);
-            };
-            newReader.readAsDataURL(compressedBlob);
-        });
+                setImageFile(compressedBlob);
+                const newReader = new FileReader();
+                newReader.onload = (event) => {
+                    onSuccess(event.target.result);
+                };
+                newReader.readAsDataURL(compressedBlob);
+                });
+                };
+            img.src = dataURL;
         };
-        img.src = dataURL;
-    };
     reader.readAsDataURL(file);
     };
 
