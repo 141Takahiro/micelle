@@ -302,7 +302,8 @@ export default function Preparation({ rooms = [], regular_agendas = [] }) {
             <div className="md:flex flex-row">
                 <div className="basis-1/3 border-2 border-solid rounded-sm m-1 shadow-xl">
                     <div className="flex flex-col">
-                        <h2 className="text-xl text-center my-4">新しい部屋を登録しましょう！</h2>
+                        <h2 className="text-xl text-center font-bold my-4">新しい部屋を登録しましょう！</h2>
+                        
                         <div>
                             <img src={imageSrc} alt="部屋の写真" className="w-full rounded-sm"/>
                         </div>
@@ -328,7 +329,7 @@ export default function Preparation({ rooms = [], regular_agendas = [] }) {
                             </div>
                         </div>
                         <div>
-                            <label htmlFor="room_name" className="block text-sm font-medium text-gray-700 my-2">
+                            <label htmlFor="room_name" className="block text-m font-medium text-gray-700 my-2">
                                 部屋の名前
                             </label>
                             <TextInput
@@ -357,7 +358,7 @@ export default function Preparation({ rooms = [], regular_agendas = [] }) {
 
                 <div className="basis-2/3 border-2 border-solid rounded-sm m-1 shadow-xl">
                     <div className="mb-8 md:mb-0">
-                        <h2 className="text-xl text-center my-4">登録済みの部屋一覧</h2>
+                        <h2 className="text-xl text-center font-bold my-4">登録済みの部屋一覧</h2>
 
                         {rooms.length === 0 ? (
                             <p className="text-center text-gray-500 m-2">部屋が登録されていません。</p>
@@ -373,7 +374,7 @@ export default function Preparation({ rooms = [], regular_agendas = [] }) {
                                             key={room.id}
                                             className="relative p-1 rounded-md transition m-1 bg-gray-200"
                                         >
-                                            <p className="m-2">部屋名: {room.room_name}</p>
+                                            <p className="m-2 font-bold">部屋名: {room.room_name}</p>
                                             {!hasImageLoaded[room.id] && (
                                             <div className="flex justify-center">
                                                 <img

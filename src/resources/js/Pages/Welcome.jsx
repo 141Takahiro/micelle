@@ -59,7 +59,6 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                         <main className="mt-6">
                             <div>
                                 <h1 className="py-16 text-center text-xl text-black">Micelleへようこそ。</h1>
-                                <p className="text-center text-m text-black">Mechanical Intelligence Clearly evaluates dwELLings without Embarrassment</p>
                                 <p className="py-4 text-center text-m text-black">MicelleはAIによる画像診断機能つき清掃管理アプリです。</p>
                             </div>
                         </main>
