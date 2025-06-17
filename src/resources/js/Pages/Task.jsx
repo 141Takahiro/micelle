@@ -107,28 +107,23 @@ export default function Task({ rooms = [], regular_agendas = [] }) {
         }
     };
 
+    //初期化処理
     useEffect(() => {
+        setIsSubmitting(false);
+
         if (props.delete_message) {
             setDeleteMessage(props.delete_message);
             setShowDeleteMessage(true);
-
             setTimeout(() => {
-                setShowDeleteMessage(false);
+            setShowDeleteMessage(false);
             }, 3000);
         }
-    }, [props]); 
 
-    
-    useEffect(() => {
         if (props.store_message) {
-            setStoreMessage(props.store_message); 
+            setStoreMessage(props.store_message);
             setShowStoreMessage(true);
-            }
-    }, [props.store_message]);
-
-    useEffect(() => {
-        setIsSubmitting(false);
-    }, [props]); 
+        }
+    }, [props]);
 
     const filteredAgendas = regular_agendas.filter(
     (regular_agenda) =>
