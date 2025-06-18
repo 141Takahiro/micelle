@@ -18,36 +18,15 @@ import React, { useRef } from 'react';
 
 export default function Home({ rooms = [] }) {
 
-    const [selectedRoom, setselectedRoom] = useState(rooms.length > 0 ? rooms[0].id : null);
+
+    const { props } = usePage();
+    const [agendas, setAgendas] = useState([]);
+
+
+    // 静的コンポーネント
     const [imageSrc, setImageSrc] = useState(defaultImage);
-    const [imageFile, setImageFile] = useState(null);
-    const [imageError, setImageError] = useState('');
-    const [isSubmitting, setIsSubmitting] = useState(false);
     const [cameraSrc, setCameraSrc] = useState(cameraIcon);
     const [folderSrc, setFolderSrc] = useState(folderIcon);
-    const { props } = usePage();
-    const [updateModalOpen, setUpdateModalOpen] = useState(false);
-    const [imageLoaded, setImageLoaded] = useState(false);
-    const currentRoom = rooms.find(room => room.id === selectedRoom);
-    const fileInputRef = useRef(null);
-
-    const [modalData, setModalData] = useState({ 
-        updatePhoto_message: "", 
-        score: null,
-        micelle_message: "",
-        image_url: "",
-    });
-
-    const [hasImageLoaded, setHasImageLoaded] = useState(() =>
-        Object.fromEntries(rooms.map((room) => [room.id, false]))
-    );
-        
-    const handleImageLoad = (roomId) => {
-        setHasImageLoaded((prevState) => ({
-        ...prevState,
-        [roomId]: true,
-        }));
-    };
 
     const GaugeComponentA = ({ value }) => (
         <Gauge
@@ -80,10 +59,45 @@ export default function Home({ rooms = [] }) {
         />
     );
 
-    const [agendas, setAgendas] = useState([]);
 
+    // 画像選択と選択された画像の定義
+    const [selectedRoom, setselectedRoom] = useState(rooms.length > 0 ? rooms[0].id : null);
+    const currentRoom = rooms.find(room => room.id === selectedRoom);
+
+
+    // statusとai_evaluateの定義
+    const allCompleted = agendas.every(agenda => agenda && agenda.status === 1);
+    const hasAiEvaluate = agendas.some(agenda => agenda && agenda.ai_evaluate);
+
+
+    // モーダルの初期状態と初期値
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [modalImageLoaded, setModalImageLoaded] = useState(false);
+    const [updateModalOpen, setUpdateModalOpen] = useState(false);
+
+    const [modalData, setModalData] = useState({ 
+        updatePhoto_message: "", 
+        score: null,
+        micelle_message: "",
+        image_url: "",
+    });
+
+
+    // 画像読み込み処理
+    const [hasImageLoaded, setHasImageLoaded] = useState(() =>
+        Object.fromEntries(rooms.map((room) => [room.id, false]))
+    );
+        
+    const handleImageLoad = (roomId) => {
+        setHasImageLoaded((prevState) => ({
+        ...prevState,
+        [roomId]: true,
+        }));
+    };
+
+
+    // ステータス更新処理
     const [isLoading, setIsLoading] = useState(false);
-
     const handleStatusUpdate = (agendaId, currentStatus) => {
         setIsLoading(true);
 
@@ -107,17 +121,12 @@ export default function Home({ rooms = [] }) {
             return room.agendas.length > 0
                 ? room.agendas.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0]
                 : null;
-    });
+        });
+        setAgendas(latestAgendas);
+    }, [rooms]);
 
-    setAgendas(latestAgendas);
-        }, [rooms]);
 
-   
-    const allCompleted = agendas.every(agenda => agenda && agenda.status === 1);
-    const hasAiEvaluate = agendas.some(agenda => agenda && agenda.ai_evaluate);
-   
-    const [isModalOpen, setIsModalOpen] = useState(false);
-
+    // カメラ起動処理
     const openCamera = () => {
         const fileInput = document.createElement("input");
         fileInput.type = "file";
@@ -137,9 +146,12 @@ export default function Home({ rooms = [] }) {
         }
             document.body.removeChild(fileInput);
             });
-        };
+    };
 
-    //画像のプレビュー
+
+    // 画像のプレビュー
+    const fileInputRef = useRef(null);
+
     const handleImageChange = (event) => {
         const file = event.target.files[0];
         if (file) {
@@ -152,7 +164,11 @@ export default function Home({ rooms = [] }) {
         }
     };
 
-    //画像の投稿管理
+
+    // 画像の投稿管理
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [imageFile, setImageFile] = useState(null);
+
     const handleSubmit = async () => {
         const newImageError = validateImage(imageFile);
         setImageError(newImageError);
@@ -173,29 +189,33 @@ export default function Home({ rooms = [] }) {
 
     };
 
+
+    // 画像のサイズ変更用関数
     const MAX_FILE_SIZE = 2 * 1024 * 1024; 
     const MIN_QUALITY = 0.3;      
     const QUALITY_DECREMENT = 0.1; 
-
     const compressImage = (canvas, quality, callback) => {
-    canvas.toBlob(
-        (blob) => {
-        if (!blob) {
-            console.error("Blobの生成に失敗しました");
-            return;
-        }
+        canvas.toBlob(
+            (blob) => {
+                if (!blob) {
+                    console.error("Blobの生成に失敗しました");
+                    return;
+                }
   
-        if (blob.size > MAX_FILE_SIZE && quality > MIN_QUALITY) {
-            compressImage(canvas, quality - QUALITY_DECREMENT, callback);
-        } else {
-            callback(blob);
-        }
-        },
-        "image/jpeg",
-        quality
-    );
+                if (blob.size > MAX_FILE_SIZE && quality > MIN_QUALITY) {
+                    compressImage(canvas, quality - QUALITY_DECREMENT, callback);
+                } else {
+                    callback(blob);
+                }
+            },
+            "image/jpeg",
+            quality
+        );
     };
 
+
+    // 画像のバリデーション
+    const [imageError, setImageError] = useState('');
     const validateImage = (file) => {
     if (!file || file === null || file === undefined) {
         return "ファイルが選択されていません。";
@@ -212,7 +232,7 @@ export default function Home({ rooms = [] }) {
     };
 
 
-    //画像のサイズ変更及びファイルへ保存
+    // 画像のサイズ変更及びファイルへ保存
     const processFile = (file, onSuccess) => {
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -256,7 +276,7 @@ export default function Home({ rooms = [] }) {
     };
 
 
-    //初期化処理
+    // 初期化処理
     useEffect(() => {
         if (props.updatePhoto_message || props.score || props.micelle_message || props.image_url) {
             setModalData({
@@ -268,36 +288,11 @@ export default function Home({ rooms = [] }) {
             setUpdateModalOpen(true);
         }
 
-        setImageLoaded(false);    
+        setModalImageLoaded(false);    
         setIsModalOpen(false);      
         setIsSubmitting(false);    
     }, [props]);
 
-    // useEffect(() => {
-    //     if (props.updatePhoto_message || props.score || props.micelle_message || props.image_url) {
-    //         setModalData({
-    //             updatePhoto_message: props.updatePhoto_message || "",
-    //             score: props.score ?? null, 
-    //             micelle_message: props.micelle_message || "",
-    //             image_url: props.image_url || "",
-    //         });
-    //         setUpdateModalOpen(true);
-    //         }
-    //     }, [props.updatePhoto_message, props.score, props.micelle_message]);
-
-    // useEffect(() => {
-    //     setImageLoaded(false);
-    // }, [modalData.image_url]);
-
-    // useEffect(() => {
-    //     setIsModalOpen(false);
-    // }, []);
-
-    // useEffect(() => {
-    //     setIsSubmitting(false);
-    // }, []);
-
-    
 
     useEffect(() => {
         setImageSrc(defaultImage);
@@ -314,6 +309,8 @@ export default function Home({ rooms = [] }) {
         >
             <Head title="Home" />
 
+
+            {/* AI評価後のモーダル */}
             <Modal show={updateModalOpen} onClose={() => setUpdateModalOpen(false)}>
                 <div className="p-6">
                     <h2 className="text-lg font-semibold">ミセルくんのメッセージ</h2>
@@ -321,7 +318,7 @@ export default function Home({ rooms = [] }) {
 
                     {modalData.image_url && (
                         <>
-                            {!imageLoaded && (
+                            {!modalImageLoaded && (
                                 <div class="flex justify-center">
                                     <img
                                         src={rotateRight}
@@ -335,7 +332,7 @@ export default function Home({ rooms = [] }) {
                                         src={modalData.image_url}
                                         alt="部屋の画像"
                                         className="md:max-h-[32rem] object-cover rounded-sm"
-                                        onLoad={() => setImageLoaded(true)}
+                                        onLoad={() => setModalImageLoaded(true)}
                                     />
                                 </div>
                         </>
@@ -367,28 +364,29 @@ export default function Home({ rooms = [] }) {
                 </div>
             </Modal>
 
+
+            {/* 画像更新用のモーダル */}
             <Modal show={isModalOpen} onClose={() => setIsModalOpen(false)}>
-                {/* <h2 className="text-center m-4">{modalData.updatePhoto_message}</h2> */}
                 <div className="p-4">
                     <div className="flex flex-col">
                         <label className="text-sm font-bold">部屋を選択：</label>
-                        <select
-                            className="p-2 border rounded mt-2"
-                            value={selectedRoom}
-                            onChange={(e) => setselectedRoom(Number(e.target.value))}
-                        >
-                    {rooms.map(room => (
-                        <option key={room.id} value={String(room.id)}>
-                            {room.room_name}
-                        </option>
-                    ))}
-                </select>
+                            <select
+                                className="p-2 border rounded mt-2"
+                                value={selectedRoom}
+                                onChange={(e) => setselectedRoom(Number(e.target.value))}
+                            >
+                                {rooms.map(room => (
+                                    <option key={room.id} value={String(room.id)}>
+                                        {room.room_name}
+                                    </option>
+                                ))}
+                            </select>
 
-                    {currentRoom && (
-                        <h2 className="text-xl text-center my-4">
-                            「{currentRoom.room_name}」の写真を更新しましょう！
-                        </h2>
-                    )}
+                            {currentRoom && (
+                                <h2 className="text-xl text-center my-4">
+                                    「{currentRoom.room_name}」の写真を更新しましょう！
+                                </h2>
+                            )}
 
                             <div className="flex justify-center">
                                 <img src={imageSrc} alt="部屋の写真" className="md:max-h-[32rem] object-cover rounded-sm"/>
@@ -429,12 +427,14 @@ export default function Home({ rooms = [] }) {
                                     {isSubmitting ? "投稿中..." : "投稿"}
                                 </PrimaryButton>
                             </div>
-                            {imageError && <p className="text-red-500 text-sm mt-1">{imageError}</p>}
-                        </div>
+                        {imageError && <p className="text-red-500 text-sm mt-1">{imageError}</p>}
+                    </div>
                 </div>
             </Modal>
 
             <div className="md:flex md:flex-row">
+
+                {/* タスク表示用 */}
                 <div className="basis-1/3 border-2 border-solid rounded-sm m-1 shadow-xl justify-items-center">
                     <h2 className="text-xl font-bold m-2">今週のタスク</h2>
 
@@ -469,13 +469,13 @@ export default function Home({ rooms = [] }) {
                                         >
                                             {agenda && agenda.day_of_the_week !== null && agenda.start_time !== null && agenda.end_time !== null ? (
                                             <div>
-                                                    <p>曜日: {weekDays[agenda.day_of_the_week - 1]} </p>
-                                                    <p>{agenda.start_time}~{agenda.end_time}</p>
-                                                    {agenda.status === 0 && <p className="text-center font-bold">未完了</p>}
-                                                    {agenda.status === 1 && <p className="text-center font-bold">OK！</p>}
+                                                <p>曜日: {weekDays[agenda.day_of_the_week - 1]} </p>
+                                                <p>{agenda.start_time}~{agenda.end_time}</p>
+                                                {agenda.status === 0 && <p className="text-center font-bold">未完了</p>}
+                                                {agenda.status === 1 && <p className="text-center font-bold">OK！</p>}
                                             </div>
                                             ) : (
-                                            <p className="text-center text-white">タスクが未登録です</p>
+                                                <p className="text-center text-white">タスクが未登録です</p>
                                             )}
                                         </div>
                                     </div>
@@ -485,6 +485,7 @@ export default function Home({ rooms = [] }) {
                     )}
                 </div>
 
+                {/* スマホ用AI判定ボタン */}
                 <div 
                     className={`flex justify-center border-2 border-solid rounded-sm m-2 shadow-xl transition duration-300 ease-in-out h-auto md:hidden
                         ${allCompleted && !hasAiEvaluate ? "border-4 border-red-500 bg-red-500" : ""}`}
@@ -497,7 +498,8 @@ export default function Home({ rooms = [] }) {
                         onClick={() => setIsModalOpen(true)}
                     />
                 </div>
-                
+
+                {/* データ閲覧およびAI判定ボタン */}
                 <div className="basis-2/3 border-2 border-solid rounded-sm m-1 shadow-xl justify-items-center">
                     <h2 className="text-xl font-bold m-2">登録されている部屋</h2>
                     
@@ -537,7 +539,7 @@ export default function Home({ rooms = [] }) {
                                             ) : null
                                         )}
                                     </div>
-                                   <div className="block justify-center mb-8">
+                                    <div className="block justify-center mb-8">
                                         <FormControl component="fieldset">
                                             <RadioGroup
                                                 row
@@ -604,24 +606,6 @@ export default function Home({ rooms = [] }) {
                                             ) : null
                                         )}
                                     </div>
-                                    {/* <div className="hidden md:flex justify-center m-4">
-                                        <FormControl component="fieldset">
-                                            <RadioGroup
-                                                row
-                                                value={selectedRoom}
-                                                onChange={(e) => setselectedRoom(Number(e.target.value))}
-                                            >
-                                                {rooms.map((room) => (
-                                                    <FormControlLabel
-                                                        key={room.id}
-                                                        value={room.id}
-                                                        control={<Radio />}
-                                                        label={room.room_name}
-                                                    />
-                                                ))}
-                                            </RadioGroup>
-                                        </FormControl>
-                                    </div> */}
                                 </div>
                             </div>
                         </>
