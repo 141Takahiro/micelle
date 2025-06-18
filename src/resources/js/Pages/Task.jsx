@@ -16,25 +16,27 @@ import PrimaryButton from "../Components/PrimaryButton";
 
 
 export default function Task({ rooms = [], regular_agendas = [] }) {
-    const [selectedRoom, setSelectedRoom] = useState(rooms.length > 0 ? rooms[0].id : null);
-    const [selectedDay, setSelectedDay] = useState(1);
-    const [startTime, setStartTime] = useState(dayjs());
+
+    // 初期値
     const { props } = usePage();
-    const [showDeleteMessage, setShowDeleteMessage] = useState(false);
-    const [isInvalid, setIsInvalid] = useState(true);
-    const [errorMessage, setErrorMessage] = useState("");
-    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    // モーダル表示用のメッセージ
     const [deleteMessage, setDeleteMessage] = useState(props?.delete_message || "");
     const [storeMessage, setStoreMessage] = useState(props?.store_message || "");
     const [showStoreMessage, setShowStoreMessage] = useState(false);
-    const weekDays = ["月曜日", "火曜日", "水曜日", "木曜日", "金曜日", "土曜日", "日曜日"];
 
+
+    // 入力項目の定義
+    const [selectedRoom, setSelectedRoom] = useState(rooms.length > 0 ? rooms[0].id : null);
+    const [selectedDay, setSelectedDay] = useState(1);
+    const [startTime, setStartTime] = useState(dayjs());
     const [endTime, setEndTime] = useState(dayjs().add(30, 'minute'));
         useEffect(() => {
             setEndTime(startTime.clone().add(30, 'minute'));
         }, [startTime]);
 
 
+    // 画像の読み込み管理
     const [hasImageLoaded, setHasImageLoaded] = useState(() =>
         Object.fromEntries(rooms.map((room) => [room.id, false]))
     );
@@ -46,6 +48,8 @@ export default function Task({ rooms = [], regular_agendas = [] }) {
         }));
     };
 
+    // 開始・終了時刻のバリデーション
+    const [errorMessage, setErrorMessage] = useState("");
     const validateInputs = () => {
         if (!selectedRoom) {
             setErrorMessage("部屋が選択されていません。");
@@ -78,10 +82,14 @@ export default function Task({ rooms = [], regular_agendas = [] }) {
         return false;
     };
 
+    // バリデーションの非同期実行
+    const [isInvalid, setIsInvalid] = useState(true);
     useEffect(() => {
         setIsInvalid(validateInputs());
     }, [selectedRoom, selectedDay, startTime, endTime]);
 
+    // submit用のハンドル
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const handleSubmit = () => {
         if (isInvalid || isSubmitting) return;
 
@@ -94,20 +102,20 @@ export default function Task({ rooms = [], regular_agendas = [] }) {
             end_time: endTime.format("HH:mm"),
         };
 
-        console.log("送信するデータ:", requestData);
-
         router.post(route("store"), requestData, {
             replace: true,
         });
     };
 
+    // デリート用の関数
+    const [showDeleteMessage, setShowDeleteMessage] = useState(false);
     const handleDelete = (id) => {
         if (window.confirm("この部屋を削除してもよろしいですか？")) {
             router.delete(`/task/delete/${id}`);
         }
     };
 
-    //初期化処理
+    // 初期化処理
     useEffect(() => {
         setIsSubmitting(false);
 
@@ -125,6 +133,9 @@ export default function Task({ rooms = [], regular_agendas = [] }) {
         }
     }, [props]);
 
+
+    // 予定表示用の関数
+    const weekDays = ["月曜日", "火曜日", "水曜日", "木曜日", "金曜日", "土曜日", "日曜日"];
     const filteredAgendas = regular_agendas.filter(
     (regular_agenda) =>
         regular_agenda.room_id === selectedRoom &&
@@ -147,6 +158,7 @@ export default function Task({ rooms = [], regular_agendas = [] }) {
         >
             <Head title="Task" />
 
+            {/* モーダル */}
             <Modal show={showStoreMessage} onClose={() => setShowStoreMessage(false)}>
                 <p className="font-semibold text-center m-4">{storeMessage}</p>
                 <div className="flex justify-around m-4">
@@ -163,133 +175,136 @@ export default function Task({ rooms = [], regular_agendas = [] }) {
                 <p className="font-semibold text-center m-4">{deleteMessage}</p>
             </Modal>
 
-
+            {/* メインコンテンツ */}
             <div className="md:flex flex-row">
-                    <div className="basis-1/3 border-2 border-solid rounded-sm m-1 shadow-xl justify-items-center">
-                        <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <div className="border-b-4 border-gray-200">
-                                <FormControl>
-                                    <h2 className="text-xl text-center font-bold mt-4">部屋を選択してください</h2>
 
+                {/* コントロールパネル */}
+                <div className="basis-1/3 border-2 border-solid rounded-sm m-1 shadow-xl justify-items-center">
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <div className="border-b-4 border-gray-200">
+                            <FormControl>
+                                <h2 className="text-xl text-center font-bold mt-4">部屋を選択してください</h2>
+
+                                {/* スマホ表示部分 */}
                                 <div className="block md:hidden">
                                     {rooms.length === 0 ? (
                                         <p className="text-gray-500 m-4">登録されている部屋がありません。</p>
-                                        ) : (
+                                    ) : (
                                         <div className="md:flex md:flex-row">
                                             <div className="basis-1/2 justify-items-center">
-                                            <div>
-                                                {(() => {
-                                                const selectedRoomObj = rooms.find((room) => room.id === selectedRoom);
-                                                return selectedRoomObj ? (
-                                                    <div key={selectedRoomObj.id} className="p-2 m-2 bg-gray-100 rounded-md">
-                                                    <p>部屋名： {selectedRoomObj.room_name}</p>
+                                                <div>
+                                                    {(() => {
+                                                    const selectedRoomObj = rooms.find((room) => room.id === selectedRoom);
+                                                    return selectedRoomObj ? (
+                                                        <div key={selectedRoomObj.id} className="p-2 m-2 bg-gray-100 rounded-md">
+                                                            <p>部屋名： {selectedRoomObj.room_name}</p>
+                                                            {!hasImageLoaded[selectedRoomObj.id] && (
+                                                                <div className="flex justify-center">
+                                                                    <img
+                                                                    src={rotateRight}
+                                                                    alt="ローディング中..."
+                                                                    className="h-48 w-96 object-scale-down rounded-sm animate-spin m-2"
+                                                                    />
+                                                                </div>
+                                                            )}
 
-                                                    {!hasImageLoaded[selectedRoomObj.id] && (
-                                                        <div className="flex justify-center">
-                                                            <img
-                                                            src={rotateRight}
-                                                            alt="ローディング中..."
-                                                            className="h-48 w-96 object-scale-down rounded-sm animate-spin m-2"
-                                                            />
+                                                                <div className="flex justify-center">
+                                                                    <img
+                                                                        className="md:h-48 md:w-96 object-cover rounded-sm"
+                                                                        src={`/rooms/${selectedRoomObj.img_name}`}
+                                                                        alt={selectedRoomObj.room_name}
+                                                                        style={{ display: hasImageLoaded[selectedRoomObj.id] ? "block" : "none" }}
+                                                                        onLoad={() => handleImageLoad(selectedRoomObj.id)}
+                                                                    />
+                                                                </div>
                                                         </div>
-                                                    )}
-
-                                                        <div className="flex justify-center">
-                                                            <img
-                                                                className="md:h-48 md:w-96 object-cover rounded-sm"
-                                                                src={`/rooms/${selectedRoomObj.img_name}`}
-                                                                alt={selectedRoomObj.room_name}
-                                                                style={{ display: hasImageLoaded[selectedRoomObj.id] ? "block" : "none" }}
-                                                                onLoad={() => handleImageLoad(selectedRoomObj.id)}
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                ) : null;
-                                                })()}
-                                            </div>
+                                                    ) : null;
+                                                    })()}
+                                                </div>
                                             </div>
                                         </div>
-                                        )}
+                                    )}
 
-                                        <div className="m-2">
-                                            {filteredAgendas.length === 0 ? (
+                                    <div className="m-2">
+                                        {filteredAgendas.length === 0 ? (
                                             <p className="text-gray-500">予定が登録されていません</p>
-                                            ) : (
+                                        ) : (
                                             filteredAgendas.map((regular_agenda) => (
                                                 <div key={regular_agenda.id} className="p-2 m-2 bg-gray-100 rounded-md">
-                                                <p>登録曜日: {dayLabel}</p>
-                                                <p>登録時間: {regular_agenda.start_time}~{regular_agenda.end_time}</p>
+                                                    <p>登録曜日: {dayLabel}</p>
+                                                    <p>登録時間: {regular_agenda.start_time}~{regular_agenda.end_time}</p>
                                                 </div>
                                             ))
-                                            )}
-                                        </div>
+                                        )}
                                     </div>
+                                </div>
 
-                                    <div className="flex justify-center m-4">
-                                        <RadioGroup
-                                            row
-                                            aria-labelledby="room-radio-group-label"
-                                            name="room=radio-group"
-                                            value={selectedRoom}
-                                            onChange={(e) => setSelectedRoom(Number(e.target.value))}
-                                        >
-                                            {rooms.map((room) => (
-                                                <FormControlLabel
-                                                    key={room.id}
-                                                    value={room.id}
-                                                    control={<Radio />}
-                                                    label={room.room_name}
-                                                />
-                                            ))}
-                                        </RadioGroup>
-                                    </div>
-                                </FormControl>
-                            </div>
-
-                            <div className="m-4">
-                                <FormControl>
-                                    <h2 className="text-xl text-center font-bold m-2">曜日を選択してください</h2>
-                                    <Select
-                                        id="day-select"
-                                        value={selectedDay}
-                                        onChange={(e) => setSelectedDay(Number(e.target.value))}
+                                <div className="flex justify-center m-4">
+                                    <RadioGroup
+                                        row
+                                        aria-labelledby="room-radio-group-label"
+                                        name="room=radio-group"
+                                        value={selectedRoom}
+                                        onChange={(e) => setSelectedRoom(Number(e.target.value))}
                                     >
-                                        {["月曜日", "火曜日", "水曜日", "木曜日", "金曜日", "土曜日", "日曜日"].map((day, index) => (
-                                            <MenuItem key={index + 1} value={index + 1}>
-                                                {day}
-                                            </MenuItem>
+                                        {rooms.map((room) => (
+                                            <FormControlLabel
+                                                key={room.id}
+                                                value={room.id}
+                                                control={<Radio />}
+                                                label={room.room_name}
+                                            />
                                         ))}
-                                    </Select>
-                                </FormControl>
-                            </div>
+                                    </RadioGroup>
+                                </div>
+                            </FormControl>
+                        </div>
 
-                            <div className="flex m-4">
-                                <div className="m-2">
-                                    <h2 className="text-xl text-center font-semibold">開始時刻</h2>
-                                    <MultiSectionDigitalClock
-                                        views={["hours", "minutes"]}
-                                        ampm={false} 
-                                        minutesStep={5}
-                                        value={startTime}
-                                        onChange={(newValue) => setStartTime(newValue)} 
-                                    />
-                                </div>
-                                <div className="m-2">
-                                    <h2 className="text-xl text-center font-semibold">終了時刻</h2>
-                                    <MultiSectionDigitalClock
-                                        views={["hours", "minutes"]}
-                                        ampm={false} 
-                                        minutesStep={5}
-                                        value={endTime}
-                                        onChange={(newValue) => setEndTime(newValue)}
-                                    />
-                                </div>
+                        {/* 入力用コンポーネント */}
+                        <div className="m-4">
+                            <FormControl>
+                                <h2 className="text-xl text-center font-bold m-2">曜日を選択してください</h2>
+                                <Select
+                                    id="day-select"
+                                    value={selectedDay}
+                                    onChange={(e) => setSelectedDay(Number(e.target.value))}
+                                >
+                                    {["月曜日", "火曜日", "水曜日", "木曜日", "金曜日", "土曜日", "日曜日"].map((day, index) => (
+                                        <MenuItem key={index + 1} value={index + 1}>
+                                            {day}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </div>
+
+                        <div className="flex m-4">
+                            <div className="m-2">
+                                <h2 className="text-xl text-center font-semibold">開始時刻</h2>
+                                <MultiSectionDigitalClock
+                                    views={["hours", "minutes"]}
+                                    ampm={false} 
+                                    minutesStep={5}
+                                    value={startTime}
+                                    onChange={(newValue) => setStartTime(newValue)} 
+                                />
                             </div>
-                            <div className="m-4">
-                                <p>選択された開始時間: {startTime.format("HH:mm")}</p>
-                                <p>選択された終了時間: {endTime.format("HH:mm")}</p>
+                            <div className="m-2">
+                                <h2 className="text-xl text-center font-semibold">終了時刻</h2>
+                                <MultiSectionDigitalClock
+                                    views={["hours", "minutes"]}
+                                    ampm={false} 
+                                    minutesStep={5}
+                                    value={endTime}
+                                    onChange={(newValue) => setEndTime(newValue)}
+                                />
                             </div>
-                        </LocalizationProvider>
+                        </div>
+                        <div className="m-4">
+                            <p>選択された開始時間: {startTime.format("HH:mm")}</p>
+                            <p>選択された終了時間: {endTime.format("HH:mm")}</p>
+                        </div>
+                    </LocalizationProvider>
                         
                         <PrimaryButton 
                             className="my-2 w-24 size-12"
@@ -301,9 +316,10 @@ export default function Task({ rooms = [], regular_agendas = [] }) {
                             </span>
                         </PrimaryButton>
                         {errorMessage && <p className="text-red-500 text-sm mt-1 mb-1">{errorMessage}</p>}
-                    <div className="mb-4 md:mb-0"></div>
+                            <div className="mb-4 md:mb-0"></div>
                 </div>
 
+                {/* ディスプレイ */}
                 <div className="hidden md:block basis-2/3 border-2 border-solid rounded-sm m-1 shadow-xl">
                     <h2 className="text-xl text-center font-bold my-4">登録済みの部屋一覧</h2>
 

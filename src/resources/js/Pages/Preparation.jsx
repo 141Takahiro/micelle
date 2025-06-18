@@ -16,23 +16,19 @@ import { useEffect, useState } from "react";
 import React, { useRef } from 'react';
 
 export default function Preparation({ rooms = [], regular_agendas = [] }) {
+
+        // 初期値
+        const { props } = usePage();
+
+        // 静的アセット
         const [imageSrc, setImageSrc] = useState(defaultImage);
-        const [imageFile, setImageFile] = useState(null);
-        const [roomName, setRoomName] = useState('')
-        const [textError, setTextError] = useState('');
-        const [imageError, setImageError] = useState('');
-        const [isSubmitting, setIsSubmitting] = useState(false);
         const [cameraSrc, setCameraSrc] = useState(cameraIcon);
         const [folderSrc, setFolderSrc] = useState(folderIcon);
+        
+        // モーダル関連
         const [showModal, setShowModal] = useState(false);
         const [modalData, setModalData] = useState({ store_message: "", image_url: ""});
-        const [imageLoaded, setImageLoaded] = useState(false);
-        const [hasImageLoaded, setHasImageLoaded] = useState({});
-        const [showDeleteMessage, setShowDeleteMessage] = useState(false);
-        const { props } = usePage();
-        const [deleteMessage, setDeleteMessage] = useState(props?.delete_message || "");
-        const fileInputRef = useRef(null);
-
+        const [modalImageLoaded, setModalImageLoaded] = useState(false);
                
         // 画像のサイズ変更
         const MAX_FILE_SIZE = 2 * 1024 * 1024; 
@@ -117,15 +113,9 @@ export default function Preparation({ rooms = [], regular_agendas = [] }) {
         reader.readAsDataURL(file);
         };
 
-        const getRandomRoom = (rooms) => {
-            if (!rooms || rooms.length === 0) {
-                console.error("部屋が存在しません！");
-                return null;
-            }
-            return rooms[Math.floor(Math.random() * rooms.length)];
-        };
 
         // 画像取得後のハンドル関数
+        const fileInputRef = useRef(null);
         const handleImageChange = (event) => {
             const file = event.target.files[0];
                 if (file) {
@@ -138,6 +128,7 @@ export default function Preparation({ rooms = [], regular_agendas = [] }) {
                 }
         };
 
+        // テキストのバリデーション
         const validateText = (text) => {
             if (!text.trim()) {
                 return "部屋名を入力してください。";
@@ -148,6 +139,7 @@ export default function Preparation({ rooms = [], regular_agendas = [] }) {
             return null;
         };
 
+        // カメラの起動処理
         const openCamera = () => {
             const fileInput = document.createElement("input");
             fileInput.type = "file";
@@ -169,6 +161,8 @@ export default function Preparation({ rooms = [], regular_agendas = [] }) {
             });
         };
 
+        // RoomNameの変更
+        const [roomName, setRoomName] = useState('')
         const handleTextChange = (event) => {
             const newRoomName = event.target.value;
                 setRoomName(newRoomName);
@@ -177,6 +171,11 @@ export default function Preparation({ rooms = [], regular_agendas = [] }) {
         };
 
 
+        // RoomNameとImage提出用のハンドル
+        const [imageFile, setImageFile] = useState(null);
+        const [textError, setTextError] = useState('');
+        const [imageError, setImageError] = useState('');
+        const [isSubmitting, setIsSubmitting] = useState(false);
         const handleSubmit = async () => {
             const newTextError = validateText(roomName);
             const newImageError = validateImage(imageFile);
@@ -198,13 +197,8 @@ export default function Preparation({ rooms = [], regular_agendas = [] }) {
             });
         };
 
-        const [roomCount, setRoomCount] = useState(rooms?.length ?? 0);
-            useEffect(() => {
-                if (rooms) {
-                    setRoomCount(rooms.length);
-                }
-            }, [rooms]);
-
+        // 画像ローディング管理
+        const [hasImageLoaded, setHasImageLoaded] = useState({});
         const handleImageLoad = (roomId) => {
             setHasImageLoaded((prevState) => ({
             ...prevState,
@@ -212,16 +206,24 @@ export default function Preparation({ rooms = [], regular_agendas = [] }) {
             }));
         };
         
+
+        // デリート処理
+        const [showDeleteMessage, setShowDeleteMessage] = useState(false);
+        const [deleteMessage, setDeleteMessage] = useState(props?.delete_message || "");
         const handleDelete = (id) => {
             if (window.confirm("この部屋を削除してもよろしいですか？")) {
                 router.delete(`/preparation/delete/${id}`);
             }
         };
 
+
+        // Taskページへのルート定義
         const goToTaskPage = () => {
             router.get(route('task')); 
         };
 
+
+        // 初期化処理
         useEffect(() => {
             if (props.store_message || props.image_url) {
                 setModalData({
@@ -241,9 +243,10 @@ export default function Preparation({ rooms = [], regular_agendas = [] }) {
                 }, 3000);
             }
 
-            setImageLoaded(false);
+            setModalImageLoaded(false);
         }, [props]);
 
+        // submit時の無効か
         useEffect(() => {
             setImageSrc(defaultImage);
 
@@ -252,64 +255,7 @@ export default function Preparation({ rooms = [], regular_agendas = [] }) {
             }
         }, [isSubmitting]);
 
-
-        // useEffect(() => {
-        //     if (props.store_message || props.image_url) {
-        //         setModalData({
-        //             store_message: props.store_message || "",
-        //             image_url: props.image_url || "",
-        //         });
-
-        //         setShowModal(true);
-        //     }
-        // }, [props]);
-
-
-        // useEffect(() => {
-        //     setIsSubmitting(false);
-        // }, [props]);
-
-        // useEffect(() => {
-        //     if (props.delete_message) {
-        //         setDeleteMessage(props.delete_message);
-        //         setShowDeleteMessage(true);
         
-        //         setTimeout(() => {
-        //             setShowDeleteMessage(false);
-        //         }, 3000);
-        //     }
-        // }, [props]); 
-
-        // useEffect(() => {
-        //     setImageLoaded(false);
-        // }, [props]);
-
-        // useEffect(() => {
-        //     setImageSrc(defaultImage);
-        // }, [props]);
-
-        // useEffect(() => {
-        //     if (isSubmitting) {
-        //     setRoomName("");
-        //     }
-        // }, [props]);
-        
-        // useEffect(() => {
-        //     setImageLoaded(false);
-        // }, [modalData.image_url]);
-
-        // useEffect(() => {
-        //     setImageSrc(defaultImage);
-        // }, [isSubmitting]);
-
-        // useEffect(() => {
-        //     if (isSubmitting) {
-        //     setRoomName("");
-        //     }
-        // }, [isSubmitting]);
-
-
-
     return (
         <AuthenticatedLayout
             header={
@@ -320,29 +266,30 @@ export default function Preparation({ rooms = [], regular_agendas = [] }) {
         >
             <Head title="Preparation" />
 
-                <Modal show={showModal} onClose={() => setShowModal(false)} className="flex flex-col">
-                    <h2 className="text-center m-4">{modalData.store_message}</h2>
-                    {modalData.image_url && (
-                        <>
-                            {!imageLoaded && (
-                                <div class="flex justify-center">
-                                    <img
-                                        src={rotateRight}
-                                        alt="ローディング中..."
-                                        className="h-48 w-96 object-scale-down rounded-sm animate-spin m-2"
-                                    />
-                                </div>
-                            )}
-                                <div className="flex justify-center">
-                                    <img
-                                        src={modalData.image_url}
-                                        alt="部屋の画像"
-                                        className="md:max-h-[32rem] object-cover rounded-sm"
-                                        onLoad={() => setImageLoaded(true)}
-                                    />
-                                </div>
-                        </>
-                    )}
+            {/* 画像登録時のモーダル */}
+            <Modal show={showModal} onClose={() => setShowModal(false)} className="flex flex-col">
+                <h2 className="text-center m-4">{modalData.store_message}</h2>
+                {modalData.image_url && (                        
+                    <>
+                        {!modalImageLoaded && (
+                            <div class="flex justify-center">
+                                <img
+                                    src={rotateRight}
+                                    alt="ローディング中..."
+                                    className="h-48 w-96 object-scale-down rounded-sm animate-spin m-2" 
+                                />
+                            </div>
+                        )}
+                            <div className="flex justify-center">
+                                <img
+                                    src={modalData.image_url}
+                                    alt="部屋の画像"
+                                    className="md:max-h-[32rem] object-cover rounded-sm"
+                                    onLoad={() => setModalImageLoaded(true)}
+                                />
+                            </div>
+                    </>
+                )}
                     <div className="flex justify-around">
                         <PrimaryButton onClick={() => setShowModal(false)} className="m-2">
                             部屋を追加する
@@ -351,13 +298,16 @@ export default function Preparation({ rooms = [], regular_agendas = [] }) {
                             タスクを登録する
                         </PrimaryButton>
                     </div>
-                </Modal>
+            </Modal>
 
-                <Modal show={showDeleteMessage} onClose={() => setShowDeleteMessage(false)}>
-                    <p className="font-semibold text-center m-4">{deleteMessage}</p>
-                </Modal>
+            <Modal show={showDeleteMessage} onClose={() => setShowDeleteMessage(false)}>
+                <p className="font-semibold text-center m-4">{deleteMessage}</p>
+            </Modal>
 
+            {/* メインコンテンツ */}
             <div className="md:flex flex-row">
+
+                {/* コンソール */}
                 <div className="basis-1/3 border-2 border-solid rounded-sm m-1 shadow-xl">
                     <div className="flex flex-col">
                         <h2 className="text-xl text-center font-bold mt-4 mb-5">新しい部屋を登録しましょう！</h2>
@@ -421,6 +371,7 @@ export default function Preparation({ rooms = [], regular_agendas = [] }) {
                     </div>
                 </div>
 
+                {/* ディスプレイ */}
                 <div className="basis-2/3 border-2 border-solid rounded-sm m-1 shadow-xl">
                     <div className="mb-8 md:mb-0">
                         <h2 className="text-xl text-center font-bold my-4">登録済みの部屋一覧</h2>
@@ -441,23 +392,23 @@ export default function Preparation({ rooms = [], regular_agendas = [] }) {
                                         >
                                             <p className="m-2 font-bold">部屋名: {room.room_name}</p>
                                             {!hasImageLoaded[room.id] && (
-                                            <div className="flex justify-center">
-                                                <img
-                                                    src={rotateRight}
-                                                    alt="ローディング中..."
-                                                    className="h-48 w-96 object-scale-down rounded-sm animate-spin m-1"
-                                                />
-                                            </div>
+                                                <div className="flex justify-center">
+                                                    <img
+                                                        src={rotateRight}
+                                                        alt="ローディング中..."
+                                                        className="h-48 w-96 object-scale-down rounded-sm animate-spin m-1"
+                                                    />
+                                                </div>
                                             )}
-                                            <div className="flex justify-center">
-                                                <img 
-                                                    className="h-48 w-96 object-cover rounded-sm m-1"
-                                                    src={`/rooms/${room.img_name}`} 
-                                                    alt={room.room_name} 
-                                                    style={{ display: hasImageLoaded[room.id] ? "block" : "none" }} 
-                                                    onLoad={() => handleImageLoad(room.id)}
-                                                />
-                                            </div>
+                                                <div className="flex justify-center">
+                                                    <img 
+                                                        className="h-48 w-96 object-cover rounded-sm m-1"
+                                                        src={`/rooms/${room.img_name}`} 
+                                                        alt={room.room_name} 
+                                                        style={{ display: hasImageLoaded[room.id] ? "block" : "none" }} 
+                                                        onLoad={() => handleImageLoad(room.id)}
+                                                    />
+                                                </div>
 
                                             <div className="flex justify-around">
                                                 {regularAgenda && regularAgenda.day_of_the_week && regularAgenda.start_time && regularAgenda.end_time ? (
