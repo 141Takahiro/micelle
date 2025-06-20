@@ -1,23 +1,37 @@
 FROM php:8.2-fpm-bullseye
 
 ENV COMPOSER_ALLOW_SUPERUSER=1 \
-  COMPOSER_HOME=/composer
+    COMPOSER_HOME=/composer
 
-COPY --from=composer:2.2 /usr/bin/composer /usr/bin/composer
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+      git \
+      unzip \
+      libzip-dev \
+      libicu-dev \
+      libonig-dev \
+      iputils-ping \
+      libfreetype6-dev \
+      libjpeg62-turbo-dev \
+      libpng-dev \
+ && docker-php-ext-configure gd \
+      --with-freetype \
+      --with-jpeg \
+ && docker-php-ext-install -j"$(nproc)" \
+      intl \
+      pdo_mysql \
+      zip \
+      bcmath \
+      gd \
+ && rm -rf /var/lib/apt/lists/*
 
-RUN apt-get update && \
-    apt-get -y install --no-install-recommends \
-    git unzip libzip-dev libicu-dev libonig-dev iputils-ping && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/* && \
-    docker-php-ext-install intl pdo_mysql zip bcmath
-
-COPY ./php.ini /usr/local/etc/php/php.ini
+COPY --from=composer:2.2 /usr/bin/composer /usr/local/bin/composer
 
 WORKDIR /data
 
-# 書き込み権限を付与
-RUN mkdir -p /data && \
-    chown -R www-data:www-data /data && \
-    chmod -R 775 /data
+COPY infra/php/php.ini /usr/local/etc/php/php.ini
 
+RUN chown -R www-data:www-data /data \
+ && chmod -R 775 /data
+
+CMD ["php-fpm"]

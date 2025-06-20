@@ -15,10 +15,27 @@ import { usePage } from "@inertiajs/react";
 import { useEffect, useState } from "react";
 import React, { useRef } from 'react';
 
-export default function Preparation({ rooms = [], regular_agendas = [] }) {
+export default function Preparation() {
+
+        // props
+        const { props } = usePage()
+
+        const {
+            rooms: initialRooms = [],
+            regular_agendas: initialRegularAgendas = [],
+            store_message = '',
+            delete_message = '',
+            image_url = '',
+        } = props
 
         // 初期値
-        const { props } = usePage();
+        const [rooms, setRooms] = useState(initialRooms)
+        const [regular_agendas, setRegularAgendas] = useState(initialRegularAgendas)
+
+        const [modalData, setModalData] = useState({
+            store_message,
+            image_url,
+        })
 
         // 静的アセット
         const [imageSrc, setImageSrc] = useState(defaultImage);
@@ -27,7 +44,6 @@ export default function Preparation({ rooms = [], regular_agendas = [] }) {
         
         // モーダル関連
         const [showModal, setShowModal] = useState(false);
-        const [modalData, setModalData] = useState({ store_message: "", image_url: ""});
         const [modalImageLoaded, setModalImageLoaded] = useState(false);
                
         // 画像のサイズ変更
@@ -209,7 +225,7 @@ export default function Preparation({ rooms = [], regular_agendas = [] }) {
 
         // デリート処理
         const [showDeleteMessage, setShowDeleteMessage] = useState(false);
-        const [deleteMessage, setDeleteMessage] = useState(props?.delete_message || "");
+        const [deleteMessage, setDeleteMessage] = useState(delete_message || "");
         const handleDelete = (id) => {
             if (window.confirm("この部屋を削除してもよろしいですか？")) {
                 router.delete(`/preparation/delete/${id}`);
@@ -225,18 +241,18 @@ export default function Preparation({ rooms = [], regular_agendas = [] }) {
 
         // 初期化処理
         useEffect(() => {
-            if (props.store_message || props.image_url) {
+            if (store_message || image_url) {
                 setModalData({
-                store_message: props.store_message || "",
-                image_url: props.image_url || "",
+                store_message: store_message || "",
+                image_url: image_url || "",
                 });
                 setShowModal(true);
             }
 
             setIsSubmitting(false);
 
-            if (props.delete_message) {
-                setDeleteMessage(props.delete_message);
+            if (delete_message) {
+                setDeleteMessage(delete_message);
                 setShowDeleteMessage(true);
                 setTimeout(() => {
                 setShowDeleteMessage(false);
@@ -244,7 +260,15 @@ export default function Preparation({ rooms = [], regular_agendas = [] }) {
             }
 
             setModalImageLoaded(false);
-        }, [props]);
+            setRooms(initialRooms)
+            setRegularAgendas(initialRegularAgendas)
+        }, [
+            initialRooms,
+            initialRegularAgendas,
+            store_message,
+            delete_message,
+            image_url,
+        ])
 
         // submit時の無効か
         useEffect(() => {
@@ -381,7 +405,7 @@ export default function Preparation({ rooms = [], regular_agendas = [] }) {
                         ) : (
                             <ul className="md:grid grid-cols-2">
                                 {rooms.map((room) => {
-                                    const regularAgenda = regular_agendas.find(agenda => agenda.room_id === room.id) || null;
+                                    const regularAgenda = regular_agendas.find(regular_agenda => regular_agenda.room_id === room.id) || null;
                                     const weekDays = ["月曜日", "火曜日", "水曜日", "木曜日", "金曜日", "土曜日", "日曜日"];
                                     const dayLabel = regularAgenda ? weekDays[regularAgenda.day_of_the_week - 1] : "未定義";
 
