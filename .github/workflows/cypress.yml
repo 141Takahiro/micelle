@@ -23,11 +23,11 @@ jobs:
 
       - name: Build and start Docker containers
         run: |
-          docker-compose -f docker-compose.test.yml up -d --build --force-recreate
+          docker compose -f docker-compose.test.yml up -d --build --force-recreate
 
       - name: Composer install + APP_KEY + migrate inside app
         run: |
-          docker-compose -f docker-compose.test.yml exec -T app \
+          docker compose -f docker-compose.test.yml exec -T app \
             sh -c "composer install --no-interaction --optimize-autoloader \
                    && php artisan key:generate --ansi --force \
                    && php artisan migrate --force --seed --no-interaction"
