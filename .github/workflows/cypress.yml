@@ -13,11 +13,25 @@ jobs:
       fail-fast: false # https://github.com/cypress-io/github-action/issues/48
       matrix:
         containers: [1, 2] # Uses 2 parallel instances
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Copy .env.example on host
+        run: cp src/.env.example src/.env
+
       - name: Build and start Docker containers
-        run: docker compose up -d
+        run: |
+          docker-compose -f docker-compose.test.yml up -d --build --force-recreate
+
+      - name: Composer install + APP_KEY + migrate inside app
+        run: |
+          docker-compose -f docker-compose.test.yml exec -T app \
+            sh -c "composer install --no-interaction --optimize-autoloader \
+                   && php artisan key:generate --ansi --force \
+                   && php artisan migrate --force --seed --no-interaction"
+
       - name: Get logs for micelle-web-1
         run: docker logs micelle-web-1
       - name: Get logs for micelle-db-1
@@ -25,25 +39,27 @@ jobs:
       - name: Get logs for micelle-app-1
         run: docker logs micelle-app-1
       - name: Wait for server to start
+
         run: sleep 100
       - name: Check running containers
         run: docker ps
-      - name: Test container connectivity with ping
-        run: |
-           docker exec micelle-app-1 ping -c 4 micelle-db-1
-           docker exec micelle-web-1 ping -c 4 micelle-app-1
+
       - name: Install dependencies
         run: npm ci
         working-directory: src
+
       - name: Build application
         run: npm run build
         working-directory: src
+   
       - name: Start server
         run: npm start &
         working-directory: src
+
       - name: Check server status
         run: curl -I http://localhost || exit 1
         working-directory: src
+
       - name: Cypress run
         run: |
           cd src
