@@ -31,7 +31,7 @@ WORKDIR /var/www/html
 
 COPY infra/php/php.ini /usr/local/etc/php/php.ini
 
-RUN chown -R www-data:www-data /data \
- && chmod -R 775 /data
+RUN chown -R www-data:www-data /var/www/html \
+ && chmod -R 775         /var/www/html
 
 CMD ["php-fpm"]
