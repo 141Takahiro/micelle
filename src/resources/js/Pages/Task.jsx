@@ -15,19 +15,27 @@ import Modal from "../Components/Modal";
 import PrimaryButton from "../Components/PrimaryButton";
 
 
-export default function Task({ rooms = [], regular_agendas = [] }) {
+export default function Task() {
 
-    // 初期値
-    const { props } = usePage();
+    // props
+    const { props } = usePage()
 
-    // モーダル表示用のメッセージ
-    const [deleteMessage, setDeleteMessage] = useState(props?.delete_message || "");
-    const [storeMessage, setStoreMessage] = useState(props?.store_message || "");
-    const [showStoreMessage, setShowStoreMessage] = useState(false);
+    const {
+        rooms: initialRooms = [],
+        regular_agendas: initialRegularAgendas = [],
+        delete_message = '',
+        store_message = '',
+    } = props
 
+    const [rooms, setRooms] = useState(initialRooms)
+    const [regular_agendas, setRegularAgendas] = useState(initialRegularAgendas)
+
+    const [deleteMessage, setDeleteMessage] = useState(delete_message)
+    const [storeMessage, setStoreMessage]   = useState(store_message)
+    const [showStoreMessage, setShowStoreMessage] = useState(false)
 
     // 入力項目の定義
-    const [selectedRoom, setSelectedRoom] = useState(rooms.length > 0 ? rooms[0].id : null);
+    const [selectedRoomId, setselectedRoomId] = useState(rooms.length > 0 ? rooms[0].id : null);
     const [selectedDay, setSelectedDay] = useState(1);
     const [startTime, setStartTime] = useState(dayjs());
     const [endTime, setEndTime] = useState(dayjs().add(30, 'minute'));
@@ -51,7 +59,7 @@ export default function Task({ rooms = [], regular_agendas = [] }) {
     // 開始・終了時刻のバリデーション
     const [errorMessage, setErrorMessage] = useState("");
     const validateInputs = () => {
-        if (!selectedRoom) {
+        if (!selectedRoomId) {
             setErrorMessage("部屋が選択されていません。");
             return true;
         }
@@ -86,9 +94,11 @@ export default function Task({ rooms = [], regular_agendas = [] }) {
     const [isInvalid, setIsInvalid] = useState(true);
     useEffect(() => {
         setIsInvalid(validateInputs());
-    }, [selectedRoom, selectedDay, startTime, endTime]);
+    }, [selectedRoomId, selectedDay, startTime, endTime]);
 
     // submit用のハンドル
+    // selectedRoomIdはラジオボタンと連動（スマホ表示板は画像表示とも連動）
+    const selectedRoom = rooms.find(r => r.id === selectedRoomId)
     const [isSubmitting, setIsSubmitting] = useState(false);
     const handleSubmit = () => {
         if (isInvalid || isSubmitting) return;
@@ -96,7 +106,7 @@ export default function Task({ rooms = [], regular_agendas = [] }) {
         setIsSubmitting(true);
 
         const requestData= {
-            room_id: selectedRoom,
+            room_id: selectedRoomId,
             day_of_the_week: selectedDay,
             start_time: startTime.format("HH:mm"),
             end_time: endTime.format("HH:mm"),
@@ -119,26 +129,34 @@ export default function Task({ rooms = [], regular_agendas = [] }) {
     useEffect(() => {
         setIsSubmitting(false);
 
-        if (props.delete_message) {
-            setDeleteMessage(props.delete_message);
+        if (delete_message) {
+            setDeleteMessage(delete_message);
             setShowDeleteMessage(true);
             setTimeout(() => {
             setShowDeleteMessage(false);
             }, 3000);
         }
 
-        if (props.store_message) {
-            setStoreMessage(props.store_message);
+        setRooms(initialRooms)
+        setRegularAgendas(initialRegularAgendas)
+
+        if (store_message) {
+            setStoreMessage(store_message);
             setShowStoreMessage(true);
         }
-    }, [props]);
+    }, [
+        delete_message,
+        initialRooms,
+        initialRegularAgendas,
+        store_message,
+    ])
 
 
     // 予定表示用の関数
     const weekDays = ["月曜日", "火曜日", "水曜日", "木曜日", "金曜日", "土曜日", "日曜日"];
     const filteredAgendas = regular_agendas.filter(
     (regular_agenda) =>
-        regular_agenda.room_id === selectedRoom &&
+        regular_agenda.room_id === selectedRoomId &&
         regular_agenda.day_of_the_week !== null &&
         regular_agenda.start_time !== null
     );
@@ -147,6 +165,8 @@ export default function Task({ rooms = [], regular_agendas = [] }) {
         filteredAgendas.length > 0
             ? weekDays[filteredAgendas[0].day_of_the_week - 1]
             : "未定義";
+    
+
             
     return (
         <AuthenticatedLayout
@@ -180,50 +200,57 @@ export default function Task({ rooms = [], regular_agendas = [] }) {
 
                 {/* コントロールパネル */}
                 <div className="basis-1/3 border-2 border-solid rounded-sm m-1 shadow-xl justify-items-center">
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <div className="border-b-4 border-gray-200">
-                            <FormControl>
+                            {/* <FormControl> */}
                                 <h2 className="text-xl text-center font-bold mt-4">部屋を選択してください</h2>
 
                                 {/* スマホ表示部分 */}
                                 <div className="block md:hidden">
-                                    {rooms.length === 0 ? (
-                                        <p className="text-gray-500 m-4">登録されている部屋がありません。</p>
-                                    ) : (
+                                {rooms.length === 0
+                                        ? (
+                                        <p className="text-gray-500 m-4">
+                                            登録されている部屋がありません。
+                                        </p>
+                                        )
+                                        : (
                                         <div className="md:flex md:flex-row">
                                             <div className="basis-1/2 justify-items-center">
-                                                <div>
-                                                    {(() => {
-                                                    const selectedRoomObj = rooms.find((room) => room.id === selectedRoom);
-                                                    return selectedRoomObj ? (
-                                                        <div key={selectedRoomObj.id} className="p-2 m-2 bg-gray-100 rounded-md">
-                                                            <p>部屋名： {selectedRoomObj.room_name}</p>
-                                                            {!hasImageLoaded[selectedRoomObj.id] && (
-                                                                <div className="flex justify-center">
-                                                                    <img
-                                                                    src={rotateRight}
-                                                                    alt="ローディング中..."
-                                                                    className="h-48 w-96 object-scale-down rounded-sm animate-spin m-2"
-                                                                    />
-                                                                </div>
-                                                            )}
+                                            {selectedRoom && (
+                                                <div
+                                                key={selectedRoom.id}
+                                                className="p-2 m-2 bg-gray-100 rounded-md"
+                                                >
+                                                <p className="text-gray-600 font-semibold text-base leading-relaxed">部屋名：{selectedRoom.room_name}</p>
 
-                                                                <div className="flex justify-center">
-                                                                    <img
-                                                                        className="md:h-48 md:w-96 object-cover rounded-sm"
-                                                                        src={`/rooms/${selectedRoomObj.img_name}`}
-                                                                        alt={selectedRoomObj.room_name}
-                                                                        style={{ display: hasImageLoaded[selectedRoomObj.id] ? "block" : "none" }}
-                                                                        onLoad={() => handleImageLoad(selectedRoomObj.id)}
-                                                                    />
-                                                                </div>
-                                                        </div>
-                                                    ) : null;
-                                                    })()}
+                                                {!hasImageLoaded[selectedRoom.id] && (
+                                                    <div className="flex justify-center">
+                                                    <img
+                                                        src={rotateRight}
+                                                        alt="ローディング中…"
+                                                        className="h-48 w-96 object-scale-down rounded-sm animate-spin m-2"
+                                                    />
+                                                    </div>
+                                                )}
+
+                                                <div className="flex justify-center">
+                                                    <img
+                                                    className="md:h-48 md:w-96 object-cover rounded-sm"
+                                                    src={`/rooms/${selectedRoom.img_name}`}
+                                                    alt={selectedRoom.room_name}
+                                                    style={{
+                                                        display: hasImageLoaded[selectedRoom.id]
+                                                        ? "block"
+                                                        : "none",
+                                                    }}
+                                                    onLoad={() => handleImageLoad(selectedRoom.id)}
+                                                    />
                                                 </div>
+                                                </div>
+                                            )}
                                             </div>
                                         </div>
-                                    )}
+                                        )
+                                    }
 
                                     <div className="m-2">
                                         {filteredAgendas.length === 0 ? (
@@ -231,8 +258,8 @@ export default function Task({ rooms = [], regular_agendas = [] }) {
                                         ) : (
                                             filteredAgendas.map((regular_agenda) => (
                                                 <div key={regular_agenda.id} className="p-2 m-2 bg-gray-100 rounded-md">
-                                                    <p>登録曜日: {dayLabel}</p>
-                                                    <p>登録時間: {regular_agenda.start_time}~{regular_agenda.end_time}</p>
+                                                    <p className="text-gray-600 font-semibold text-base leading-relaxed">登録曜日: {dayLabel}</p>
+                                                    <p className="text-gray-600 font-semibold text-base leading-relaxed">登録時間: {regular_agenda.start_time}~{regular_agenda.end_time}</p>
                                                 </div>
                                             ))
                                         )}
@@ -240,24 +267,25 @@ export default function Task({ rooms = [], regular_agendas = [] }) {
                                 </div>
 
                                 <div className="flex justify-center m-4">
-                                    <RadioGroup
-                                        row
-                                        aria-labelledby="room-radio-group-label"
-                                        name="room=radio-group"
-                                        value={selectedRoom}
-                                        onChange={(e) => setSelectedRoom(Number(e.target.value))}
-                                    >
-                                        {rooms.map((room) => (
-                                            <FormControlLabel
-                                                key={room.id}
-                                                value={room.id}
-                                                control={<Radio />}
-                                                label={room.room_name}
-                                            />
-                                        ))}
-                                    </RadioGroup>
+                                    <FormControl>
+                                        <RadioGroup
+                                            row
+                                            aria-labelledby="room-radio-group-label"
+                                            name="room=radio-group"
+                                            value={selectedRoomId}
+                                            onChange={(e) => setselectedRoomId(Number(e.target.value))}
+                                        >
+                                            {rooms.map((room) => (
+                                                <FormControlLabel
+                                                    key={room.id}
+                                                    value={room.id}
+                                                    control={<Radio />}
+                                                    label={room.room_name}
+                                                />
+                                            ))}
+                                        </RadioGroup>
+                                    </FormControl>
                                 </div>
-                            </FormControl>
                         </div>
 
                         {/* 入力用コンポーネント */}
@@ -279,6 +307,7 @@ export default function Task({ rooms = [], regular_agendas = [] }) {
                         </div>
 
                         <div className="flex m-4">
+                            <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <div className="m-2">
                                 <h2 className="text-xl text-center font-semibold">開始時刻</h2>
                                 <MultiSectionDigitalClock
@@ -299,12 +328,12 @@ export default function Task({ rooms = [], regular_agendas = [] }) {
                                     onChange={(newValue) => setEndTime(newValue)}
                                 />
                             </div>
+                            </LocalizationProvider>
                         </div>
                         <div className="m-4">
-                            <p>選択された開始時間: {startTime.format("HH:mm")}</p>
-                            <p>選択された終了時間: {endTime.format("HH:mm")}</p>
+                            <p className="text-gray-600 font-semibold text-base leading-relaxed">選択された開始時間: {startTime.format("HH:mm")}</p>
+                            <p className="text-gray-600 font-semibold text-base leading-relaxed">選択された終了時間: {endTime.format("HH:mm")}</p>
                         </div>
-                    </LocalizationProvider>
                         
                         <PrimaryButton 
                             className="my-2 w-24 size-12"
@@ -328,14 +357,14 @@ export default function Task({ rooms = [], regular_agendas = [] }) {
                     ) : (
                         <ul className="md:grid grid-cols-2">
                             {rooms.map((room) => {
-                                const regularAgenda = regular_agendas.find(agenda => agenda.room_id === room.id) || null;
+                                const regularAgenda = regular_agendas.find(regular_agenda => regular_agenda.room_id === room.id) || null;
                                 const dayLabel = regularAgenda ? weekDays[regularAgenda.day_of_the_week - 1] : "未定義";
 
                                 return (
                                     <li 
                                         key={room.id}
                                         className={`relative p-1 rounded-md transition duration-300 m-1 ${
-                                            selectedRoom === room.id ? "bg-blue-500 bg-opacity-50" : "bg-gray-200"
+                                            selectedRoomId === room.id ? "bg-blue-500 bg-opacity-50" : "bg-gray-200"
                                         }`}
                                     >
                                         <p className="m-2 font-bold">部屋名: {room.room_name}</p>

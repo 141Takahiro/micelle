@@ -16,11 +16,30 @@ import micelleEvaluateImage from "../assets/icons/micelle_evaluate.jpg";
 import { usePage } from "@inertiajs/react";
 import React, { useRef } from 'react';
 
-export default function Home({ rooms = [] }) {
+export default function Home() {
 
+    // props
+  const { props } = usePage()
 
-    const { props } = usePage();
-    const [agendas, setAgendas] = useState([]);
+  const {
+    rooms: initialRooms = [],
+    agendas: initialAgendas = [],
+    updatePhoto_message = '',
+    micelle_message = '',
+    score = null,
+    image_url = '',
+  } = props
+
+    // 初期値
+    const [rooms, setRooms] = useState(initialRooms);
+    const [agendas, setAgendas] = useState(initialAgendas);
+
+    const [modalData, setModalData] = useState({
+        updatePhoto_message: updatePhoto_message || "",
+        micelle_message: micelle_message || "",
+        score: score ?? null,
+        image_url: image_url || "",
+    });
 
 
     // 静的コンポーネント
@@ -28,7 +47,8 @@ export default function Home({ rooms = [] }) {
     const [cameraSrc, setCameraSrc] = useState(cameraIcon);
     const [folderSrc, setFolderSrc] = useState(folderIcon);
 
-    const GaugeComponentA = ({ value }) => (
+    // 達成率グラフ
+    const GaugeComponentStatus = ({ value }) => (
         <Gauge
             value={value}
             width={220}
@@ -43,7 +63,8 @@ export default function Home({ rooms = [] }) {
         />
     );
 
-    const GaugeComponentB = ({ value }) => (
+    // AI評価グラフ
+    const GaugeComponentAI = ({ value }) => (
         <Gauge
             sx={{ [`& .${gaugeClasses.valueArc}`]: { fill: '#FF0000' } }}
             value={value}
@@ -60,27 +81,44 @@ export default function Home({ rooms = [] }) {
     );
 
 
-    // 画像選択と選択された画像の定義
-    const [selectedRoom, setselectedRoom] = useState(rooms.length > 0 ? rooms[0].id : null);
-    const currentRoom = rooms.find(room => room.id === selectedRoom);
+    // 部屋の選択
+    // ラジオボタン＆プレートと連動
+    const [selectedRoomId, setselectedRoomId] = useState(rooms.length > 0 ? rooms[0].id : null);
+    const currentRoom = rooms.find(room => room.id === selectedRoomId);
+
+    // プレート表示用latestAgendas
+    const [latestAgendas, setLatestAgendas] = useState([]); 
+    useEffect(() => {
+        const updatedLatestAgendas = rooms.map((room) => {
+            const roomAgendas = agendas[room.id] || [];
+            if (roomAgendas.length > 0) {
+            const sortedAgendas = [...roomAgendas].sort(
+                (a, b) => new Date(b.created_at) - new Date(a.created_at)
+            );
+            return sortedAgendas[0];
+            }
+            return null;
+        });
+    setLatestAgendas(updatedLatestAgendas);
+    }, [rooms, agendas]);
 
 
     // statusとai_evaluateの定義
-    const allCompleted = agendas.every(agenda => agenda && agenda.status === 1);
-    const hasAiEvaluate = agendas.some(agenda => agenda && agenda.ai_evaluate);
+    // この定義に合わせて、AI評価ボタンのレイアウト変更
+    const allCompleted = latestAgendas.every((agenda) => agenda && agenda.status === 1);
+    const hasAiEvaluate = latestAgendas.some((agenda) => agenda && agenda.ai_evaluate);
 
-
-    // モーダルの初期状態と初期値
+    // モーダルの状態管理
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalImageLoaded, setModalImageLoaded] = useState(false);
     const [updateModalOpen, setUpdateModalOpen] = useState(false);
 
-    const [modalData, setModalData] = useState({ 
-        updatePhoto_message: "", 
-        score: null,
-        micelle_message: "",
-        image_url: "",
-    });
+    // const [modalData, setModalData] = useState({ 
+    //     updatePhoto_message: "", 
+    //     score: null,
+    //     micelle_message: "",
+    //     image_url: "",
+    // });
 
 
     // 画像読み込み処理
@@ -97,35 +135,35 @@ export default function Home({ rooms = [] }) {
 
 
     // ステータス更新処理
-    const [isLoading, setIsLoading] = useState(false);
-    const handleStatusUpdate = (agendaId, currentStatus) => {
-        setIsLoading(true);
+    const [isStatusLoading, setisStatusLoading] = useState(false);
 
-        const newStatus = currentStatus === 1 ? 0 : 1;
-        router.put(`/agendas/${agendaId}/update-status`, { status: newStatus }, {
-            onSuccess: () => {
-                setAgendas((prevAgendas) =>
-                prevAgendas.map((agenda) =>
-                    agenda.id === agendaId ? { ...agenda, status: newStatus } : agenda
-                )
+    const handleStatusUpdate = (roomId, agendaId, currentStatus) => {
+    setisStatusLoading(true);
+    const newStatus = currentStatus === 1 ? 0 : 1;
+    
+    router.put(
+        `/agendas/${agendaId}/update-status`,
+        { status: newStatus },
+        {
+        onSuccess: () => {
+            setAgendas((prevAgendas) => {
+            const updatedAgendas = { ...prevAgendas };
+            if (updatedAgendas[roomId]) {
+                updatedAgendas[roomId] = updatedAgendas[roomId].map((agenda) =>
+                agenda.id === agendaId ? { ...agenda, status: newStatus } : agenda
                 );
-            },
-            onFinish: () => {
-                setIsLoading(false); 
             }
-        });
+            return updatedAgendas;
+            });
+        },
+
+        onFinish: () => {
+            setisStatusLoading(false);
+        },
+        }
+    );
     };
-
-    useEffect(() => {
-        const latestAgendas = rooms.map((room) => {
-            return room.agendas.length > 0
-                ? room.agendas.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0]
-                : null;
-        });
-        setAgendas(latestAgendas);
-    }, [rooms]);
-
-
+    
     // カメラ起動処理
     const openCamera = () => {
         const fileInput = document.createElement("input");
@@ -182,7 +220,7 @@ export default function Home({ rooms = [] }) {
         const formData = new FormData();
         formData.append("image", imageFile);
 
-        router.post(`/updatePhoto/${selectedRoom}`, formData, {
+        router.post(`/updatePhoto/${selectedRoomId}`, formData, {
             replace: true,
             onFinish: () => setIsSubmitting(false),
         });
@@ -217,18 +255,18 @@ export default function Home({ rooms = [] }) {
     // 画像のバリデーション
     const [imageError, setImageError] = useState('');
     const validateImage = (file) => {
-    if (!file || file === null || file === undefined) {
-        return "ファイルが選択されていません。";
-    }
-    const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
-    const maxSize = 2 * 1024 * 1024;
-    if (!allowedTypes.includes(file.type)) {
-        return "許可されていないファイル形式です。JPEG, PNG, JPGのみアップロードできます。";
-    }
-    if (file.size > maxSize) {
-        return "ファイルサイズが２ＭＢを超えています。";
-    }
-    return null;
+        if (!file || file === null || file === undefined) {
+            return "ファイルが選択されていません。";
+        }
+        const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
+        const maxSize = 2 * 1024 * 1024;
+        if (!allowedTypes.includes(file.type)) {
+            return "許可されていないファイル形式です。JPEG, PNG, JPGのみアップロードできます。";
+        }
+        if (file.size > maxSize) {
+            return "ファイルサイズが２ＭＢを超えています。";
+        }
+        return null;
     };
 
 
@@ -278,20 +316,27 @@ export default function Home({ rooms = [] }) {
 
     // 初期化処理
     useEffect(() => {
-        if (props.updatePhoto_message || props.score || props.micelle_message || props.image_url) {
+        if (updatePhoto_message || score || micelle_message || image_url) {
             setModalData({
-                updatePhoto_message: props.updatePhoto_message || "",
-                score: props.score ?? null,
-                micelle_message: props.micelle_message || "",
-                image_url: props.image_url || "",
+                updatePhoto_message: updatePhoto_message || "",
+                score: score ?? null,
+                micelle_message: micelle_message || "",
+                image_url: image_url || "",
             });
             setUpdateModalOpen(true);
         }
 
+        setisStatusLoading(false);
         setModalImageLoaded(false);    
         setIsModalOpen(false);      
-        setIsSubmitting(false);    
-    }, [props]);
+        setIsSubmitting(false); 
+
+    }, [
+        updatePhoto_message,
+        score,
+        micelle_message,
+        image_url,
+    ])
 
 
     useEffect(() => {
@@ -372,8 +417,8 @@ export default function Home({ rooms = [] }) {
                         <label className="text-sm font-bold">部屋を選択：</label>
                             <select
                                 className="p-2 border rounded mt-2"
-                                value={selectedRoom}
-                                onChange={(e) => setselectedRoom(Number(e.target.value))}
+                                value={selectedRoomId}
+                                onChange={(e) => setselectedRoomId(Number(e.target.value))}
                             >
                                 {rooms.map(room => (
                                     <option key={room.id} value={String(room.id)}>
@@ -432,6 +477,7 @@ export default function Home({ rooms = [] }) {
                 </div>
             </Modal>
 
+            {/* メインコンテンツ */}
             <div className="md:flex md:flex-row">
 
                 {/* タスク表示用 */}
@@ -441,9 +487,16 @@ export default function Home({ rooms = [] }) {
                     {rooms.length === 0 ? (
                         <p className="text-center text-gray-500 m-4">部屋のデータがありません。</p>
                     ) : (
-                        rooms.map((room) => {
-                            const weekDays = ["月曜日", "火曜日", "水曜日", "木曜日", "金曜日", "土曜日", "日曜日"];
-                            const agenda = agendas.find(a => a.room_id === room.id) || null;
+                        rooms.map((room, index) => {
+                        const weekDays = ["月曜日", "火曜日", "水曜日", "木曜日", "金曜日", "土曜日", "日曜日"];
+                        const latestAgenda = latestAgendas[index];
+
+                        // rooms.map((room) => {
+                        //     const weekDays = ["月曜日", "火曜日", "水曜日", "木曜日", "金曜日", "土曜日", "日曜日"];
+                        //     const roomAgendas = agendas[room.id] || []; //修正のため追加
+                        //     const agenda = roomAgendas[0] || null;
+
+                            // const agenda = agendas.find(a => a.room_id === room.id) || null;
 
                             return (
                                 <div 
@@ -452,27 +505,43 @@ export default function Home({ rooms = [] }) {
                                 >
                                     <h2 className="ml-2 text-lg font-semibold text-gray-800">{room.room_name}</h2>
                                     <div className="md:flex md:justify-center">
-                                        <div 
+                                    <div 
+                                        className={`md:w-5/6 p-4 font-semibold text-white rounded-md shadow-md transition ml-4 mr-4 mt-1 mb-2
+                                            ${isStatusLoading || !latestAgenda?.day_of_the_week || !latestAgenda?.start_time || !latestAgenda?.end_time
+                                            ? "bg-gray-400 opacity-50 cursor-not-allowed" 
+                                            : latestAgenda?.status === 1 
+                                            ? "bg-blue-500 hover:bg-blue-600" 
+                                            : "bg-red-500 hover:bg-red-600"
+                                            }`}
+                                        onClick={() => {
+                                            if (!isStatusLoading && latestAgenda) { 
+                                            handleStatusUpdate(room.id, latestAgenda.id, latestAgenda.status);
+                                            setselectedRoomId(room.id);
+                                            }
+                                        }}
+                                    >
+
+                                        {/* <div 
                                             className={`md:w-5/6 p-4 font-semibold text-white rounded-md shadow-md transition ml-4 mr-4 mt-1 mb-2
-                                                ${isLoading || !agenda?.day_of_the_week || !agenda?.start_time || !agenda?.end_time 
+                                                ${isStatusLoading || !agenda?.day_of_the_week || !agenda?.start_time || !agenda?.end_time 
                                                     ? "bg-gray-400 opacity-50 cursor-not-allowed" 
                                                     : agenda?.status === 1 
                                                     ? "bg-blue-500 hover:bg-blue-600" 
                                                     : "bg-red-500 hover:bg-red-600"
                                                 }`}
                                             onClick={() => {
-                                                if (!isLoading && agenda) { 
+                                                if (!isStatusLoading && agenda) { 
                                                     handleStatusUpdate(agenda.id, agenda.status);
-                                                    setselectedRoom(room.id);
+                                                    setselectedRoomId(room.id);
                                                 }
                                             }}
-                                        >
-                                            {agenda && agenda.day_of_the_week !== null && agenda.start_time !== null && agenda.end_time !== null ? (
+                                        > */}
+                                            {latestAgenda && latestAgenda.day_of_the_week !== null && latestAgenda.start_time !== null && latestAgenda.end_time !== null ? (
                                             <div>
-                                                <p>曜日: {weekDays[agenda.day_of_the_week - 1]} </p>
-                                                <p>{agenda.start_time}~{agenda.end_time}</p>
-                                                {agenda.status === 0 && <p className="text-center font-bold">未完了</p>}
-                                                {agenda.status === 1 && <p className="text-center font-bold">OK！</p>}
+                                                <p>曜日: {weekDays[latestAgenda.day_of_the_week - 1]} </p>
+                                                <p>{latestAgenda.start_time}~{latestAgenda.end_time}</p>
+                                                {latestAgenda.status === 0 && <p className="text-center font-bold">未完了</p>}
+                                                {latestAgenda.status === 1 && <p className="text-center font-bold">OK！</p>}
                                             </div>
                                             ) : (
                                                 <p className="text-center text-white">タスクが未登録です</p>
@@ -511,7 +580,7 @@ export default function Home({ rooms = [] }) {
                                 <div  className="basis-1/2 justify-items-center">
                                     <div>
                                         {rooms.map((room) =>
-                                            room.id === selectedRoom ? (
+                                            room.id === selectedRoomId ? (
                                                 <div key={room.id} className="p-2 m-2 bg-gray-100 rounded-md">
                                                     <h3 className="flex justify-center mt-2 mb-7 text-lg font-semibold text-gray-800">
                                                         部屋名：{room.room_name}
@@ -543,8 +612,8 @@ export default function Home({ rooms = [] }) {
                                         <FormControl component="fieldset">
                                             <RadioGroup
                                                 row
-                                                value={selectedRoom}
-                                                onChange={(e) => setselectedRoom(Number(e.target.value))}
+                                                value={selectedRoomId}
+                                                onChange={(e) => setselectedRoomId(Number(e.target.value))}
                                             >
                                                 {rooms.map((room) => (
                                                     <FormControlLabel
@@ -576,30 +645,58 @@ export default function Home({ rooms = [] }) {
 
                                     <div className="md:mr-4">
                                         {rooms.map((room) =>
-                                            room.id === selectedRoom ? (
+                                            room.id === selectedRoomId ? (
                                                 <div key={room.id} className="flex flex-col items-center mb-8">
-                                                    <p className="text-lg font-semibold text-gray-800">達成率：{Math.round((room.agendas.filter(agenda => agenda.status).length / room.agendas.length) * 100) || 0}%</p>
-                                                        <GaugeComponentA
-                                                            value={(room.agendas.filter(agenda => agenda.status).length / room.agendas.length) * 100 || 0}
+                                                    <p className="text-lg font-semibold text-gray-800">
+                                                         達成率：{
+                                                        (agendas[room.id] || []).length > 0
+                                                        ? Math.round(
+                                                            ( (agendas[room.id] || []).filter(agenda => agenda.status).length /
+                                                                (agendas[room.id] || []).length ) * 100
+                                                            )
+                                                        : 0
+                                                    }%
+                                                    </p>
+
+                                                        {/* 達成率：{Math.round((room.agendas.filter(agenda => agenda.status).length / room.agendas.length) * 100) || 0}%</p> */}
+                                                        <GaugeComponentStatus
+                                                            // value={(room.agendas.filter(agenda => agenda.status).length / room.agendas.length) * 100 || 0}
+                                                            value={
+                                                                ((agendas[room.id] || []).filter(agenda => agenda.status).length /
+                                                                ((agendas[room.id] || []).length || 1)) *
+                                                            100
+                                                        }
+
                                                         />
                                                 </div>
                                             ) : null
                                         )}
 
                                         {rooms.map((room) =>
-                                            room.id === selectedRoom ? (
+                                            room.id === selectedRoomId ? (
                                                 <div key={room.id} className="flex flex-col items-center mb-2">
                                                     <p className="text-lg font-semibold text-gray-800">
                                                         AIスコアの平均：{" "}
-                                                        {room.agendas.length > 0
+                                                        {/* {room.agendas.length > 0
                                                             ? Math.round(
                                                                 room.agendas.reduce((acc, agenda) => acc + (agenda.ai_evaluate || 0), 0) / room.agendas.length
-                                                            ) : 0}
+                                                            ) : 0} */}
+                                                            {(agendas[room.id] || []).length > 0
+                                                            ? Math.round(
+                                                                (agendas[room.id] || []).reduce((acc, agenda) => acc + (agenda.ai_evaluate || 0), 0) / (agendas[room.id] || []).length
+                                                            )
+                                                            : 0}
                                                     </p>
-                                                    <GaugeComponentB
+                                                    <GaugeComponentAI
+                                                        // value={
+                                                        //     room.agendas.length > 0
+                                                        //         ? room.agendas.reduce((acc, agenda) => acc + (agenda.ai_evaluate || 0), 0) / room.agendas.length : 0
+                                                        // }
                                                         value={
-                                                            room.agendas.length > 0
-                                                                ? room.agendas.reduce((acc, agenda) => acc + (agenda.ai_evaluate || 0), 0) / room.agendas.length : 0
+                                                        (agendas[room.id] || []).length > 0
+                                                            ? (agendas[room.id] || [])
+                                                                .reduce((acc, agenda) => acc + (agenda.ai_evaluate || 0), 0) / (agendas[room.id] || []).length
+                                                            : 0
                                                         }
                                                     />
                                                 </div>

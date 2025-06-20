@@ -14,14 +14,26 @@ class HomeController extends Controller
 {
     public function show()
     {
-        $rooms = Room::where('user_id', auth()->id())
-            ->with(['agendas' => function ($query) {
-                $query->latest('created_at')->limit(10);
-            }])
-            ->get();
+        // $rooms = Room::where('user_id', auth()->id())
+        //     ->with(['agendas' => function ($query) {
+        //         $query->latest('created_at')->limit(10);
+        //     }])
+        //     ->get();
+
+        $rooms = Room::where('user_id', auth()->id())->get();
+
+        // agendasの受け渡し
+        $agendas = Agenda::whereIn('room_id', $rooms->pluck('id'))
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->groupBy('room_id')
+            ->map(function ($group) {
+                return $group->take(10);
+            })->toArray();
 
         return Inertia::render('Home', [
             'rooms' => $rooms,  
+            'agendas' => $agendas, // agendasの受け渡し
             'updatePhoto_message' => session('updatePhoto_message'),
             'micelle_message' => session('micelle_message'),
             'score' => session('score'),
