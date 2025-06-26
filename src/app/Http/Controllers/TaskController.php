@@ -2,16 +2,25 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\Room;
 use App\Models\RegularAgenda;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Storage;
+use App\Services\MicelleService;
+use App\Http\Requests\StoreRegularAgendaRequest;
+use Illuminate\Support\Facades\Log;
 
 class TaskController extends Controller
 {
-    public function show(Request $request)
+    private MicelleService $micelleService;
+
+    public function __construct(MicelleService $micelleService)
+    {
+        $this->micelleService = $micelleService;
+    }
+
+    public function show()
     {
         $rooms = Room::where('user_id', auth()->id())->get();
         $regular_agendas = RegularAgenda::where('user_id', auth()->id())->get();
@@ -21,78 +30,40 @@ class TaskController extends Controller
             'delete_message' => session('delete_message'),
             'rooms' => $rooms,
             'regular_agendas' => $regular_agendas,
+            'error_message' => session('error_message')
         ]);
     }
 
-    public function store(Request $request)
+    public function store(StoreRegularAgendaRequest $request)
     {
+        $data = $request->validated();
+
         try {
-            $validatedData = $request->validate([
-                'room_id' => 'required|integer|exists:rooms,id',
-                'day_of_the_week' => 'required|integer|between:1,7',
-                'start_time' => 'nullable|date_format:H:i',
-                'end_time' => [
-                    'nullable',
-                    'date_format:H:i',
-                    function ($attribute, $value, $fail) use ($request) {
-                        if (!empty($request->start_time) && !empty($value) && $value <= $request->start_time) {
-                            $fail('終了時間は開始時間より後である必要があります。');
-                        }
-                    }
-                ],
-            ]);
+            $roomName = $this->micelleService->updateRegularAgenda($data);
+            return redirect()->route('task')->with('store_message', "タスクが登録されました！: {$roomName}");
 
-            $regular_agenda = RegularAgenda::where('room_id', $validatedData['room_id'])->first();
-
-            if (!$regular_agenda) {
-                throw new \Exception('RegularAgenda が見つかりません。');
-            }
-
-            $regular_agenda->update($validatedData);
-            $regular_agenda->refresh();
-
-            $room = Room::find($validatedData['room_id']);
-            $roomName = $room->room_name;
-
-            if (!$room) {
-                throw new \Exception('指定された Room が見つかりません。');
-            }
-
-
-            return redirect()->route('task')->with(
-                'store_message', 
-                "タスクが登録されました！: {$roomName}"
-            );
-
-
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return redirect()->route('task')->with('store_message', 'バリデーションエラーが発生しました。');
+        } catch (ModelNotFoundException $e) {
+            return redirect()->route('task')->with('error_message', '指定された部屋が見付かりませんでした。');
         } catch (\Exception $e) {
-            return redirect()->route('task')->with('store_message', '予期しないエラーが発生しました。');
+            Log::error($e->getMessage());
+            return redirect()
+                ->route('task')->with('error_message', '予期しないエラーが発生しました。');
         }
     }
 
-        public function delete($id) 
+    public function delete(int $id)
     {
         try {
-            $room = Room::where('user_id', auth()->id())->findOrFail($id);
-
-            $filePath = storage_path("app/private/rooms/{$room->img_name}");
-
-            if (Storage::disk('private')->exists("rooms/{$room->img_name}")) {
-                Storage::disk('private')->delete("rooms/{$room->img_name}");
-            }
-
-            $roomName = $room->room_name;
-            $room->delete();
+            $roomName = $this->micelleService->deleteRoom($id, auth()->id());
 
             return redirect()->route('task')->with('delete_message', "'{$roomName}'を削除しました！");
 
         } catch (ModelNotFoundException $e) {
-            return redirect()->route('task')->with('delete_message', '指定された部屋が見付かりませんでした。');
+            return redirect()->route('task')->with('error_message', '指定された部屋が見付かりませんでした。');
+
         } catch (\Exception $e) {
-            return redirect()->route('task')->with('delete_message', '削除処理に失敗しました。');
+            Log::error($e->getMessage());
+            return redirect()->route('task')->with('error_message', '予期しないエラーが発生しました。');
         }
     }
-
 }
