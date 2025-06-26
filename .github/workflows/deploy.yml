@@ -6,8 +6,11 @@ permissions:
   id-token: write
 
 on:
-  push:
-    branches: [main]
+  workflow_run:
+    workflows:
+      - "Cypress Tests"
+      - "Laravel"
+    types: [completed]
 
 jobs:
   build-and-push-image:
