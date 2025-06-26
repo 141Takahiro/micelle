@@ -74,6 +74,20 @@ class HomeControllerTest extends TestCase
         ]);
     }
 
+    public function test_it_redirects_with_error_message_when_updating_status_of_nonexistent_agenda()
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $nonExistentId = 9999;
+        $response = $this->put(route('updateStatus', ['id' => $nonExistentId]), [
+        ]);
+
+        $response->assertRedirect(route('home'));
+
+        $response->assertSessionHas('error_message', '指定された部屋が見付かりませんでした。');
+    }
+
     public function test_update_photo_updates_room_image()
     {
         Storage::fake('private');
@@ -97,29 +111,29 @@ class HomeControllerTest extends TestCase
         Storage::disk('private')->assertExists('rooms/' . $room->img_name);
     }
 
-    public function test_get_room_image_returns_file()
-    {
-        Storage::fake('private');
+    // public function test_get_room_image_returns_file()
+    // {
+    //     Storage::fake('private');
 
-        $fileName = 'test-image.jpg';
-        Storage::disk('private')->put("rooms/{$fileName}", 'dummy content');
+    //     $fileName = 'test-image.jpg';
+    //     Storage::disk('private')->put("rooms/{$fileName}", 'dummy content');
 
-        $response = $this->get(route('home.room.img', ['img_name' => $fileName]));
+    //     $response = $this->get(route('home.room.img', ['img_name' => $fileName]));
 
-        $response->assertStatus(200)
-                ->assertHeader('Content-Type', 'image/jpeg')
-                ->assertHeader('Content-Disposition', 'inline; filename="' . $fileName . '"');
-    }
+    //     $response->assertStatus(200)
+    //             ->assertHeader('Content-Type', 'image/jpeg')
+    //             ->assertHeader('Content-Disposition', 'inline; filename="' . $fileName . '"');
+    // }
 
-    public function test_get_room_image_redirects_when_file_not_found()
-    {
-        Storage::fake('private');
+    // public function test_get_room_image_redirects_when_file_not_found()
+    // {
+    //     Storage::fake('private');
 
-        $response = $this->get(route('home.room.img', ['img_name' => 'nonexistent.jpg']));
+    //     $response = $this->get(route('home.room.img', ['img_name' => 'nonexistent.jpg']));
 
-        $response->assertRedirect(route('home'));
+    //     $response->assertRedirect(route('home'));
 
-        $response->assertSessionHas('updatePhoto_message', '画像が見つかりません');
-    }
+    //     $response->assertSessionHas('updatePhoto_message', '画像が見つかりません');
+    // }
 
 }

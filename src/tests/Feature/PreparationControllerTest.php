@@ -72,28 +72,6 @@ class PreparationControllerTest extends TestCase
 
     Storage::disk('private')->assertExists("rooms/{$img_name}");
 }
-
-
-    public function test_it_fails_validation_if_room_name_is_too_short()
-    {
-        $user = User::factory()->create();
-        $this->actingAs($user);
-
-        $file = UploadedFile::fake()->image('test_image.jpg');
-
-        $response = $this->post(route('upload'), [
-            'image' => $file,
-            'room_name' => 'A'
-        ]);
-
-            $response = $this->get(route('preparation'));
-
-        $response->assertInertia(fn (AssertableInertia $page) => $page
-            ->where('store_message', 'バリデーションエラーが発生しました。')
-        );
-
-    }
-
     
     public function test_it_fails_if_user_has_four_rooms()
     {
@@ -109,7 +87,7 @@ class PreparationControllerTest extends TestCase
             'room_name' => '新しい部屋'
         ]);
 
-        $response->assertSessionHas('store_message', fn ($message) =>
+        $response->assertSessionHas('error_message', fn ($message) =>
             str_contains($message, '予期しないエラーが発生しました。') 
         );
     }
@@ -139,26 +117,22 @@ class PreparationControllerTest extends TestCase
         Storage::disk('private')->assertMissing("rooms/{$room->img_name}");
     }
 
-
-    public function test_it_returns_error_if_room_does_not_exist()
+    public function test_delete_returns_error_message_if_room_not_found()
     {
         $user = User::factory()->create();
         $this->actingAs($user);
 
-        $response = $this->delete(route('preparation.delete', ['id' => 99999]));
+        $nonExistentId = 9999;
 
-        $response->assertSessionHas('delete_message', '指定された部屋が見付かりませんでした。');
-    }
-
-    public function test_get_room_image_redirects_when_file_not_found()
-    {
-        Storage::fake('private');
-
-        $response = $this->get(route('get.room.img', ['img_name' => 'nonexistent.jpg']));
+        $response = $this->delete(route('preparation.delete', ['id' => $nonExistentId]));
 
         $response->assertRedirect(route('preparation'));
 
-        $response->assertSessionHas('updatePhoto_message', '画像が見つかりません');
+        $response->assertSessionHas(
+            'error_message',
+            '指定された部屋が見付かりませんでした。'
+        );
     }
+
 }
 

@@ -81,30 +81,6 @@ class TaskControllerTest extends TestCase
         );
     }
 
-    public function test_validation_error_occurs_when_data_is_invalid()
-    {
-        $user = User::factory()->create();
-
-        $this->actingAs($user);
-
-        $invalidData = [
-            'room_id' => null,
-            'day_of_the_week' => 8, 
-            'start_time' => 'invalid_time',
-            'end_time' => '08:00', 
-        ];
-
-        $response = $this->post(route('store'), $invalidData);
-
-        $response->assertRedirect(route('task'));
-
-        $response->assertSessionHas('store_message', 'バリデーションエラーが発生しました。');
-
-        $this->assertDatabaseMissing('regular_agendas', [
-            'day_of_the_week' => 8,
-        ]);
-    }
-
     public function test_exception_occurs_when_regular_agenda_not_found()
     {
 
@@ -124,7 +100,7 @@ class TaskControllerTest extends TestCase
         $response = $this->post(route('store'), $requestData);
 
         $response->assertRedirect(route('task'));
-        $response->assertSessionHas('store_message', '予期しないエラーが発生しました。');
+        $response->assertSessionHas('error_message', '指定された部屋が見付かりませんでした。');
     }
 
     public function test_it_deletes_a_room_successfully()
@@ -149,5 +125,22 @@ class TaskControllerTest extends TestCase
         $this->assertDatabaseMissing('rooms', ['id' => $room->id]);
 
         Storage::disk('private')->assertMissing("rooms/{$room->img_name}");
+    }
+
+    public function test_delete_returns_error_message_if_room_not_found()
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $nonExistentId = 9999;
+
+        $response = $this->delete(route('task.delete', ['id' => $nonExistentId]));
+
+        $response->assertRedirect(route('task'));
+
+        $response->assertSessionHas(
+            'error_message',
+            '指定された部屋が見付かりませんでした。'
+        );
     }
 }

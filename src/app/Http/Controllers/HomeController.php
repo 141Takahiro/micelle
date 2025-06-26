@@ -3,26 +3,28 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Response;
 use Inertia\Inertia;
 use App\Models\Room;
 use App\Models\Agenda;
-use Aws\Rekognition\RekognitionClient;
-use Illuminate\Support\Facades\Storage;
+use App\Models\RegularAgenda;
+use App\Services\MicelleService;
+use App\Services\PhotoService;
+use App\Http\Requests\StoreImageRequest;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\Log;
+use Aws\Exception\AwsException;
 
 class HomeController extends Controller
 {
+    public function __construct(
+        protected MicelleService $micelleService,
+        protected PhotoService  $photoService
+    ) {}
+
     public function show()
     {
-        // $rooms = Room::where('user_id', auth()->id())
-        //     ->with(['agendas' => function ($query) {
-        //         $query->latest('created_at')->limit(10);
-        //     }])
-        //     ->get();
-
         $rooms = Room::where('user_id', auth()->id())->get();
-
-        // agendasの受け渡し
+        $regular_agendas = RegularAgenda::where('user_id', auth()->id())->get();
         $agendas = Agenda::whereIn('room_id', $rooms->pluck('id'))
             ->orderBy('created_at', 'desc')
             ->get()
@@ -33,97 +35,46 @@ class HomeController extends Controller
 
         return Inertia::render('Home', [
             'rooms' => $rooms,  
-            'agendas' => $agendas, // agendasの受け渡し
+            'agendas' => $agendas,
+            'regular_agendas' => $regular_agendas,
             'updatePhoto_message' => session('updatePhoto_message'),
             'micelle_message' => session('micelle_message'),
             'score' => session('score'),
-            'image_url' => session('image_url')
+            'image_url' => session('image_url'),
+            'error_message' => session('error_message')
         ]);
     }
 
     public function updateStatus(Request $request, $id)
     {
-        $agenda = Agenda::findOrFail($id);
-
-        $agenda->status = $request->status;
-        $agenda->save();
+    try {
+        $this->micelleService->updateStatus($request, $id);
+    } catch (ModelNotFoundException $e) {
+        return redirect()->route('home')->with('error_message', '指定された部屋が見付かりませんでした。');
+    } catch (\Exception $e) {
+        Log::error($e->getMessage());
+        return redirect()->route('home')->with('error_message', '予期しないエラーが発生しました。');
+    }
     }
 
-    public function updatePhoto(Request $request, $id)
+    public function updatePhoto(StoreImageRequest $request, $id)
     {
+        $validatedData = $request->validated();
+        $file = $validatedData['image'];
+        $userId = auth()->id();
+
         try {
-            $validatedData = $request->validate([
-                'image' => 'required|image|mimes:jpeg,png,jpg|max:2048'
-            ]);
+            $img_name = $this->photoService->storeRoomImage($file);
 
-            $file = $request->file('image');
-            $img_name = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-            $file->storeAs('rooms', $img_name, 'private');
+            $this->micelleService->updateRoomPhoto($userId, $id, $img_name);
 
-            $room = Room::find($id);
-            if ($room) {
-                if ($room->img_name) {
-                    Storage::disk('private')->delete('rooms/' . $room->img_name);
-                }
+            $img_url = route('get.room.img', ['img_name' => $img_name]);
 
-                $room->update([
-                    'img_name' => $img_name,
-                ]);
-            } else {
-                return redirect()->route('home')->with('updatePhoto_message', '対象の部屋が見つかりません。');
-            }
+            $numericValue = $this->micelleService->getAiEvaluate($file);
 
-            $img_url = route('home.room.img', ['img_name' => $img_name]);
-            $imageBytes = file_get_contents($file->getPathname());
-
-            $rekognition = new RekognitionClient([
-                'version' => 'latest',
-                'region'  => 'ap-northeast-1',
-                'credentials' => [
-                    'key'    => env('AWS_ACCESS_KEY_ID'),
-                    'secret' => env('AWS_SECRET_ACCESS_KEY'),
-                ],
-            ]);
-
-            $result = $rekognition->detectCustomLabels([
-                'ProjectVersionArn' => 'arn:aws:rekognition:ap-northeast-1:103731009007:project/micelle/version/micelle.2025-05-24T22.45.14/1748094314752',
-                'Image' => [
-                    'Bytes' => $imageBytes,
-                ],
-            ]);
-
-            $maxConfidence = max(array_column($result['CustomLabels'], 'Confidence'));
-
-            $filteredLabels = array_filter($result['CustomLabels'], function($label) use ($maxConfidence) {
-                return $label['Confidence'] == $maxConfidence;
-            });
-
-            $selectedLabel = reset($filteredLabels);
-            $numericValue = isset($selectedLabel['Name']) ? (int) filter_var($selectedLabel['Name'], FILTER_SANITIZE_NUMBER_INT) : null;
-
-            $latestAgenda = Agenda::where('user_id', auth()->id())
-                      ->where('room_id', $id)
-                      ->latest()
-                      ->first();
-
-            if ($latestAgenda) {
-                $aiEvaluate = $latestAgenda->ai_evaluate ?? 0;
-                $latestAgenda->update([
-                    'ai_evaluate' => $numericValue ?? $aiEvaluate
-                ]);
-            }
-
-            $micelleMessage = '';
-
-            if ($numericValue >= 90) {
-                $micelleMessage = '素晴らしい！最高ランクです🎉';
-            } elseif ($numericValue >= 70) {
-                $micelleMessage = 'なかなかいい感じですね！✨';
-            } elseif ($numericValue >= 50) {
-                $micelleMessage = '悪くないけど、もう少し頑張りましょう💪';
-            } else {
-                $micelleMessage = 'ちょっと厳しい結果でしたね…次回に期待！😅';
-            }
+            $this->micelleService->updateAiEvaluate($userId, $id, $numericValue);
+            
+            $micelleMessage = $this->micelleService->getMicelleMessage($numericValue);
 
             $data = [
                 'score' => $numericValue,
@@ -133,26 +84,13 @@ class HomeController extends Controller
             ];
 
             return redirect()->route('home')->with($data);
-
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return redirect()->route('home')->with('updatePhoto_message', 'バリデーションエラーが発生しました。');
+        } catch (AwsException $e) {
+            return redirect()
+                ->route('home')->with('error_message', 'コスト削減の為、現在AI評価機能は利用できません。ご希望の際は製作者に連絡してください。');
         } catch (\Exception $e) {
-            return redirect()->route('home')->with('updatePhoto_message', '予期しないエラーが発生しました。');
+            Log::error($e->getMessage());
+            return redirect()->route('home')->with('error_message', '予期しないエラーが発生しました。');
         }
-    }
-
-    public function getRoomImage($img_name)
-    {
-        $path = "rooms/{$img_name}";
-
-        if (!Storage::disk('private')->exists($path)) {
-            return redirect()->route('home')->with('updatePhoto_message', '画像が見つかりません');
-        }
-
-        return Response::make(Storage::disk('private')->get($path), 200, [
-            'Content-Type' => Storage::disk('private')->mimeType($path),
-            'Content-Disposition' => 'inline; filename="' . $img_name . '"'
-        ]);
     }
     
 }
