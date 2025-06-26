@@ -108,11 +108,6 @@ export default function Task() {
 
         if (error_message) {
             setErrorModalOpen(true);
-            setTimeout(() => {
-                setErrorModalOpen(false);
-            }, 3000);
-        } else {
-            setErrorModalOpen(false);
         };
 
         if (delete_message) {

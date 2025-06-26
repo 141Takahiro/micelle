@@ -198,11 +198,6 @@ export default function Home() {
 
         if (error_message) {
             setErrorModalOpen(true);
-            setTimeout(() => {
-                setErrorModalOpen(false);
-            }, 3000);
-        } else {
-            setErrorModalOpen(false);
         }
 
         setisStatusLoading(false);
