@@ -23,7 +23,9 @@ class TaskController extends Controller
     public function show()
     {
         $rooms = Room::where('user_id', auth()->id())->get();
-        $regular_agendas = RegularAgenda::where('user_id', auth()->id())->get();
+        $roomIds = $rooms->pluck('id')->toArray();
+        $regular_agendas = RegularAgenda::whereIn('room_id', $roomIds)
+                                    ->get();
 
         return Inertia::render('Task',[
             'store_message' => session('store_message'),
