@@ -4,7 +4,6 @@ namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Models\Agenda;
-use App\Models\User;
 use App\Models\Room;
 use Carbon\Carbon;
 
@@ -15,7 +14,6 @@ class AgendaFactory extends Factory
     public function definition(): array
     {
          return [
-            'user_id' => User::factory(), 
             'room_id' => Room::factory(), 
             'day_of_the_week' => $this->faker->numberBetween(1, 7), 
             'start_time' => Carbon::createFromTime($this->faker->numberBetween(8, 18), $this->faker->randomElement([0, 30]))->format('H:i'), 
