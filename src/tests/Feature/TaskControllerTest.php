@@ -26,7 +26,6 @@ class TaskControllerTest extends TestCase
             'day_of_the_week' => 'Monday', 
             'start_time' => '09:00',
             'end_time' => '10:00',
-            'user_id' => auth()->id(),
         ]);
 
         $response = $this->get('/task');
@@ -51,7 +50,6 @@ class TaskControllerTest extends TestCase
             'day_of_the_week' => 1,
             'start_time' => '09:00',
             'end_time' => '10:00',
-            'user_id' => auth()->id(),
         ]);
 
     
@@ -71,7 +69,6 @@ class TaskControllerTest extends TestCase
             'day_of_the_week' => 2,
             'start_time' => '11:00',
             'end_time' => '12:00',
-            'user_id' => auth()->id(),
         ]);
 
         $roomName = 'サンプルルーム';  
