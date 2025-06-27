@@ -1,6 +1,6 @@
 ### Micelleの概要
 MicelleはAmazonRecognittionを利用した、画像判定機能のある清掃管理アプリです。  
-部屋の写真と清掃タスクを登録し、任意の単位でAIによるフィードバックを得ることが出来ます。  
+部屋の写真と清掃タスクを登録し、任意のタイミングでAIによるフィードバックを得ることが出来ます。  
 （コスト削減の為、画像診断機能はOFFにしています。利用されたい方は、製作者にご一報ください）。  
 
 ## インフラ図
@@ -16,8 +16,8 @@ MicelleはAmazonRecognittionを利用した、画像判定機能のある清掃�
 ・画像診断機能  
 
 ### 使用技術一覧
-・バックエンド：Laravel, Laravel Breeze + Inertia  
-・フロントエンド：React, Tailwind CSS  
+・バックエンド：Laravel 12.12.0, Laravel Breeze + Inertia  
+・フロントエンド：React1 8.3.1, Tailwind CSS 3.4.17 
 ・インフラ：Docker, GHCR, AWS EC2, ALB, S3, RDS(MySQL)  
 ・CI/CD：GitHub Actions及びGHCR（GitHub Container Registry）を利用したパイプライン  
 ・テスト：Cypressを用いたE2Eテスト  
