@@ -4,26 +4,20 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Support\Facades\Auth;
 use App\Models\Agenda;
 
 class RegularAgenda extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['room_id', 'day_of_the_week', 'start_time', 'end_time', 'user_id'];
+    protected $fillable = ['room_id', 'day_of_the_week', 'start_time', 'end_time'];
 
     protected static function boot()
     {
         parent::boot();
 
-        static::creating(function ($regular_agenda) {
-                $regular_agenda->user_id = Auth::id();
-        });
-
         static::created(function ($regular_agenda) {               
             Agenda::create([
-                'user_id' => Auth::id(),
                 'room_id' => $regular_agenda->room_id,
                 'day_of_the_week' => $regular_agenda->day_of_the_week,
                 'start_time' => $regular_agenda->start_time,
@@ -47,11 +41,6 @@ class RegularAgenda extends Model
         }
         });
 
-    }
-
-    public function user()
-    {
-        return $this->belongsTo(User::class);
     }
 
     public function room()

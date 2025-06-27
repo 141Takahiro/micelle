@@ -10,7 +10,7 @@ class Agenda extends Model
 {
     use HasFactory;
 
-    protected $fillable =['user_id', 'room_id', 'day_of_the_week', 'start_time', 'end_time', 'status', 'ai_evaluate'];
+    protected $fillable =['room_id', 'day_of_the_week', 'start_time', 'end_time', 'status', 'ai_evaluate'];
 
     public function room()
     {

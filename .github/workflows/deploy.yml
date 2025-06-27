@@ -90,14 +90,7 @@ jobs:
                    && php artisan key:generate --ansi --force \
                    && php artisan migrate --force --seed --no-interaction"
 
-      - name: Get logs for micelle-web-1
-        run: docker logs micelle-web-1
-      - name: Get logs for micelle-db-1
-        run: docker logs micelle-db-1
-      - name: Get logs for micelle-app-1
-        run: docker logs micelle-app-1
       - name: Wait for server to start
-
         run: sleep 100
       - name: Check running containers
         run: docker ps

@@ -65,9 +65,9 @@ class MicelleService
         ]);
     }
 
-    public function updateStatus(Request $request, $id)
+    public function updateStatus(Request $request, $agendaId)
     {
-        $agenda = Agenda::findOrFail($id);
+        $agenda = Agenda::findOrFail($agendaId);
         $agenda->status = $request->status;
         $agenda->save();
     }
@@ -125,10 +125,9 @@ class MicelleService
         }
     }
 
-    public function updateAiEvaluate($userId, $roomId, $numericValue)
+    public function updateAiEvaluate($roomId, $numericValue)
     {
-        $latestAgenda = Agenda::where('user_id', $userId)
-            ->where('room_id', $roomId)
+        $latestAgenda = Agenda::where('room_id', $roomId)
             ->latest()
             ->first();
 

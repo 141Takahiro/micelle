@@ -24,8 +24,9 @@ class HomeController extends Controller
     public function show()
     {
         $rooms = Room::where('user_id', auth()->id())->get();
-        $regular_agendas = RegularAgenda::where('user_id', auth()->id())->get();
-        $agendas = Agenda::whereIn('room_id', $rooms->pluck('id'))
+        $roomIds = $rooms->pluck('id')->toArray();
+        $regular_agendas = RegularAgenda::whereIn('room_id', $roomIds)->get();
+        $agendas = Agenda::whereIn('room_id', $roomIds)
             ->orderBy('created_at', 'desc')
             ->get()
             ->groupBy('room_id')
@@ -72,7 +73,7 @@ class HomeController extends Controller
 
             $numericValue = $this->micelleService->getAiEvaluate($file);
 
-            $this->micelleService->updateAiEvaluate($userId, $id, $numericValue);
+            $this->micelleService->updateAiEvaluate($id, $numericValue);
             
             $micelleMessage = $this->micelleService->getMicelleMessage($numericValue);
 
