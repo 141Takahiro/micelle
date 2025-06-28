@@ -14,10 +14,6 @@ RUN apt-get update \
     libfreetype6-dev \
     libjpeg62-turbo-dev \
     libpng-dev \
-    autoconf \ 
-    gcc \
-    make \ 
-    pkg-config \
     && docker-php-ext-configure gd \
     --with-freetype \
     --with-jpeg \
@@ -27,13 +23,6 @@ RUN apt-get update \
     zip \
     bcmath \
     gd \
-    && pecl install xdebug \
-    && docker-php-ext-enable xdebug \
-    && apt-get purge -y --auto-remove \
-        autoconf \
-        gcc \
-        make \
-        pkg-config \ 
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=composer:2.2 /usr/bin/composer /usr/local/bin/composer

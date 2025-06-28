@@ -16,6 +16,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Active Cache
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'npm'
+
       - name: Install dependencies
         working-directory: src
         run: npm ci
@@ -32,7 +38,7 @@ jobs:
     - uses: shivammathur/setup-php@15c43e89cdef867065b0213be354c2841860869e
       with:
         php-version: '8.2-fpm-bullseye'
-        extensions: sqlite3, pdo_sqlite, xdebug 
+        extensions: sqlite3, pdo_sqlite
         
     - name: Install ODBC dependencies
       run: |
@@ -75,18 +81,10 @@ jobs:
         
     - name: Execute tests (Unit and Feature tests) via PHPUnit/Pest
       env:
-        XDEBUG_MODE: coverage
         DB_CONNECTION: sqlite
         DB_DATABASE: database/database.sqlite
-      run: php artisan test --coverage-clover=coverage.xml 
+      run: php artisan test
       working-directory: src
-
-    - name: Upload Coverage to Codecov
-      uses: codecov/codecov-action@v5
-      with:
-        files: src/coverage.xml                
-        flags: laravel-tests                   
-        fail_ci_if_error: true
 
   cypress-run:
     runs-on: ubuntu-latest
