@@ -5,9 +5,12 @@
         "build": "vite build",
         "dev": "vite",
         "test": "vitest --run",
-        "start": "serve -s dist"
+        "start": "serve -s dist",
+        "lint": "eslint \"resources/js/Components/**/*.{js,jsx,ts,tsx}\" \"resources/js/Pages/**/*.{js,jsx,ts,tsx}\"",
+        "lint:fix": "eslint \"resources/js/Components/**/*.{js,jsx,ts,tsx}\" \"resources/js/Pages/**/*.{js,jsx,ts,tsx}\" --fix"
     },
     "devDependencies": {
+        "@eslint/js": "^9.30.0",
         "@headlessui/react": "^2.0.0",
         "@inertiajs/react": "^2.0.8",
         "@lhci/cli": "^0.14.0",
@@ -20,6 +23,9 @@
         "axios": "^1.8.2",
         "concurrently": "^9.0.1",
         "cypress": "^14.4.0",
+        "eslint": "^9.30.0",
+        "eslint-plugin-react": "^7.37.5",
+        "globals": "^16.2.0",
         "jsdom": "^26.1.0",
         "laravel-vite-plugin": "^1.2.0",
         "postcss": "^8.5.3",

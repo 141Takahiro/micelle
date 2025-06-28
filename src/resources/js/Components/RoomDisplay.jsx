@@ -15,7 +15,6 @@ const RoomItem = ({
 
     const regularAgenda =
         regular_agendas.find(regular_agenda => regular_agenda.room_id === room.id) || null;
-    const dayLabel = regularAgenda ? weekDays[regularAgenda.day_of_the_week - 1] : "未定義";
 
     return (
         <li
