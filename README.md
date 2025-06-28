@@ -17,7 +17,7 @@ MicelleはAmazonRecognittionを利用した、画像判定機能のある清掃�
 
 ## 使用技術一覧
 ・バックエンド：Laravel 12.12.0, Laravel Breeze + Inertia  
-・フロントエンド：React1 8.3.1, Tailwind CSS 3.4.17 
+・フロントエンド：React 8.3.1, Tailwind CSS 3.4.17 
 ・インフラ：Docker, GHCR, AWS EC2, ALB, S3, RDS(MySQL)  
 ・CI/CD：GitHub Actions及びGHCR（GitHub Container Registry）を利用したパイプライン  
 ・テスト：Cypressを用いたE2Eテスト、PHPのフィーチャーテスト及びESlintによるコードの品質管理  
