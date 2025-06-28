@@ -1,4 +1,7 @@
-# Micelleの概要
+[![Live Demo](https://img.shields.io/badge/demo-online-green)](https://micelle-portfolio.com/)
+[![CI](https://github.com/141Takahiro/micelle/actions/workflows/CICD.yml/badge.svg)](https://github.com/141Takahiro/micelle/actions/workflows/CICD.yml)
+
+# Micelle
 MicelleはAmazonRecognittionを利用した、画像判定機能のある清掃管理アプリです。  
 部屋の写真と清掃タスクを登録し、任意のタイミングでAIによるフィードバックを得ることが出来ます。  
 （コスト削減の為、画像診断機能はOFFにしています。利用されたい方は、製作者にご一報ください）。  
