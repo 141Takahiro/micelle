@@ -20,13 +20,13 @@ MicelleはAmazonRecognittionを利用した、画像判定機能のある清掃�
 ・フロントエンド：React1 8.3.1, Tailwind CSS 3.4.17 
 ・インフラ：Docker, GHCR, AWS EC2, ALB, S3, RDS(MySQL)  
 ・CI/CD：GitHub Actions及びGHCR（GitHub Container Registry）を利用したパイプライン  
-・テスト：Cypressを用いたE2Eテスト  
+・テスト：Cypressを用いたE2Eテスト、PHPのフィーチャーテスト及びESlintによるコードの品質管理  
 ・外部サービス：Amazon Rekognition API  
 ・その他：Git/GitHub フロー  
 
 ## アーキテクチャと設計方針
 ### フロント
-・汎用性の高いUI及び規模の大きなUIをReact コンポーネント化  
+・汎用性の高いUI及び規模の大きなUIをReactコンポーネント化  
 ・汎用性の高いロジック及び規模の大きなロジックをユーティリティ関数化  
 ・Inertiaを用いたSPA  
 ・TailwindCSSを用いたモダンなレスポンシブデザイン  
