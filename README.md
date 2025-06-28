@@ -45,6 +45,31 @@ MicelleはAmazonRecognittionを利用した、画像判定機能のある清掃�
 ・GitHub Actionsを用いたCI/CDパイプライン  
 ・本番運用を意識したAWSリソースの利用  
 
+## 動作確認
+### 1. リポジトリをクローン
+```bash
+git clone https://github.com/141Takahiro/micelle.git  
+cd micelle
+```
+### 2. 環境変数ファイルを用意
+```bash
+cp src/.env.example src/.env
+```
+### 3. dockerコンテナを起動（開発用）
+```bash
+docker-compose up -d --build
+```
+### 4. フロントエンドの開発用サーバーを起動
+```bash
+cd src  
+npm ci  
+npm run dev
+```
+### 5. 注意点
+・環境変数はサンプルのコピーで立ち上がりますが、必要ならデータベースをMySQLに修正してください。  
+・AWS及びCypressの実行には、別途キーが必要です。  
+・docker-compose.testはCI/CD上でのテストに、prodは本番環境に使用します。  
+
 ## アピールポイント
 ・モダンなフレームワークを使用したアプリ構成（Laravel + React + TailwindCSS)  
 ・サービス/リクエスト層を利用した責任の分離  
