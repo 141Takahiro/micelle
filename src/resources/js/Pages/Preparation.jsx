@@ -53,7 +53,6 @@ export default function Preparation() {
 
     // モーダル関連
     const [showModal, setShowModal] = useState(false);
-    const [modalImageLoaded, setModalImageLoaded] = useState(false);
     const [errorModalOpen, setErrorModalOpen] = useState(false);
 
     const fileInputRef = useRef(null);
@@ -169,7 +168,6 @@ export default function Preparation() {
                 setShowDeleteMessage(false);
             }, 3000);
         }
-        setModalImageLoaded(false);
         setRooms(initialRooms)
         setRegularAgendas(initialRegularAgendas)
     }, [

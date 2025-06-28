@@ -140,7 +140,7 @@ export default function Home() {
         }
     };
 
-    //　フォルダ画像取得処理
+    // フォルダ画像取得処理
     const handleOpenFolder = (event) => {
         const originalFile = event.target.files[0];
         if (originalFile) {

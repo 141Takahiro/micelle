@@ -10,6 +10,27 @@ on:
     branches: [ "main" ]
 
 jobs:
+  eslint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Active Cache
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      - name: Install dependencies
+        working-directory: src
+        run: npm ci
+   
+      - name: Start ESlint
+        run: npm run lint
+        working-directory: src
+
+
   laravel-tests:
     runs-on: ubuntu-latest
 
@@ -123,7 +144,7 @@ jobs:
 
   build-and-push-image:
     runs-on: ubuntu-latest
-    needs: [laravel-tests, cypress-run]
+    needs: [laravel-tests, cypress-run, eslint]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
