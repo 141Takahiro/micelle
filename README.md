@@ -20,7 +20,7 @@ MicelleはAmazonRecognittionを利用した、画像判定機能のある清掃�
 
 ## 使用技術一覧
 ・バックエンド：PHP 8.3, Laravel 12.12, Laravel Breeze + Inertia  
-・フロントエンド：React 8.3, Tailwind CSS 3.4 
+・フロントエンド：React 8.3, Tailwind CSS 3.4  
 ・インフラ：Docker, GHCR, AWS EC2, ALB, S3, RDS(MySQL)  
 ・CI/CD：GitHub Actions及びGHCR（GitHub Container Registry）を利用したパイプライン  
 ・テスト：Cypressを用いたE2Eテスト、PHPのフィーチャーテスト及びESlintによるコードの品質管理  
@@ -71,9 +71,29 @@ npm run dev
 ・docker-compose.testはCI/CD上でのテストに、prodは本番環境に使用します。  
 
 ## アピールポイント
-・モダンなフレームワークを使用したアプリ構成（Laravel + React + TailwindCSS)  
+・モダンなフレームワークを使用したアプリ構成（Laravel + React)  
+・TailwindCSSを利用したレスポンシブデザイン
 ・サービス/リクエスト層を利用した責任の分離  
 ・Inertiaを利用したSPA  
 ・Docker＋CI/CDによるテスト及びデプロイの自動化  
 ・本番運用を意識したAWSリソースの利用  
 ・Amazon Recognittionを利用した画像診断機能  
+
+## 参考書籍
+・Webデザインの新しい教科書  
+・いちばんやさしいJavaScriptの教本  
+・Laravel入門  
+・情報セキュリティ超入門  
+・SQL ゼロからはじめるデータベース操作  
+・UXデザインの法則  
+・リーダブルコード  
+・React 実践の教科書  
+・新しいLinuxの教科書  
+・初めてのPHP  
+・AWSの基本・仕組み・重要用語の全部わかる教科書  
+・Docker絵とき入門  
+・Laravelの教科書  
+・UIデザイン必携  
+・Laravel実践開発  
+・いちばんやさしいGit&GitHubの教本  
+・GitHub CI/CD実践ガイド
