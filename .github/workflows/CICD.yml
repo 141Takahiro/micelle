@@ -34,15 +34,13 @@ jobs:
         php-version: '8.2-fpm-bullseye'
         extensions: sqlite3, pdo_sqlite
         
-    - name: Install ODBC dependencies
+    - name: Install ODBC and SQLite
       run: |
         sudo apt-get update
-        sudo apt-get install -y unixodbc unixodbc-dev
-   
-    - name: Install SQLite
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y sqlite3 libsqlite3-dev
+        sudo apt-get install -y \
+          unixodbc unixodbc-dev \
+          sqlite3 libsqlite3-dev
+
 
     - name: Checkout repository
       uses: actions/checkout@v4
