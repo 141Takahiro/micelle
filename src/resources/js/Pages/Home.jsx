@@ -206,6 +206,7 @@ export default function Home() {
         setIsSubmitting(false);
         setRooms(initialRooms);
         setRegularAgendas(initialRegularAgendas);
+        setAgendas(initialAgendas); 
     }, [
         initialRooms,
         initialRegularAgendas,
@@ -214,6 +215,7 @@ export default function Home() {
         micelle_message,
         image_url,
         error_message,
+        agendas,
     ]);
 
     useEffect(() => {
