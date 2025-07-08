@@ -30,5 +30,4 @@ Schedule::call(function () {
     DB::table('agendas')->insert($agendas);
 
     info('`agendas` を `regular_agendas` から自動生成しました。');
-// })->weeklyOn(0, '00:00');
-})->everyMinute();
+})->weeklyOn(0, '00:00');
