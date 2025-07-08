@@ -17,7 +17,6 @@ Schedule::call(function () {
 
     foreach ($regularAgendas as $regularAgenda) {
             $agendas[] = [
-                'user_id' => $regularAgenda->user_id,
                 'room_id' => $regularAgenda->room_id,
                 'day_of_the_week' => $regularAgenda->day_of_the_week,
                 'start_time' => $regularAgenda->start_time,
