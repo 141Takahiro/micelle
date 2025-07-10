@@ -72,7 +72,7 @@ npm run dev
 
 ## アピールポイント
 ・モダンなフレームワークを使用したアプリ構成（Laravel + React)  
-・TailwindCSSを利用したレスポンシブデザイン
+・TailwindCSSを利用したレスポンシブデザイン  
 ・サービス/リクエスト層を利用した責任の分離  
 ・Inertiaを利用したSPA  
 ・Docker＋CI/CDによるテスト及びデプロイの自動化  
